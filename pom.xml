@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.streamx.cli</groupId>
   <artifactId>streamx-cli</artifactId>
-  <version>0.0.1-alpha2</version>
+  <version>0.0.1-alpha3</version>
   <properties>
     <compiler-plugin.version>3.12.1</compiler-plugin.version>
     <maven.compiler.release>21</maven.compiler.release>
@@ -18,7 +18,9 @@
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
     <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
+
     <quarkus.package.type>uber-jar</quarkus.package.type>
+    <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
 
     <!-- TODO change to released version -->
     <streamx.version>0.0.8-SNAPSHOT</streamx.version>
