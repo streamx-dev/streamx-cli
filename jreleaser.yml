@@ -79,4 +79,4 @@ assemble:
         - input: '.'
           includes: [ 'LICENSE' ]
       mainJar:
-        path: target/{{distributionName}}-cli-{{projectVersion}}.jar
+        path: target/{{distributionName}}-cli-{{projectVersion}}-runner.jar
