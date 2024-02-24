@@ -1,0 +1,82 @@
+project:
+  name: streamx
+  description: CLI for StreamX
+  longDescription: |
+    Run and manage StreamX service mesh.
+  authors:
+    - StreamX Team
+  license: EULA
+  copyright: Dynamic Solutions
+  links:
+    homepage: https://www.streamx.dev
+    license: https://github.com/streamx-dev/streamx-cli/blob/main/LICENSE.txt
+  java:
+    groupId: dev.streamx.cli
+    artifactId: streamx-cli
+    version: 17
+  inceptionYear: 2024
+
+  tags:
+    - cli
+    - streamx
+    - java
+
+release:
+  github:
+    owner: streamx-dev
+    name: streamx-cli
+    tagName: "{{projectVersion}}"
+    overwrite: false
+    update:
+      enabled: true
+      sections:
+        - ASSETS
+    skipTag: false
+    changelog:
+      enabled: true
+    milestone:
+      close: false
+
+distributions:
+  streamx:
+    type: JAVA_BINARY
+    executable:
+      name: streamx
+      windowsExtension: bat
+    tags:
+      - streamx
+      - cli
+#    artifacts:
+#      - path: target/streamx-cli-{{projectVersion}}.zip
+#      - path: target/streamx-cli-{{projectVersion}}.tar.gz
+
+packagers:
+  brew:
+    active: ALWAYS
+    continueOnError: false
+    multiPlatform: true
+    extraProperties:
+      skipJava: true
+#  sdkman:
+#    active: ALWAYS
+#    continueOnError: false
+#    connectTimeout: 20
+#    readTimeout: 60
+#    candidate: streamx
+#  chocolatey:
+#    active: ALWAYS
+#    continueOnError: true
+#    remoteBuild: true
+#    iconUrl: https://quarkus.io/assets/images/chocolatey-app-icon.png
+#    packageVersion: '{{projectVersionMajor}}.{{projectVersionMinor}}.{{projectVersionPatch}}'
+
+assemble:
+  javaArchive:
+    streamx:
+      active: ALWAYS
+      formats: [ ZIP, TAR_GZ ]
+      fileSets:
+        - input: '.'
+          includes: [ 'LICENSE' ]
+      mainJar:
+        path: target/{{distributionName}}-cli-{{projectVersion}}.jar
