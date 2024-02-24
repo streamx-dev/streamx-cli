@@ -19,6 +19,9 @@
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
     <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
     <quarkus.package.type>uber-jar</quarkus.package.type>
+
+    <!-- TODO change to released version -->
+    <streamx.version>0.0.8-SNAPSHOT</streamx.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -39,6 +42,15 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>dev.streamx</groupId>
+      <artifactId>streamx-runner</artifactId>
+      <version>${streamx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
