@@ -11,14 +11,16 @@ import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 
 @Command(name = "run", mixinStandardHelpOptions = true)
 public class RunCommand implements Runnable {
 
   private final MeshConfigMapper mapper = new MeshConfigMapper();
-  @Parameters(paramLabel = "<mesh>", description = "Path to mesh definition")
-  String mesh;
+
+  @Option(names = { "-f", "--file" }, paramLabel = "config file",
+      description = "Path to config file with mesh definition")
+  String config;
 
   @Inject
   StreamxRunner runner;
@@ -28,8 +30,8 @@ public class RunCommand implements Runnable {
     try {
       Path path = null;
       ServiceMesh serviceMesh;
-      if (mesh != null) {
-        path = Path.of(mesh);
+      if (config != null) {
+        path = Path.of(config);
         serviceMesh = this.mapper.read(path);
       } else {
         serviceMesh = mapper.read(Main.DEFAULT_MESH_YAML);
