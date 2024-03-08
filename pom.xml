@@ -18,7 +18,7 @@
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
     <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
-    <streamx.version>0.0.12</streamx.version>
+    <streamx.version>0.0.13</streamx.version>
 
     <quarkus.package.type>uber-jar</quarkus.package.type>
     <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
