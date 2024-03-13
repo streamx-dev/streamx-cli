@@ -6,22 +6,30 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import dev.streamx.cli.run.RunCommand.MeshSource;
-import dev.streamx.cli.run.RunConfigResolver.ConfigResolvingResult;
+import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.ParseResult;
 
-class RunConfigResolverTest {
+class MeshDefinitionResolverTest {
 
   private static final String DEFAULT_MESH_PATH = "target/classes/streamx-mesh.yml";
   public static final String CURRENT_DIRECTORY_MESH = "./streamx-mesh.yml";
 
-  RunConfigResolver uut =   new RunConfigResolver();
+  MeshDefinitionResolver uut;
+
+  @BeforeEach
+  void setup() {
+    uut = new MeshDefinitionResolver();
+    uut.parseResult = getParseResult();
+  }
 
   @Test
   void shouldResolveCurrentDirectoryMesh() throws IOException {
@@ -32,7 +40,7 @@ class RunConfigResolverTest {
           StandardCopyOption.REPLACE_EXISTING);
 
       // when
-      ConfigResolvingResult result = uut.resolveConfig(null, getSpec());
+      MeshDefinition result = uut.resolve(null);
 
       // then
       assertNotNull(result);
@@ -44,10 +52,15 @@ class RunConfigResolverTest {
 
   }
 
-  private static CommandSpec getSpec() {
-    CommandSpec mock = Mockito.mock();
-    when(mock.commandLine()).thenReturn(Mockito.mock());
-    return mock;
+  private static ParseResult getParseResult() {
+
+    CommandSpec commandSpec = Mockito.mock();
+    when(commandSpec.commandLine()).thenReturn(Mockito.mock());
+
+    ParseResult parseResult = Mockito.mock();
+    when(parseResult.commandSpec()).thenReturn(commandSpec);
+
+    return parseResult;
   }
 
   @Test
@@ -57,11 +70,11 @@ class RunConfigResolverTest {
     MeshSource meshSource = new MeshSource();
 
     // when
-    Exception exception = catchException(() -> uut.resolveConfig(meshSource, getSpec()));
+    Exception exception = catchException(() -> uut.resolve(meshSource));
 
     // then
     assertThat(exception).isInstanceOf(ParameterException.class);
-    assertThat(exception).hasMessage("StreamX config not found");
+    assertThat(exception).hasMessage("Mesh definition not found");
   }
 
   @Test
@@ -71,7 +84,7 @@ class RunConfigResolverTest {
     meshSource.blueprintsMesh = true;
 
     // when
-    ConfigResolvingResult result = uut.resolveConfig(meshSource, getSpec());
+    MeshDefinition result = uut.resolve(meshSource);
 
     // then
     assertNotNull(result);
@@ -80,14 +93,14 @@ class RunConfigResolverTest {
   }
 
   @Test
-  void shouldResolveGivenConfig() throws IOException {
+  void shouldResolveGivenMeshDefinition() throws IOException {
     // given
     MeshSource meshSource = new MeshSource();
     meshSource.blueprintsMesh = false;
-    meshSource.configFile = "target/classes/streamx-mesh.yml";
+    meshSource.meshDefinitionFile = "target/classes/streamx-mesh.yml";
 
     // when
-    ConfigResolvingResult result = uut.resolveConfig(meshSource, getSpec());
+    MeshDefinition result = uut.resolve(meshSource);
 
     // then
     assertNotNull(result);
