@@ -1,5 +1,6 @@
 package dev.streamx.cli;
 
+import dev.streamx.cli.publish.PublishCommand;
 import dev.streamx.cli.run.RunCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.runtime.Quarkus;
