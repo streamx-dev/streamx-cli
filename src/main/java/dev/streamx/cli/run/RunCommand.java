@@ -45,12 +45,12 @@ public class RunCommand implements Runnable {
     try {
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
 
-      print("1. Observability and event streaming");
-
+      print("Pulling Docker containers, it may take some time ...");
+      new ImagePuller().pullImages(result.serviceMesh());
+      print("Setting up system containers");
       this.runner.startBase(result.serviceMesh().getTenant());
 
-      print("2. Observability and event streaming [OK]");
-      print("3. Starting Mesh");
+      print("Starting DX Mesh");
 
       this.runner.startMesh(result.serviceMesh());
 
