@@ -18,7 +18,7 @@
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
     <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
-<!-- FIXME --> <streamx.version>0.0.13-SNAPSHOT</streamx.version>
+    <streamx.version>0.0.15</streamx.version>
     <assertj-core.version>3.24.2</assertj-core.version>
 
     <quarkus.package.type>uber-jar</quarkus.package.type>

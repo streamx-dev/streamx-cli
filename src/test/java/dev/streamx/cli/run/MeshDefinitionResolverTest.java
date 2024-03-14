@@ -21,7 +21,7 @@ import picocli.CommandLine.ParseResult;
 class MeshDefinitionResolverTest {
 
   private static final String DEFAULT_MESH_PATH = "target/classes/streamx-mesh.yml";
-  public static final String CURRENT_DIRECTORY_MESH = "./streamx-mesh.yml";
+  private static final String CURRENT_DIRECTORY_MESH = "./streamx-mesh.yml";
 
   MeshDefinitionResolver uut;
 
@@ -59,6 +59,7 @@ class MeshDefinitionResolverTest {
 
     ParseResult parseResult = Mockito.mock();
     when(parseResult.commandSpec()).thenReturn(commandSpec);
+    when(parseResult.subcommand()).thenReturn(parseResult);
 
     return parseResult;
   }

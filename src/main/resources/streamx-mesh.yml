@@ -1,5 +1,5 @@
 defaultRegistry: ghcr.io/streamx-dev/streamx-blueprints
-defaultImageTag: latest-jvm # FIXME switch to some specific version of streamx-blueprints
+defaultImageTag: 0.0.8-jvm
 tenant: streamx
 
 processing:
@@ -20,18 +20,37 @@ processing:
       outgoing-web-resources:
         topic: outboxes/web-resources
 
+  json-aggregator:
+    image: json-aggregator-processing-service
+    incoming:
+      data:
+        topic: inboxes/data
+      multivalued-data:
+        topic: inboxes/data
+    outgoing:
+      aggregated-data:
+        topic: relays/aggregated-data
+      aggregated-multivalued-data:
+        topic: inboxes/data
+    environment:
+      STREAMX_BLUEPRINTS_JSON_AGGREGATOR_PROCESSING_SERVICE_CONFIGURATIONS[0]_MASTER_TYPE: pim
+      STREAMX_BLUEPRINTS_JSON_AGGREGATOR_PROCESSING_SERVICE_CONFIGURATIONS[0]_OPTIONAL_TYPES: price,reviews
+      STREAMX_BLUEPRINTS_JSON_AGGREGATOR_PROCESSING_SERVICE_CONFIGURATIONS[0]_OUTPUT_TYPE: product
+      STREAMX_BLUEPRINTS_JSON_AGGREGATOR_PROCESSING_SERVICE_CONFIGURATIONS[1]_MASTER_TYPE: review
+      STREAMX_BLUEPRINTS_JSON_AGGREGATOR_PROCESSING_SERVICE_CONFIGURATIONS[1]_OUTPUT_TYPE: reviews
+
   template-engine:
     image: template-engine-processing-service
     incoming:
       data:
-        topic: inboxes/data
+        topic: relays/aggregated-data
       templates:
         topic: inboxes/templates
     outgoing:
       pages:
         topic: inboxes/pages
       data-retrigger:
-        topic: inboxes/data
+        topic: relays/aggregated-data
     environment:
       STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__TEMPLATE-KEY: template.html
       STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__DATA-KEY-MATCH-PATTERN: .*
