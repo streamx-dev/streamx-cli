@@ -58,6 +58,7 @@ public class RunCommand implements Runnable {
 
       this.runner.startBase(result.serviceMesh().getTenant());
 
+      print("");
       print("Starting DX Mesh...");
 
       this.runner.startMesh(result.serviceMesh());
