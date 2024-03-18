@@ -28,6 +28,8 @@ public class PublishCommandTest {
   private static final String CHANNEL = "pages";
   private static final String BAD_REQUEST_CHANNEL = "bad-request-channel";
   private static final String KEY = "index.html";
+  private static final String DATA = """
+        {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
 
   @RegisterExtension
   static WireMockExtension wm = WireMockExtension.newInstance()
@@ -46,6 +48,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + invalidIngestionUrl,
+        "--data=" + DATA,
         CHANNEL, KEY);
 
     // then
@@ -61,6 +64,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + invalidIngestionUrl,
+        "--data=" + DATA,
         CHANNEL, KEY);
 
     // then
@@ -73,6 +77,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
+        "--data=" + DATA,
         BAD_REQUEST_CHANNEL, KEY);
 
     // then
@@ -101,6 +106,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
+        "--data=" + DATA,
         CHANNEL, KEY);
 
     // then
@@ -115,6 +121,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
+        "--data=" + DATA,
         channel, KEY);
 
     // then

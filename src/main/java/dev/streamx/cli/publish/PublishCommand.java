@@ -33,9 +33,9 @@ public class PublishCommand implements Runnable {
     ingestionClientContext.setIngestionUrl(ingestionUrl);
   };
 
-  // FIXME remove default
-  @Option(names = {"-d", "--data"}, defaultValue = """
-        {"content": {"bytes": "<h1>Hello World!</h1>"}}""")
+  @Option(names = {"-d", "--data"},
+      description = "Published payload",
+      required = true)
   String data;
 
   @Spec
