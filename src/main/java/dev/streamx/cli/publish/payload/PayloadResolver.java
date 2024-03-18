@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @ApplicationScoped
 public class PayloadResolver {
@@ -12,14 +15,34 @@ public class PayloadResolver {
 
   public JsonNode createPayload(String data) {
     try {
-      JsonNode jsonNode = objectMapper.readValue(data, JsonNode.class);
+      String payload = getPayload(data);
+      JsonNode jsonNode = objectMapper.readValue(payload, JsonNode.class);
 
-      // TODO support loading Payload from file
       // TODO replace jsonpath
 
       return jsonNode;
     } catch (JsonProcessingException e) {
-      throw new PayloadException(e);
+      throw PayloadException.jsonProcessingException(e);
+    } catch (IOException e) {
+      throw PayloadException.ioException(e);
+    }
+  }
+
+  private static String getPayload(String data) throws IOException {
+    if (data.startsWith("@")) {
+      return readPayloadFromFile(data);
+    } else {
+      return data;
+    }
+  }
+
+  private static String readPayloadFromFile(String data) {
+    try {
+      Path path = Path.of(data.substring(1));
+
+      return Files.readString(path);
+    } catch (IOException e) {
+      throw PayloadException.fileReadingException(e);
     }
   }
 }
