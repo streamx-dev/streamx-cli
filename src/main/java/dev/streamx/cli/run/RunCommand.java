@@ -18,6 +18,14 @@ import picocli.CommandLine.Spec;
 @Command(name = "run", mixinStandardHelpOptions = true)
 public class RunCommand implements Runnable {
 
+  private static final String BANNER = """
+       ____  _                           __  __
+      / ___|| |_ _ __ ___  __ _ _ __ ___ \\ \\/ /
+      \\___ \\| __| '__/ _ \\/ _` | '_ ` _ \\ \\  /\s
+       ___) | |_| | |  __/ (_| | | | | | |/  \\\s
+      |____/ \\__|_|  \\___|\\__,_|_| |_| |_/_/\\_\\
+                                               \s""";
+
   @Spec
   CommandLine.Model.CommandSpec spec;
 
@@ -43,14 +51,15 @@ public class RunCommand implements Runnable {
   @Override
   public void run() {
     try {
+      print(BANNER);
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
 
-      print("1. Observability and event streaming");
+      print("Setting up system containers...");
 
       this.runner.startBase(result.serviceMesh().getTenant());
 
-      print("2. Observability and event streaming [OK]");
-      print("3. Starting Mesh");
+      print("");
+      print("Starting DX Mesh...");
 
       this.runner.startMesh(result.serviceMesh());
 
@@ -62,7 +71,7 @@ public class RunCommand implements Runnable {
   }
 
   void onContainerStarted(@Observes ContainerStarted event) {
-    print("   - " + event.getContainerName() + " ready.");
+    print("- " + event.getContainerName() + " ready.");
   }
 
   private static void print(String x) {
