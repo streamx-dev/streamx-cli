@@ -15,7 +15,7 @@ public class TestContainerLogFilter  implements Filter {
     Level level = record.getLevel();
 
     return level.intValue() >= Level.WARNING.intValue() || Stream.of(
-        "Pulling image",
+            "Pulling image",
             "Pull complete.",
             "Pulling docker image",
             "Starting to pull image"
