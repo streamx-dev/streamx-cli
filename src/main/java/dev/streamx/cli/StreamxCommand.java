@@ -18,9 +18,14 @@ public class StreamxCommand implements QuarkusApplication {
   @Inject
   CommandLine.IFactory factory;
 
+  @Inject
+  ExceptionHandler exceptionHandler;
+
   @Override
   public int run(String... args) throws Exception {
-    return new CommandLine(this, factory).execute(args);
+    return new CommandLine(this, factory)
+        .setExecutionExceptionHandler(exceptionHandler)
+        .execute(args);
   }
 
   public static void main(String... args) {
