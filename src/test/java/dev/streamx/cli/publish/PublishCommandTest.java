@@ -136,7 +136,7 @@ public class PublishCommandTest {
 
   private static void stubSchemas() {
     String response = """
-        {"pages":{"type":"record","name":"Page","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]},"bad-request-channel":{"type":"record","name":"Whatever","namespace":"dev.streamx.blueprints.data","fields":[]},"assets":{"type":"record","name":"Asset","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]},"data":{"type":"record","name":"Data","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]},"templates":{"type":"record","name":"Template","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]},"web-resources":{"type":"record","name":"WebResource","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]}}""";
+        {"pages":{"type":"record","name":"Page","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]},"bad-request-channel":{"type":"record","name":"Whatever","namespace":"dev.streamx.blueprints.data","fields":[]}}""";
 
     wm.stubFor(WireMock.get(getSchema())
         .willReturn(responseDefinition().withStatus(SC_OK).withBody(response)

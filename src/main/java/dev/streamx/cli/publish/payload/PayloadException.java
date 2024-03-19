@@ -1,6 +1,5 @@
 package dev.streamx.cli.publish.payload;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 
 public class PayloadException extends RuntimeException {
@@ -8,7 +7,7 @@ public class PayloadException extends RuntimeException {
     super(prefix + exception.getMessage(), exception);
   }
 
-  public static PayloadException jsonProcessingException(JsonProcessingException exception) {
+  public static PayloadException jsonProcessingException(Exception exception) {
     return new PayloadException("Json processing exception. ", exception);
   }
 

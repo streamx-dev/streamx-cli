@@ -8,6 +8,7 @@ import dev.streamx.cli.publish.payload.PayloadResolver;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
+import java.util.List;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Model.CommandSpec;
@@ -31,12 +32,17 @@ public class PublishCommand implements Runnable {
       defaultValue = "http://localhost:8080")
   void propagateIngestionUrl(String ingestionUrl) {
     ingestionClientContext.setIngestionUrl(ingestionUrl);
-  };
+  }
 
   @Option(names = {"-d", "--data"},
       description = "Published payload",
       required = true)
   String data;
+
+  @Option(names = {"-v", "--value"},
+      description = "Pair of JsonPath and it's replacements"
+  )
+  List<String> values = List.of();
 
   @Spec
   CommandSpec spec;
@@ -57,7 +63,7 @@ public class PublishCommand implements Runnable {
   public void run() {
     provideSchema();
 
-    JsonNode jsonNode = payloadResolver.createPayload(data);
+    JsonNode jsonNode = payloadResolver.createPayload(data, values);
 
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var pagePublisher = client.newPublisher(channel, JsonNode.class);
