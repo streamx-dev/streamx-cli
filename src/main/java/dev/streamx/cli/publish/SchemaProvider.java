@@ -28,13 +28,11 @@ class SchemaProvider {
   @Inject
   IngestionClientContext ingestionClientContext;
 
-  JsonNode provideSchema(String channel) {
+  void validateChannel(String channel) {
     String ingestionUrl = ingestionClientContext.getIngestionUrl();
     Map<String, JsonNode> schemas = fetchSchema(ingestionUrl);
 
     validateChannel(channel, schemas);
-
-    return schemas.get(channel);
   }
 
   private void validateChannel(String channel, Map<String, JsonNode> stringJsonNodeMap) {

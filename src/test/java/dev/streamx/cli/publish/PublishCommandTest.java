@@ -82,7 +82,7 @@ public class PublishCommandTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Ingestion client exception. Message: Publication Ingestion REST endpoint known error. Code: INVALID_PUBLICATION_PAYLOAD. Message: Error message");
+    assertThat(result.getErrorOutput()).contains("Publication Ingestion REST endpoint known error. Code: INVALID_PUBLICATION_PAYLOAD. Message: Error message");
   }
 
   @Test
@@ -98,7 +98,7 @@ public class PublishCommandTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Json processing exception");
+    assertThat(result.getErrorOutput()).contains("Payload could not be parsed.");
   }
 
   @Test

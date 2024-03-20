@@ -55,22 +55,22 @@ public class PublishCommand implements Runnable {
 
   @Override
   public void run() {
-    provideSchema();
+    validateChannel();
 
     JsonNode jsonNode = payloadResolver.createPayload(data);
 
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
-      var pagePublisher = client.newPublisher(channel, JsonNode.class);
+      var jsonPublisher = client.newPublisher(channel, JsonNode.class);
 
-      pagePublisher.publish(key, jsonNode);
+      jsonPublisher.publish(key, jsonNode);
     } catch (StreamxClientException e) {
       throw new IngestionClientException(e);
     }
   }
 
-  private JsonNode provideSchema() {
+  private void validateChannel() {
     try {
-      return schemaProvider.provideSchema(channel);
+      schemaProvider.validateChannel(channel);
     } catch (UnknownChannelException exception) {
       throw new ParameterException(spec.commandLine(),
           "Channel '" + exception.getChannel() + "' not found. "
