@@ -32,7 +32,7 @@ class PayloadResolverTest {
 
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
-    assertThat(exception).hasMessageContaining("Json processing exception. ");
+    assertThat(exception).hasMessageContaining("Payload could not be parsed.");
   }
 
   @Test
@@ -45,7 +45,7 @@ class PayloadResolverTest {
 
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
-    assertThat(exception).hasMessageContaining("File reading exception. Path: ");
+    assertThat(exception).hasMessageContaining("File do not exists.");
   }
 
   @Test
@@ -58,7 +58,7 @@ class PayloadResolverTest {
 
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
-    assertThat(exception).hasMessageContaining("Json processing exception. ");
+    assertThat(exception).hasMessageContaining("Payload could not be parsed.");
   }
 
   @Test

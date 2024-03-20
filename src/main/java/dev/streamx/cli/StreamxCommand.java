@@ -25,6 +25,7 @@ public class StreamxCommand implements QuarkusApplication {
   public int run(String... args) throws Exception {
     return new CommandLine(this, factory)
         .setExecutionExceptionHandler(exceptionHandler)
+        .setExpandAtFiles(false)
         .execute(args);
   }
 

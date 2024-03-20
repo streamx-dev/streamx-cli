@@ -1,5 +1,7 @@
 package dev.streamx.cli.publish.payload;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
@@ -16,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +27,10 @@ import org.apache.commons.lang3.tuple.Pair;
 @ApplicationScoped
 public class PayloadResolver {
 
+//  private static final ObjectMapper objectMapper = new ObjectMapper();
+//  static {
+//    objectMapper.enable(Feature.ALLOW_SINGLE_QUOTES);
+//  }
   private final JsonProvider jsonProvider;
   private final MappingProvider mappingProvider;
 
@@ -42,9 +49,16 @@ public class PayloadResolver {
 
   public JsonNode createPayload(String data, List<String> values) {
     try {
-      return doCreatePayload(data, values);
-    } catch (InvalidJsonException | JsonProcessingException e) {
-      throw PayloadException.jsonProcessingException(e);
+      JsonNode payload = doCreatePayload(data, values);
+//    } catch (JsonParseException e) {
+//      throw PayloadException.jsonParseException(e, payload);
+//    } catch (JsonProcessingException e) {
+//      throw PayloadException.genericJsonProcessingException(e, payload);
+//      return doCreatePayload(data, values);
+//    } catch (InvalidJsonException | JsonProcessingException e) {
+//      throw PayloadException.jsonProcessingException(e);
+
+      return payload;
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }
@@ -59,9 +73,25 @@ public class PayloadResolver {
   }
 
   private static DocumentContext prepareJsonPayloadSource(String data) {
-    String payload = readContent(data);
+    String payload = null;
+    try {
+      payload = readContent(data);
 
-    return JsonPath.parse(payload);
+      return JsonPath.parse(payload);
+    } catch (JsonParseException e) {
+      throw PayloadException.jsonParseException(e, payload);
+    } catch (JsonProcessingException e) {
+      throw PayloadException.genericJsonProcessingException(e, payload);
+    } catch (IOException e) {
+      throw PayloadException.ioException(e);
+    }
+//    } catch (JsonParseException e) {
+//      throw PayloadException.jsonParseException(e, payload);
+//    } catch (JsonProcessingException e) {
+//      throw PayloadException.genericJsonProcessingException(e, payload);
+//    } catch (IOException e) {
+//      throw PayloadException.ioException(e);
+//    }
   }
 
   private void replaceValues(DocumentContext documentContext, List<String> values) {
@@ -88,12 +118,13 @@ public class PayloadResolver {
   }
 
   private static String readPayloadFromFile(String data) {
+    Path path = Path.of(data.substring(1));
     try {
-      Path path = Path.of(data.substring(1));
-
       return Files.readString(path);
+    } catch (NoSuchFileException e) {
+      throw PayloadException.noSuchFileException(e, path);
     } catch (IOException e) {
-      throw PayloadException.fileReadingException(e);
+      throw PayloadException.fileReadingException(e, path);
     }
   }
 
