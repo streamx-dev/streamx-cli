@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.catchException;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.jayway.jsonpath.JsonPath;
+import dev.streamx.cli.exception.ValueException;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -28,7 +29,7 @@ class ValueReplacementExtractorTest {
     // then
     assertThat(exception)
         .isInstanceOf(ValueException.class)
-        .hasMessageContaining("Could not extract jsonPath from arg");
+        .hasMessageContaining("Could not find valid jsonPath in given argument");
   }
 
   @ParameterizedTest

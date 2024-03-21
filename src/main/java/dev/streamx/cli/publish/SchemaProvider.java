@@ -5,10 +5,13 @@ import static dev.streamx.cli.util.ExceptionUtils.sneakyThrow;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.streamx.cli.exception.UnableToConnectIngestionServiceException;
+import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestionclient.IngestionClientContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -56,6 +59,8 @@ class SchemaProvider {
 
       ObjectMapper objectMapper = new ObjectMapper();
       return objectMapper.readValue(body, new TypeReference<>() {});
+    } catch (ConnectException e) {
+      throw new UnableToConnectIngestionServiceException(ingestionUrl);
     } catch (IOException e) {
       throw sneakyThrow(e);
     }

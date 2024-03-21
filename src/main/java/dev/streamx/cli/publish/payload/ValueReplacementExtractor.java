@@ -2,6 +2,7 @@ package dev.streamx.cli.publish.payload;
 
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
+import dev.streamx.cli.exception.ValueException;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.tuple.Pair;
 

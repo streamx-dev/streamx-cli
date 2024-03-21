@@ -42,12 +42,71 @@ public class PublishPayloadCommandTest {
   }
 
   @Test
+  public void shouldRejectInvalidJsonPath(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-v","content.b[]ytes='<h1>Hello changed value!</h1>'",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isNotZero();
+    assertThat(result.getErrorOutput()).contains("Could not find valid jsonPath in given argument.");
+  }
+
+  @Test
+  public void shouldRejectNonExistingFile(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-v","content.bytes=@nana",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isNotZero();
+    assertThat(result.getErrorOutput()).contains("File do not exists.");
+  }
+
+  @Test
+  public void shouldRejectInvalidFile(QuarkusMainLauncher launcher) {
+    // given
+    String corruptedPathArg = "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-v","content.bytes=" + corruptedPathArg,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isNotZero();
+    assertThat(result.getErrorOutput()).contains("JsonPath replacement could not be parsed.");
+  }
+
+  @Test
+  public void shouldRejectNonExistingJsonPath(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-v","content.byte='<h1>Hello changed value!</h1>'",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isNotZero();
+    assertThat(result.getErrorOutput()).contains("JsonPath could not be found.");
+  }
+
+  @Test
   public void shouldPublishReplacedJsonPath(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes=<h1>Hello changed value!</h1>",
+        "-v","content.bytes='<h1>Hello changed value!</h1>'",
         CHANNEL, KEY);
 
     // then
@@ -57,13 +116,63 @@ public class PublishPayloadCommandTest {
   }
 
   @Test
-  public void shouldPublishReplacedLatestJsonPath(QuarkusMainLauncher launcher) {
+  public void shouldPublishReplacedWithObjectJsonPath(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes=<h1>Hello changed value!</h1>",
-        "-v","$..bytes=bytes",
+        "-v","content={'bytes':'<h1>Hello changed value!</h1>'}",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+  }
+
+  @Test
+  public void shouldPublishReplacedFromFile(QuarkusMainLauncher launcher) {
+    // given
+    String arg = "@target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-v","content.bytes=" + arg,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(equalToJson("""
+            {"content": {"bytes": {"nana": "lele"}}}""")));
+  }
+
+  @Test
+  public void shouldPublishReplacedWithNull(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-v","content.bytes=",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(equalToJson("""
+            {"content": {"bytes": null}}""")));
+  }
+
+  @Test
+  public void shouldPublishTwiceReplacedJsonPath(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-v","content.bytes='<h1>Hello changed value!</h1>'",
+        "-v","$..bytes='bytes'",
         CHANNEL, KEY);
 
     // then

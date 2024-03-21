@@ -46,7 +46,7 @@ public class PayloadException extends RuntimeException {
         + "Details: " + exception.getMessage(), exception);
   }
 
-  public static PayloadException ioException(IOException exception) {
+  public static PayloadException ioException(Exception exception) {
     return new PayloadException(exception.getMessage(), exception);
   }
 }

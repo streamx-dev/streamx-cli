@@ -1,6 +1,7 @@
 package dev.streamx.cli.publish;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestionclient.IngestionClientContext;
 import dev.streamx.cli.ingestionclient.IngestionClientException;
 import dev.streamx.cli.ingestionclient.StreamxClientProvider;
