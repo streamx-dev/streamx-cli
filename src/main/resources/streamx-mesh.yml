@@ -1,5 +1,5 @@
 defaultRegistry: ghcr.io/streamx-dev/streamx-blueprints
-defaultImageTag: 0.0.8-jvm
+defaultImageTag: 0.0.10-jvm
 tenant: streamx
 
 processing:
@@ -8,6 +8,8 @@ processing:
     incoming:
       incoming-pages:
         topic: inboxes/pages
+      incoming-page-fragments:
+        topic: inboxes/page-fragments
       incoming-assets:
         topic: inboxes/assets
       incoming-web-resources:
@@ -15,6 +17,8 @@ processing:
     outgoing:
       outgoing-pages:
         topic: outboxes/pages
+      outgoing-page-fragments:
+        topic: outboxes/page-fragments
       outgoing-assets:
         topic: outboxes/assets
       outgoing-web-resources:
@@ -39,7 +43,7 @@ processing:
       STREAMX_BLUEPRINTS_JSON_AGGREGATOR_PROCESSING_SERVICE_CONFIGURATIONS[1]_MASTER_TYPE: review
       STREAMX_BLUEPRINTS_JSON_AGGREGATOR_PROCESSING_SERVICE_CONFIGURATIONS[1]_OUTPUT_TYPE: reviews
 
-  template-engine:
+  pages-template-engine-processing-service:
     image: template-engine-processing-service
     incoming:
       data:
@@ -47,14 +51,53 @@ processing:
       templates:
         topic: inboxes/templates
     outgoing:
-      pages:
+      content:
         topic: inboxes/pages
       data-retrigger:
         topic: relays/aggregated-data
     environment:
+      MP_MESSAGING_OUTGOING_CONTENT_SCHEMA: page-schema
       STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__TEMPLATE-KEY: template.html
-      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__DATA-KEY-MATCH-PATTERN: .*
-      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__OUTPUT-PAGE-KEY-TEMPLATE: generated/{{id}}.html
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__DATA-KEY-MATCH-PATTERN: product:.*
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__OUTPUT-KEY-TEMPLATE: generated/{{id}}.html
+
+  page-fragments-template-engine-processing-service:
+    image: template-engine-processing-service
+    incoming:
+      data:
+        topic: relays/aggregated-data
+      templates:
+        topic: inboxes/templates
+    outgoing:
+      content:
+        topic: inboxes/page-fragments
+      data-retrigger:
+        topic: relays/aggregated-data
+    environment:
+      MP_MESSAGING_OUTGOING_CONTENT_SCHEMA: page-fragment-schema
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__TEMPLATE-KEY: fragment-template.html
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__DATA-KEY-MATCH-PATTERN: product:.*
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_0__OUTPUT-KEY-TEMPLATE: generated/{{id}}.fragment.html
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_1__TEMPLATE-KEY: products-list-template.html
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_1__DATA-KEY-MATCH-PATTERN: collected:products:.*
+      STREAMX_BLUEPRINTS_TEMPLATE-ENGINE-PROCESSING-SERVICE_CONFIGURATIONS_1__OUTPUT-KEY-TEMPLATE: generated/fragments/{{key}}.products-list.html
+
+  data-collector-processing-service:
+    image: data-collector-processing-service
+    incoming:
+      data:
+        topic: relays/aggregated-data
+    outgoing:
+      collected-data:
+        topic: relays/aggregated-data
+    environment:
+      STREAMX_BLUEPRINTS_DATA-COLLECTOR-PROCESSING-SERVICE_CONFIGURATIONS_CHEAPEST-PRODUCTS-BY-CATEGORY_DATA-KEY-MATCH-PATTERN: product:.*
+      STREAMX_BLUEPRINTS_DATA-COLLECTOR-PROCESSING-SERVICE_CONFIGURATIONS_CHEAPEST-PRODUCTS-BY-CATEGORY_COLLECTOR: aggregate-by-property-value
+      STREAMX_BLUEPRINTS_DATA-COLLECTOR-PROCESSING-SERVICE_CONFIGURATIONS_CHEAPEST-PRODUCTS-BY-CATEGORY_PROPERTIES_OUTPUT-KEY-PREFIX: "collected:products:cheapest-by-category:"
+      STREAMX_BLUEPRINTS_DATA-COLLECTOR-PROCESSING-SERVICE_CONFIGURATIONS_CHEAPEST-PRODUCTS-BY-CATEGORY_PROPERTIES_GROUP-BY: category
+      STREAMX_BLUEPRINTS_DATA-COLLECTOR-PROCESSING-SERVICE_CONFIGURATIONS_CHEAPEST-PRODUCTS-BY-CATEGORY_PROPERTIES_SORT-BY: price/value
+      STREAMX_BLUEPRINTS_DATA-COLLECTOR-PROCESSING-SERVICE_CONFIGURATIONS_CHEAPEST-PRODUCTS-BY-CATEGORY_PROPERTIES_SORT-MODE: asc
+      STREAMX_BLUEPRINTS_DATA-COLLECTOR-PROCESSING-SERVICE_CONFIGURATIONS_CHEAPEST-PRODUCTS-BY-CATEGORY_PROPERTIES_MAX: 8
 
   sitemap-generator:
     image: sitemap-generator-processing-service
@@ -83,6 +126,8 @@ delivery:
     incoming:
       pages:
         topic: outboxes/pages
+      page-fragments:
+        topic: outboxes/page-fragments
       assets:
         topic: outboxes/assets
       web-resources:
