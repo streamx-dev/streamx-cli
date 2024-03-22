@@ -2,6 +2,7 @@ package dev.streamx.cli;
 
 import dev.streamx.cli.publish.PublishCommand;
 import dev.streamx.cli.run.RunCommand;
+import dev.streamx.cli.unpublish.UnpublishCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
@@ -12,7 +13,8 @@ import picocli.CommandLine.Command;
 
 @QuarkusMain(name = "StreamX CLI Main")
 @TopCommand
-@Command(mixinStandardHelpOptions = true, subcommands = {RunCommand.class, PublishCommand.class})
+@Command(mixinStandardHelpOptions = true,
+    subcommands = {RunCommand.class, PublishCommand.class, UnpublishCommand.class})
 public class StreamxCommand implements QuarkusApplication {
 
   @Inject

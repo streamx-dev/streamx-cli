@@ -1,4 +1,4 @@
-package dev.streamx.cli.publish;
+package dev.streamx.cli.unpublish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
@@ -24,12 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusMainTest
-public class PublishCommandTest {
+public class UnpublishCommandTest {
   private static final String CHANNEL = "pages";
-  private static final String BAD_REQUEST_CHANNEL = "bad-request-channel";
   private static final String KEY = "index.html";
-  private static final String DATA = """
-        {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
 
   @RegisterExtension
   static WireMockExtension wm = WireMockExtension.newInstance()
@@ -40,75 +37,12 @@ public class PublishCommandTest {
     initializeWiremock();
   }
 
-//  FIXME move to ingestion tests
-  @Test
-  public void shouldRejectIllegalIngestionUrl(QuarkusMainLauncher launcher) {
-    // given
-    String invalidIngestionUrl = "hattetepe:///in valid";
-
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + invalidIngestionUrl,
-        "--data=" + DATA,
-        CHANNEL, KEY);
-
-    // then
-    assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Illegal character in path at index 15");
-  }
-
-  //  FIXME move to ingestion tests
-  @Test
-  public void shouldRejectInvalidHostInIngestionUrl(QuarkusMainLauncher launcher) {
-    // given
-    String invalidIngestionUrl = "hattetepe:///invalid";
-
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + invalidIngestionUrl,
-        "--data=" + DATA,
-        CHANNEL, KEY);
-
-    // then
-    assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("URI does not specify a valid host name");
-  }
 
   @Test
-  public void shouldHandleBadRequestFromRestIngestionApi(QuarkusMainLauncher launcher) {
+  public void shouldUnpublishUsingIngestionClient(QuarkusMainLauncher launcher) {
     // when
-    LaunchResult result = launcher.launch("publish",
+    LaunchResult result = launcher.launch("unpublish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
-        BAD_REQUEST_CHANNEL, KEY);
-
-    // then
-    assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Publication Ingestion REST endpoint known error. Code: INVALID_PUBLICATION_PAYLOAD. Message: Error message");
-  }
-
-  @Test
-  public void shouldRejectInvalidDataJson(QuarkusMainLauncher launcher) {
-    // given
-    String invalidJson = "asdf{][";
-
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + invalidJson,
-        BAD_REQUEST_CHANNEL, KEY);
-
-    // then
-    assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Payload could not be parsed.");
-  }
-
-  @Test
-  public void shouldPublishUsingIngestionClient(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
         CHANNEL, KEY);
 
     // then
@@ -121,9 +55,8 @@ public class PublishCommandTest {
     String channel = "channel";
 
     // when
-    LaunchResult result = launcher.launch("publish",
+    LaunchResult result = launcher.launch("unpublish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
         channel, KEY);
 
     // then
@@ -149,13 +82,8 @@ public class PublishCommandTest {
 
   private static void stubPublication() {
     PublisherSuccessResult result = new PublisherSuccessResult(123456L);
-    wm.stubFor(WireMock.put(getPublicationPath(PublishCommandTest.CHANNEL, PublishCommandTest.KEY))
+    wm.stubFor(WireMock.delete(getPublicationPath(UnpublishCommandTest.CHANNEL, UnpublishCommandTest.KEY))
         .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
-            .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
-
-    FailureResponse badRequest  = new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message");
-    wm.stubFor(WireMock.put(getPublicationPath(PublishCommandTest.BAD_REQUEST_CHANNEL, PublishCommandTest.KEY))
-        .willReturn(responseDefinition().withStatus(SC_BAD_REQUEST).withBody(Json.write(badRequest))
             .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
   }
 

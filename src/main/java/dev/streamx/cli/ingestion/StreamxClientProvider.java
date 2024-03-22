@@ -1,4 +1,4 @@
-package dev.streamx.cli.ingestionclient;
+package dev.streamx.cli.ingestion;
 
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;

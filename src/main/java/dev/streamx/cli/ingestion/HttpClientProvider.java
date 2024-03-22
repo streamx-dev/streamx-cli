@@ -1,4 +1,4 @@
-package dev.streamx.cli.ingestionclient;
+package dev.streamx.cli.ingestion;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;

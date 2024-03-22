@@ -1,4 +1,4 @@
-package dev.streamx.cli.publish;
+package dev.streamx.cli.ingestion;
 
 import static dev.streamx.cli.util.ExceptionUtils.sneakyThrow;
 
@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.exception.UnableToConnectIngestionServiceException;
 import dev.streamx.cli.exception.UnknownChannelException;
-import dev.streamx.cli.ingestionclient.IngestionClientContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -23,7 +22,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 @ApplicationScoped
-class SchemaProvider {
+public class SchemaProvider {
 
   @Inject
   CloseableHttpClient httpClient;
@@ -31,7 +30,7 @@ class SchemaProvider {
   @Inject
   IngestionClientContext ingestionClientContext;
 
-  void validateChannel(String channel) {
+  public void validateChannel(String channel) {
     String ingestionUrl = ingestionClientContext.getIngestionUrl();
     Map<String, JsonNode> schemas = fetchSchema(ingestionUrl);
 
