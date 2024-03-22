@@ -17,6 +17,7 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
+import dev.streamx.cli.exception.PayloadException;
 import dev.streamx.cli.exception.ValueException;
 import dev.streamx.cli.ingestion.publish.ValueArguments;
 import jakarta.enterprise.context.ApplicationScoped;

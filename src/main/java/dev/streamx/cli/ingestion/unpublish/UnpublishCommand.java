@@ -3,8 +3,7 @@ package dev.streamx.cli.ingestion.unpublish;
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
-import dev.streamx.cli.ingestion.IngestionClientContext;
-import dev.streamx.cli.ingestion.IngestionClientException;
+import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.ingestion.IngestionTargetArguments;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
@@ -13,11 +12,8 @@ import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 @Command(name = "unpublish", mixinStandardHelpOptions = true)
