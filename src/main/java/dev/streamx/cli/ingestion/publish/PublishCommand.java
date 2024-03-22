@@ -11,31 +11,23 @@ import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
 @Command(name = "publish", mixinStandardHelpOptions = true)
 public class PublishCommand implements Runnable {
 
-  @ArgGroup(exclusive = false)
+  @ArgGroup(exclusive = false, multiplicity = "1")
   IngestionTargetArguments ingestionTargetArguments;
 
   @ArgGroup(exclusive = false)
   IngestionArguments ingestionArguments;
 
-  @Option(names = {"-d", "--data"},
-      description = "Published payload",
-      required = true)
-  String data;
-
-  @ArgGroup(exclusive = false, multiplicity = "0..*")
-  List<ValueArguments> values = new ArrayList<>();
+  @ArgGroup(exclusive = false, heading = "Payload arguments:\n")
+  PayloadArguments payloadArguments;
 
   @Spec
   CommandSpec spec;
@@ -53,7 +45,8 @@ public class PublishCommand implements Runnable {
   public void run() {
     validateChannel();
 
-    JsonNode jsonNode = payloadResolver.createPayload(data, values);
+    JsonNode jsonNode = payloadResolver.createPayload(
+        payloadArguments.data, payloadArguments.values);
 
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
