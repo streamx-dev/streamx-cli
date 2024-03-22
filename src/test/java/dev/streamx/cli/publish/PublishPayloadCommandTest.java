@@ -2,6 +2,7 @@ package dev.streamx.cli.publish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -16,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
@@ -83,7 +85,7 @@ public class PublishPayloadCommandTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("JsonPath replacement could not be parsed.");
+    assertThat(result.getErrorOutput()).contains("Replacement is not recognised as valid JSON.");
   }
 
   @Test
@@ -179,6 +181,57 @@ public class PublishPayloadCommandTest {
     assertThat(result.exitCode()).isZero();
     wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
         .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"bytes\"}}")));
+  }
+
+  @Test
+  public void shouldPublishReplacedJsonPathWithStringValue(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-sv","content.bytes=<h1>Hello changed value!</h1>",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+  }
+
+  @Test
+  public void shouldPublishReplacedJsonPathWithStringValueFromFile(QuarkusMainLauncher launcher) {
+    // given
+    String arg = "@target/test-classes/dev/streamx/cli/publish/payload/raw-text.txt";
+
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-sv","content.bytes=" + arg,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>This works ąćpretty well...</h1>\"}}")));
+  }
+
+  @Test
+  public void shouldPublishReplacedJsonPathWithBinaryValue(QuarkusMainLauncher launcher) {
+    // given
+    String arg = "@target/test-classes/dev/streamx/cli/publish/payload/example-image.png";
+
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-d", DATA,
+        "-sv","content.bytes=" + arg,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(matchingJsonPath("content.bytes", new ContainsPattern("PNG"))));
   }
 
   private static void initializeWiremock() {

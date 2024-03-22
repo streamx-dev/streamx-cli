@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidJsonException;
@@ -17,9 +18,11 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import dev.streamx.cli.exception.ValueException;
+import dev.streamx.cli.publish.PublishCommand.ValueArguments;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import org.apache.avro.util.internal.JacksonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -53,16 +57,15 @@ public class PayloadResolver {
     return createPayload(data, List.of());
   }
 
-  public JsonNode createPayload(String data, List<String> values) {
+  public JsonNode createPayload(String data, List<ValueArguments> values) {
     try {
-      JsonNode payload = doCreatePayload(data, values);
-      return payload;
+      return doCreatePayload(data, values);
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }
   }
 
-  private JsonNode doCreatePayload(String data, List<String> values) throws IOException {
+  private JsonNode doCreatePayload(String data, List<ValueArguments> values) throws IOException {
     DocumentContext documentContext = prepareWrappedJsonNode(
         data,
         (exception, source) -> { throw PayloadException.jsonParseException(exception, source); },
@@ -80,7 +83,7 @@ public class PayloadResolver {
       ) {
     String source = null;
     try {
-      source = readContent(data);
+      source = readStringContent(data);
 
       String nullSafeSource = Optional.ofNullable(source)
           .filter(StringUtils::isNotEmpty)
@@ -98,23 +101,19 @@ public class PayloadResolver {
     }
   }
 
-  private void replaceValues(DocumentContext documentContext, List<String> values) {
-    if (values == null || values.isEmpty()) {
+  private void replaceValues(DocumentContext documentContext, List<ValueArguments> valueArguments) {
+    if (valueArguments == null || valueArguments.isEmpty()) {
       return;
     }
 
-    for (String value: values) {
-      Pair<JsonPath, String> extract = valueReplacementExtractor.extract(value);
+    for (ValueArguments valueArgument: valueArguments) {
+      Pair<JsonPath, String> extract = valueReplacementExtractor.extract(valueArgument.getValue());
 
       JsonPath jsonPath = extract.getKey();
-      DocumentContext replacement = prepareWrappedJsonNode(
-          extract.getValue(),
-          (exception, source) -> { throw ValueException.jsonParseException(exception, jsonPath, source); },
-          (exception, source) -> { throw ValueException.genericJsonProcessingException(exception, jsonPath, source); }
-      );
+      JsonNode replacement = extractReplacement(valueArgument, extract, jsonPath);
 
       try {
-        documentContext = documentContext.set(jsonPath, replacement.json());
+        documentContext = documentContext.set(jsonPath, replacement);
       } catch (PathNotFoundException e) {
         throw ValueException.pathNotFoundException(jsonPath);
       } catch (IllegalArgumentException | InvalidPathException e) {
@@ -123,18 +122,48 @@ public class PayloadResolver {
     }
   }
 
-  private static String readContent(String data) {
-    if (data.startsWith("@")) {
-      return readPayloadFromFile(data);
+  private static JsonNode extractReplacement(ValueArguments valueArgument, Pair<JsonPath, String> extract,
+      JsonPath jsonPath) {
+    String value = extract.getValue();
+
+    if (valueArgument.isBinary()) {
+      byte[] bytes = readContent(value);
+
+      return JacksonUtils.toJsonNode(bytes);
+    } else if (valueArgument.isString()) {
+      String content = readStringContent(value);
+
+      return TextNode.valueOf(content);
     } else {
-      return data;
+      return prepareWrappedJsonNode(
+          value,
+          (exception, source) -> { throw ValueException.jsonParseException(exception, jsonPath, source); },
+          (exception, source) -> { throw ValueException.genericJsonProcessingException(exception,
+              jsonPath, source); }
+      ).json();
     }
   }
 
-  private static String readPayloadFromFile(String data) {
+  private static String readStringContent(String argument) {
+    if (argument.startsWith("@")) {
+      return new String(readFile(argument), StandardCharsets.UTF_8);
+    } else {
+      return argument;
+    }
+  }
+
+  private static byte[] readContent(String data) {
+    if (data.startsWith("@")) {
+      return readFile(data);
+    } else {
+      return data.getBytes(StandardCharsets.UTF_8);
+    }
+  }
+
+  private static byte[] readFile(String data) {
     Path path = Path.of(data.substring(1));
     try {
-      return Files.readString(path);
+      return Files.readAllBytes(path);
     } catch (NoSuchFileException e) {
       throw PayloadException.noSuchFileException(e, path);
     } catch (IOException e) {

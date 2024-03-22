@@ -23,7 +23,7 @@ public class ValueException extends RuntimeException {
   public static ValueException jsonParseException(JsonParseException exception,
       JsonPath jsonPath, String value) {
     return new ValueException("""
-        JsonPath replacement could not be parsed.
+        Replacement is not recognised as valid JSON.
 
         Supplied JsonPath:
         %s
@@ -31,6 +31,7 @@ public class ValueException extends RuntimeException {
         %s
         
         Make sure that:
+         * you need JSON as replacement (alternatively use '-s' to indicate replacement is raw text or use '-b' to indicate replacement is binary data),
          * it's valid JSON,
          * object property names are properly single-quoted (') or double-quoted ("),
          * strings are properly single-quoted (') or double-quoted (")
@@ -42,7 +43,7 @@ public class ValueException extends RuntimeException {
   public static ValueException genericJsonProcessingException(Exception exception,
       JsonPath jsonPath, String value) {
     return new ValueException("""
-        JsonPath replacement could not be parsed.
+        Replacement could not be parsed.
 
         Supplied JsonPath:
         %s
