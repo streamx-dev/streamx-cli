@@ -1,8 +1,8 @@
 package dev.streamx.cli;
 
-import dev.streamx.cli.publish.PublishCommand;
+import dev.streamx.cli.ingestion.publish.PublishCommand;
 import dev.streamx.cli.run.RunCommand;
-import dev.streamx.cli.unpublish.UnpublishCommand;
+import dev.streamx.cli.ingestion.unpublish.UnpublishCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;

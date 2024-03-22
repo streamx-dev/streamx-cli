@@ -1,4 +1,4 @@
-package dev.streamx.cli.publish;
+package dev.streamx.cli.ingestion.publish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;

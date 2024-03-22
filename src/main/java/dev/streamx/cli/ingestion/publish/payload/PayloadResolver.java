@@ -1,4 +1,4 @@
-package dev.streamx.cli.publish.payload;
+package dev.streamx.cli.ingestion.publish.payload;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser.Feature;
@@ -18,7 +18,7 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import dev.streamx.cli.exception.ValueException;
-import dev.streamx.cli.publish.PublishCommand.ValueArguments;
+import dev.streamx.cli.ingestion.publish.ValueArguments;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;

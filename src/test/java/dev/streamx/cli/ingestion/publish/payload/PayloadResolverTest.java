@@ -1,4 +1,4 @@
-package dev.streamx.cli.publish.payload;
+package dev.streamx.cli.ingestion.publish.payload;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.catchException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.streamx.cli.ingestion.publish.payload.PayloadException;
+import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import org.junit.jupiter.api.Test;
 
 class PayloadResolverTest {

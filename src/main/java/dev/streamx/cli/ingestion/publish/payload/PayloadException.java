@@ -1,4 +1,4 @@
-package dev.streamx.cli.publish.payload;
+package dev.streamx.cli.ingestion.publish.payload;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;

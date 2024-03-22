@@ -1,4 +1,4 @@
-package dev.streamx.cli.publish.payload;
+package dev.streamx.cli.ingestion.publish.payload;
 
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
