@@ -9,11 +9,9 @@ import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Spec;
 
 @Command(name = "run", mixinStandardHelpOptions = true)
 public class RunCommand implements Runnable {
@@ -23,11 +21,13 @@ public class RunCommand implements Runnable {
       / ___|| |_ _ __ ___  __ _ _ __ ___ \\ \\/ /
       \\___ \\| __| '__/ _ \\/ _` | '_ ` _ \\ \\  /\s
        ___) | |_| | |  __/ (_| | | | | | |/  \\\s
-      |____/ \\__|_|  \\___|\\__,_|_| |_| |_/_/\\_\\
+      |____/ \\__|_|  \\___|\\__,_|_| |_| |_/_/\\_\\.dev
                                                \s""";
 
-  @Spec
-  CommandLine.Model.CommandSpec spec;
+  private static final String LICENCE = """
+      Distributed under StreamX End-User License Agreement 1.0
+      www.streamx.dev/licenses/eula-1.0.html
+      """;
 
   @ArgGroup
   MeshSource meshSource;
@@ -52,6 +52,7 @@ public class RunCommand implements Runnable {
   public void run() {
     try {
       print(BANNER);
+      print(LICENCE);
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
 
       print("Setting up system containers...");
