@@ -52,6 +52,8 @@ public class PublishCommand implements Runnable {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
 
       publisher.publish(ingestionTargetArguments.getKey(), jsonNode);
+
+      System.out.println("Message published in '" + ingestionTargetArguments.getChannel() + "'");
     } catch (StreamxClientException e) {
       throw new IngestionClientException(e);
     }

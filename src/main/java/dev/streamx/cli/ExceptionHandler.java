@@ -19,8 +19,9 @@ public class ExceptionHandler implements IExecutionExceptionHandler {
 
     cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
     log.error("Execution exception occurred.", ex);
-    return cmd.getExitCodeExceptionMapper() != null
-        ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
-        : cmd.getCommandSpec().exitCodeOnExecutionException();
+
+    return cmd.getExitCodeExceptionMapper() == null
+        ? cmd.getCommandSpec().exitCodeOnExecutionException()
+        : cmd.getExitCodeExceptionMapper().getExitCode(ex);
   }
 }

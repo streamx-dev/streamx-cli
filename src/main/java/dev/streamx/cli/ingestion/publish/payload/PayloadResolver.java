@@ -38,6 +38,9 @@ import org.apache.commons.lang3.tuple.Pair;
 @ApplicationScoped
 public class PayloadResolver {
 
+  private static final String NULL_JSON_SOURCE = "null";
+  private static final String AT_FILE_SIGN = "@";
+
   private static final ObjectMapper objectMapper = new ObjectMapper();
   static {
     objectMapper.enable(Feature.ALLOW_SINGLE_QUOTES);
@@ -86,9 +89,9 @@ public class PayloadResolver {
     try {
       source = readStringContent(data);
 
-      String nullSafeSource = Optional.ofNullable(source)
+      String nullSafeSource = Optional.of(source)
           .filter(StringUtils::isNotEmpty)
-          .orElse(" ");
+          .orElse(NULL_JSON_SOURCE);
 
       return JsonPath.parse(nullSafeSource);
     } catch (InvalidJsonException e) {
@@ -111,7 +114,7 @@ public class PayloadResolver {
       Pair<JsonPath, String> extract = valueReplacementExtractor.extract(valueArgument.getValue());
 
       JsonPath jsonPath = extract.getKey();
-      JsonNode replacement = extractReplacement(valueArgument, extract, jsonPath);
+      JsonNode replacement = extractReplacement(valueArgument, extract);
 
       try {
         documentContext = documentContext.set(jsonPath, replacement);
@@ -123,8 +126,9 @@ public class PayloadResolver {
     }
   }
 
-  private static JsonNode extractReplacement(ValueArguments valueArgument, Pair<JsonPath, String> extract,
-      JsonPath jsonPath) {
+  private static JsonNode extractReplacement(ValueArguments valueArgument,
+      Pair<JsonPath, String> extract) {
+    JsonPath jsonPath = extract.getKey();
     String value = extract.getValue();
 
     if (valueArgument.isBinary()) {
@@ -146,7 +150,7 @@ public class PayloadResolver {
   }
 
   private static String readStringContent(String argument) {
-    if (argument.startsWith("@")) {
+    if (argument.startsWith(AT_FILE_SIGN)) {
       return new String(readFile(argument), StandardCharsets.UTF_8);
     } else {
       return argument;
@@ -154,7 +158,7 @@ public class PayloadResolver {
   }
 
   private static byte[] readContent(String data) {
-    if (data.startsWith("@")) {
+    if (data.startsWith(AT_FILE_SIGN)) {
       return readFile(data);
     } else {
       return data.getBytes(StandardCharsets.UTF_8);

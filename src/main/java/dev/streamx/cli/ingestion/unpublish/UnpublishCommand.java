@@ -42,6 +42,8 @@ public class UnpublishCommand implements Runnable {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
 
       publisher.unpublish(ingestionTargetArguments.getKey());
+
+      System.out.println("Message unpublished in '" + ingestionTargetArguments.getChannel() + "'");
     } catch (StreamxClientException e) {
       throw new IngestionClientException(e);
     }
