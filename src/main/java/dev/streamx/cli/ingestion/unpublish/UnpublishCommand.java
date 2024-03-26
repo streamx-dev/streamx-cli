@@ -41,9 +41,10 @@ public class UnpublishCommand implements Runnable {
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
 
-      publisher.unpublish(ingestionTargetArguments.getKey());
+      Long eventTime = publisher.unpublish(ingestionTargetArguments.getKey());
 
-      System.out.println("Message unpublished in '" + ingestionTargetArguments.getChannel() + "'");
+      System.out.printf("Registered unpublish event on '%s' at %d%n",
+          ingestionTargetArguments.getChannel(), eventTime);
     } catch (StreamxClientException e) {
       throw new IngestionClientException(e);
     }

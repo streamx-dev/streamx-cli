@@ -51,9 +51,10 @@ public class PublishCommand implements Runnable {
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
 
-      publisher.publish(ingestionTargetArguments.getKey(), jsonNode);
+      Long eventTime = publisher.publish(ingestionTargetArguments.getKey(), jsonNode);
 
-      System.out.println("Message published in '" + ingestionTargetArguments.getChannel() + "'");
+      System.out.printf("Registered publish event on '%s' at %d%n",
+          ingestionTargetArguments.getChannel(), eventTime);
     } catch (StreamxClientException e) {
       throw new IngestionClientException(e);
     }
