@@ -1,82 +1,47 @@
-<?xml version="1.0"?>
-<project
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.streamx.cli</groupId>
   <artifactId>streamx-cli</artifactId>
   <version>0.1.0</version>
-  <properties>
-    <compiler-plugin.version>3.12.1</compiler-plugin.version>
-    <maven.compiler.release>17</maven.compiler.release>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.7.4</quarkus.platform.version>
-    <skipITs>true</skipITs>
-    <surefire-plugin.version>3.2.5</surefire-plugin.version>
-    <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
-    <streamx.version>0.0.15</streamx.version>
-    <assertj-core.version>3.24.2</assertj-core.version>
-
-    <quarkus.package.type>uber-jar</quarkus.package.type>
-    <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
-  </properties>
 
   <scm>
     <connection>scm:git:git@github.com:streamx-dev/streamx-cli.git</connection>
     <developerConnection>scm:git:git@github.com:streamx-dev/streamx-cli.git</developerConnection>
-    <url>https://github.com/streamx-dev/streamx-cli</url>
     <tag>HEAD</tag>
+    <url>https://github.com/streamx-dev/streamx-cli</url>
   </scm>
 
   <distributionManagement>
+    <repository>
+      <id>streamx-maven-public-releases</id>
+      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-public-releases</url>
+    </repository>
     <snapshotRepository>
       <id>github</id>
       <url>https://maven.pkg.github.com/streamx-dev/streamx-cli</url>
     </snapshotRepository>
-    <repository>
-      <id>streamx-maven-public-releases</id>
-      <url>
-        artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-public-releases
-      </url>
-    </repository>
   </distributionManagement>
 
-  <repositories>
-    <repository>
-      <id>streamx-maven-snapshots</id>
-      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>streamx-maven-releases</id>
-      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>streamx-maven-public-releases</id>
-      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-public-releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <compiler-plugin.version>3.12.1</compiler-plugin.version>
+    <maven.compiler.release>17</maven.compiler.release>
+    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+    <quarkus.platform.version>3.7.4</quarkus.platform.version>
+    <surefire-plugin.version>3.2.5</surefire-plugin.version>
+    <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
+    <streamx.version>0.0.15</streamx.version>
+    <wiremock.version>3.3.1</wiremock.version>
+    <assertj-core.version>3.24.2</assertj-core.version>
+    <json-path.version>2.9.0</json-path.version>
+
+    <skipITs>true</skipITs>
+    <quarkus.package.type>uber-jar</quarkus.package.type>
+    <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
+  </properties>
 
   <dependencyManagement>
     <dependencies>
@@ -104,9 +69,24 @@
       <version>${streamx.version}</version>
     </dependency>
     <dependency>
+      <groupId>dev.streamx</groupId>
+      <artifactId>ingestion-client</artifactId>
+      <version>${streamx.version}</version>
+    </dependency>
+    <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <version>${json-path.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>commons-logging-jboss-logging</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
@@ -134,15 +114,47 @@
       <version>1.2.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>streamx-maven-snapshots</id>
+      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-snapshots</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>streamx-maven-releases</id>
+      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-releases</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>streamx-maven-public-releases</id>
+      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-public-releases</url>
+    </repository>
+  </repositories>
   <build>
-    <extensions>
-      <extension>
-        <groupId>com.google.cloud.artifactregistry</groupId>
-        <artifactId>artifactregistry-maven-wagon</artifactId>
-        <version>2.2.1</version>
-      </extension>
-    </extensions>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -190,6 +202,13 @@
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
+        <configuration>
+          <systemPropertyVariables>
+            <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            <maven.home>${maven.home}</maven.home>
+          </systemPropertyVariables>
+        </configuration>
         <executions>
           <execution>
             <goals>
@@ -198,14 +217,22 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.ekryd.sortpom</groupId>
+        <artifactId>sortpom-maven-plugin</artifactId>
+        <version>3.4.0</version>
         <configuration>
-          <systemPropertyVariables>
-            <native.image.path>${project.build.directory}/${project.build.finalName}-runner
-            </native.image.path>
-            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-            <maven.home>${maven.home}</maven.home>
-          </systemPropertyVariables>
+          <createBackupFile>false</createBackupFile>
+          <verifyFail>Stop</verifyFail>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.jreleaser</groupId>
@@ -216,6 +243,13 @@
         </configuration>
       </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>com.google.cloud.artifactregistry</groupId>
+        <artifactId>artifactregistry-maven-wagon</artifactId>
+        <version>2.2.1</version>
+      </extension>
+    </extensions>
   </build>
   <profiles>
     <profile>

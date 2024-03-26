@@ -26,7 +26,7 @@ public class RunCommand implements Runnable {
 
   private static final String LICENCE = """
       Distributed under StreamX End-User License Agreement 1.0
-      www.streamx.dev/licenses/eula-1.0.html
+      https://www.streamx.dev/licenses/eula-1.0.html
       """;
 
   @ArgGroup
