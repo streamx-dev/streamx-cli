@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusMainTest
 public class PublishPayloadCommandTest {
@@ -88,18 +90,36 @@ public class PublishPayloadCommandTest {
     assertThat(result.getErrorOutput()).contains("Replacement is not recognised as valid JSON.");
   }
 
-  @Test
-  public void shouldRejectNonExistingJsonPath(QuarkusMainLauncher launcher) {
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "content[0].bytes",
+      "$..bytes",
+      "*.bytes",
+  })
+  public void shouldRejectNonExistingJsonPath(String path, QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-v","content.byte='<h1>Hello changed value!</h1>'",
+        "-v", path + "='<h1>Hello changed value!</h1>'",
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isNotZero();
     assertThat(result.getErrorOutput()).contains("JsonPath could not be found.");
+  }
+
+  @Test
+  public void shouldCreateNonExistingJsonPath(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-v","content.bytes='<h1>Hello changed value!</h1>'",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
   }
 
   @Test

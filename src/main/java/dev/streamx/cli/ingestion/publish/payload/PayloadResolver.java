@@ -13,7 +13,6 @@ import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
@@ -45,6 +44,7 @@ public class PayloadResolver {
   static {
     objectMapper.enable(Feature.ALLOW_SINGLE_QUOTES);
   }
+
   private final JsonProvider jsonProvider;
   private final MappingProvider mappingProvider;
 
@@ -52,7 +52,7 @@ public class PayloadResolver {
   ValueReplacementExtractor valueReplacementExtractor;
 
   PayloadResolver() {
-    jsonProvider = new JacksonJsonNodeJsonProvider(objectMapper);
+    jsonProvider = new PropertyCreatingJacksonJsonNodeJsonProvider(objectMapper);
     mappingProvider = new JacksonMappingProvider(objectMapper);
     configureDefaults();
   }

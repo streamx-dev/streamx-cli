@@ -26,7 +26,7 @@ public class PublishCommand implements Runnable {
   @ArgGroup(exclusive = false)
   IngestionArguments ingestionArguments;
 
-  @ArgGroup(exclusive = false, heading = "Payload arguments:\n")
+  @ArgGroup(exclusive = false, heading = "Payload arguments:\n", multiplicity = "1")
   PayloadArguments payloadArguments;
 
   @Spec
