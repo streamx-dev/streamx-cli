@@ -155,6 +155,21 @@
     </repository>
   </repositories>
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>filtered/*</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources/filtered</directory>
+        <includes>
+          <include>streamx-maven.properties</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
