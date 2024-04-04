@@ -66,6 +66,7 @@ public class RunCommand implements Runnable {
 
       printSummary(this.runner, result.path());
       Quarkus.waitForExit();
+      runner.stop();
     } catch (IOException e) {
       throw new RuntimeException("Cannot run StreamX", e);
     }
