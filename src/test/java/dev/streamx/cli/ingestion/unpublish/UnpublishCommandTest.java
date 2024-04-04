@@ -7,15 +7,19 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static dev.streamx.clients.ingestion.StreamxClient.PUBLICATIONS_ENDPOINT_PATH_V1;
 import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.hc.core5.http.HttpStatus.SC_OK;
+import static org.apache.hc.core5.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import dev.streamx.cli.ingestion.publish.PublishCommandTest;
+import dev.streamx.clients.ingestion.impl.FailureResponse;
 import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
+import org.apache.http.HttpHeaders;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +27,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusMainTest
 public class UnpublishCommandTest {
+  private static final String INVALID_BEARER = "invalid.bearer.";
   private static final String CHANNEL = "pages";
   private static final String KEY = "index.html";
 
@@ -62,6 +67,19 @@ public class UnpublishCommandTest {
     assertThat(result.exitCode()).isNotZero();
   }
 
+  @Test
+  public void shouldRejectUnauthorizedChannel(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("unpublish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "--oauth2-bearer=" + INVALID_BEARER,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.getErrorOutput()).containsSubsequence("Authentication failed. Make sure that the given token is valid.");
+    assertThat(result.exitCode()).isNotZero();
+  }
+
   private static void initializeWiremock() {
     stubSchemas();
     stubUnpublication();
@@ -82,6 +100,12 @@ public class UnpublishCommandTest {
     PublisherSuccessResult result = new PublisherSuccessResult(123456L);
     wm.stubFor(WireMock.delete(getPublicationPath(UnpublishCommandTest.CHANNEL, UnpublishCommandTest.KEY))
         .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
+            .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+
+    FailureResponse unauthorizedRequest  = new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message");
+    wm.stubFor(WireMock.delete(getPublicationPath(UnpublishCommandTest.CHANNEL, UnpublishCommandTest.KEY))
+        .withHeader(HttpHeaders.AUTHORIZATION, WireMock.equalTo("Bearer " + INVALID_BEARER))
+        .willReturn(responseDefinition().withStatus(SC_UNAUTHORIZED).withBody(Json.write(unauthorizedRequest))
             .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
   }
 

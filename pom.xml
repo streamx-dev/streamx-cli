@@ -33,7 +33,7 @@
     <quarkus.platform.version>3.7.4</quarkus.platform.version>
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
     <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
-    <streamx.version>0.0.15</streamx.version>
+    <streamx.version>0.0.17-SNAPSHOT</streamx.version> <!-- FIXME change after release -->
     <wiremock.version>3.3.1</wiremock.version>
     <assertj-core.version>3.24.2</assertj-core.version>
     <json-path.version>2.9.0</json-path.version>
@@ -100,6 +100,11 @@
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

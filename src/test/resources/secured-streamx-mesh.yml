@@ -1,0 +1,78 @@
+defaultRegistry: ghcr.io/streamx-dev/streamx-blueprints
+defaultImageTag: 0.0.8-jvm
+tenant: streamx
+
+ingestion:
+  rest-ingestion:
+    environment:
+      QUARKUS_HTTP_AUTH_PERMISSION_BEARER_POLICY: authenticated
+      MP_JWT_VERIFY_PUBLICKEY: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5nHOhikvYo2egCD5RMLo
+        UungXVTwWH4LtRtEKLDICYoD5tGajEZNN1lUiGxL0rGL1rf4suRrfjXcXZNdY7Bu
+        22rrgkJLSy9dKDrqPPo2TuLqgyoVqpG2eM9iStXTgreu33BkVL5EW3NO4PPc66b/
+        V03SQw1Zv80iCZe4sV7Mez9LxRwIzV83XIH3sIlcFA0KNhlf/279zFlEuYZ1U9m/
+        je4dwmyEChSOJSXFwlQhXwYbOfpsPBlHprkUguy1yw7qPq/w2KPeOhqyMZLafCH3
+        Y19vmiV+LFL9P9x3JELc6bWH44c1GjPGaZotyYJRwFEJzNGatYN1eRqcrYISRNHP
+        fwIDAQAB
+        -----END PUBLIC KEY-----
+
+      SMALLRYE_JWT_SIGN_KEY: |
+        -----BEGIN PRIVATE KEY-----
+        MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDmcc6GKS9ijZ6A
+        IPlEwuhS6eBdVPBYfgu1G0QosMgJigPm0ZqMRk03WVSIbEvSsYvWt/iy5Gt+Ndxd
+        k11jsG7bauuCQktLL10oOuo8+jZO4uqDKhWqkbZ4z2JK1dOCt67fcGRUvkRbc07g
+        89zrpv9XTdJDDVm/zSIJl7ixXsx7P0vFHAjNXzdcgfewiVwUDQo2GV//bv3MWUS5
+        hnVT2b+N7h3CbIQKFI4lJcXCVCFfBhs5+mw8GUemuRSC7LXLDuo+r/DYo946GrIx
+        ktp8IfdjX2+aJX4sUv0/3HckQtzptYfjhzUaM8Zpmi3JglHAUQnM0Zq1g3V5Gpyt
+        ghJE0c9/AgMBAAECggEAGZ933jUAHs4uXILOFJYzbNyyZM5H9x70wEtq1bdqVp0w
+        995Ad+5tMYVOP+kCuUeii9pi3clGJn9opEL5dFcuzFjkHNSwOIjoq8t5NhSAK19R
+        wgnQ5OlUx7QPctC5tuQjnpaJoV6SjTSSBbM30j/8TkHJ6ki2vPvbGAP1tksbI2zd
+        PoXK2aU55fjfuUpcK5rZzAMUmNtU3ZnG69JErZ8ZTYIwzYI81XqFxoAGjOBoF/uZ
+        hpJqIE9szzJ1wb5IJSSnT0i9468ge7otXcVoRaAATmNM4A/9UoSEpZy1r9BHKrI1
+        eqk3iCyFAsFHId3aerLNPauEUPMps4QbIH8LdnJBUQKBgQD6tT8jltdR7Z+NiHYJ
+        mR4ZJuMep14/3W/pdQP2E37rqDKk3LYTvlJ3llNPkfl/NMx9dKmyW92r165Rb/Dz
+        Vvsm8SIXdB+EIc6YtyBXmMwGXIvefDvmSxJFaC6XWk/JOahgLMs/8oxSOcJ2OTdl
+        K2GAcTfb1UHQj8bHpUJfCVCiiQKBgQDrTw/2e2uPvdT4XHzx8PkUlOzPWI9LMpYl
+        2O6K6zR3nzT6yZI925J6A1vbgqHqWHfiwxqrhFiEbLxi4NCfYLEiVarlf3ZCLQBa
+        iveEFNNlnOuNWFcVUKizRViHxGZpsH6xSqWJiOUjMz1+5GWckaib7PI9wMMdSB4q
+        GTYKYBX/xwKBgHEC3pFGX4041iFQkBTHhr/DvcGFpICZaucLrltwclf8G8ghDZpc
+        woPRqYBGxvbGcB9lRVF3A7eAo71l/nFSlif5rmpwF/zR2HUSp2uVHvMHKK2DxuSK
+        lpPe4JGtTiXg7btctcn/pa0zCCuOox/hrDPf1VQtD1vaU7qPDhoU8toxAoGBAMSz
+        UqS4hzGhfmYe6lNVHOIXm924KhCyONFqhf2aoEFe1OrPlXAgHFHifOcCTFeZnJ3y
+        eljmSRhpzRDa3YpdSbVp53HxGuo2tBT8FexTfGN0yXNeZW1r/5ncXiUgCHxRDZcm
+        zzopNWI3czCfvFElcczmRZlZicDwiEaozIPfzoQBAoGAJKksmFbYe8hEkYxOlLc7
+        7+v4RWHXexOsx8lX+PxRhiKXdPp8VKmAf2iMVh96JVLCaVT6r7+f7MRzR08pGBzk
+        bup+OhN+S9MMawrgDoOByjnRKJbp7ynjWPdMy67vq7PdeLRUaI+fgWLElC13VejH
+        ddbwhYWsxnOJIUGtDMhO4XY=
+        -----END PRIVATE KEY-----
+
+processing:
+  relay:
+    image: relay-processing-service
+    incoming:
+      incoming-pages:
+        topic: inboxes/pages
+      incoming-assets:
+        topic: inboxes/assets
+      incoming-web-resources:
+        topic: inboxes/web-resources
+    outgoing:
+      outgoing-pages:
+        topic: outboxes/pages
+      outgoing-assets:
+        topic: outboxes/assets
+      outgoing-web-resources:
+        topic: outboxes/web-resources
+
+delivery:
+  web-delivery-service:
+    image: web-delivery-service
+    incoming:
+      pages:
+        topic: outboxes/pages
+      assets:
+        topic: outboxes/assets
+      web-resources:
+        topic: outboxes/web-resources
+    port: 8081

@@ -8,6 +8,7 @@ import static dev.streamx.clients.ingestion.StreamxClient.PUBLICATIONS_ENDPOINT_
 import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.hc.core5.http.HttpStatus.SC_OK;
+import static org.apache.hc.core5.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -18,6 +19,7 @@ import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
+import org.apache.http.HttpHeaders;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 @QuarkusMainTest
 public class PublishCommandTest {
   private static final String CHANNEL = "pages";
+  private static final String INVALID_BEARER = "invalid.bearer.";
   private static final String BAD_REQUEST_CHANNEL = "bad-request-channel";
   private static final String KEY = "index.html";
   private static final String DATA = """
@@ -97,6 +100,20 @@ public class PublishCommandTest {
     assertThat(result.exitCode()).isNotZero();
   }
 
+  @Test
+  public void shouldRejectUnauthorizedChannel(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "--oauth2-bearer=" + INVALID_BEARER,
+        "--data=" + DATA,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.getErrorOutput()).containsSubsequence("Authentication failed. Make sure that the given token is valid.");
+    assertThat(result.exitCode()).isNotZero();
+  }
+
   private static void initializeWiremock() {
     stubSchemas();
     stubPublication();
@@ -122,6 +139,12 @@ public class PublishCommandTest {
     FailureResponse badRequest  = new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message");
     wm.stubFor(WireMock.put(getPublicationPath(PublishCommandTest.BAD_REQUEST_CHANNEL, PublishCommandTest.KEY))
         .willReturn(responseDefinition().withStatus(SC_BAD_REQUEST).withBody(Json.write(badRequest))
+            .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+
+    FailureResponse unauthorizedRequest  = new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message");
+    wm.stubFor(WireMock.put(getPublicationPath(PublishCommandTest.CHANNEL, PublishCommandTest.KEY))
+        .withHeader(HttpHeaders.AUTHORIZATION, WireMock.equalTo("Bearer " + INVALID_BEARER))
+        .willReturn(responseDefinition().withStatus(SC_UNAUTHORIZED).withBody(Json.write(unauthorizedRequest))
             .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
   }
 
