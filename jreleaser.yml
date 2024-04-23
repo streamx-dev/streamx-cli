@@ -57,6 +57,9 @@ packagers:
     multiPlatform: true
     extraProperties:
       skipJava: true
+  scoop:
+    active: ALWAYS
+    continueOnError: false
 #  sdkman:
 #    active: ALWAYS
 #    continueOnError: false
