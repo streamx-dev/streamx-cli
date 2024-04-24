@@ -1,5 +1,5 @@
 @echo off
-@rem This is workaround for https://github.com/jreleaser/jreleaser/issues/1634
+@rem TODO This is workaround for https://github.com/jreleaser/jreleaser/issues/1634
 @rem Dear reader! After release of jreleaser v1.12.0 please do:
 @rem - bump to at least in pom.xml "jreleaser-maven-plugin.version" to 1.12.0
 @rem - remove this file (launcher.bat.tpl)
