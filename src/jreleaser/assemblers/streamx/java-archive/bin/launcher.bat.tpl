@@ -1,4 +1,10 @@
 @echo off
+@rem This is workaround for https://github.com/jreleaser/jreleaser/issues/1634
+@rem Dear reader! After release of jreleaser v1.12.0 please do:
+@rem - bump to at least in pom.xml "jreleaser-maven-plugin.version" to 1.12.0
+@rem - remove this file (launcher.bat.tpl)
+@rem - close task https://teamds.atlassian.net/browse/DXP-793
+
 rem {{jreleaserCreationStamp}}
 
 @rem Set local scope for the variables with windows NT shell
