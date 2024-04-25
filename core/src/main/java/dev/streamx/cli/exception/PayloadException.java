@@ -18,12 +18,12 @@ public class PayloadException extends RuntimeException {
 
         Supplied payload:
         %s
-                
+
         Make sure that:
          * it's valid JSON,
          * object property names are properly single-quoted (') or double-quoted ("),
          * strings are properly single-quoted (') or double-quoted (")
-                
+
         Details: %s""".formatted(payload, exception.getMessage()), exception);
   }
 
@@ -34,7 +34,7 @@ public class PayloadException extends RuntimeException {
 
         Supplied payload:
         %s
-                
+
         Details: %s""".formatted(payload, exception.getMessage()), exception);
   }
 
