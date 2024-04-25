@@ -29,10 +29,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusMainTest
 public class PublishPayloadCommandTest {
+
   private static final String CHANNEL = "pages";
   private static final String KEY = "index.html";
   private static final String DATA = """
-        {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
+      {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
 
   @RegisterExtension
   static WireMockExtension wm = WireMockExtension.newInstance()
@@ -49,12 +50,13 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.b[]ytes='<h1>Hello changed value!</h1>'",
+        "-v", "content.b[]ytes='<h1>Hello changed value!</h1>'",
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Could not find valid jsonPath in given argument.");
+    assertThat(result.getErrorOutput()).contains(
+        "Could not find valid jsonPath in given argument.");
   }
 
   @Test
@@ -63,7 +65,7 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes=@nana",
+        "-v", "content.bytes=@nana",
         CHANNEL, KEY);
 
     // then
@@ -74,13 +76,14 @@ public class PublishPayloadCommandTest {
   @Test
   public void shouldRejectInvalidFile(QuarkusMainLauncher launcher) {
     // given
-    String corruptedPathArg = "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+    String corruptedPathArg =
+        "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes=" + corruptedPathArg,
+        "-v", "content.bytes=" + corruptedPathArg,
         CHANNEL, KEY);
 
     // then
@@ -94,7 +97,7 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.byte='<h1>Hello changed value!</h1>'",
+        "-v", "content.byte='<h1>Hello changed value!</h1>'",
         CHANNEL, KEY);
 
     // then
@@ -108,13 +111,15 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes='<h1>Hello changed value!</h1>'",
+        "-v", "content.bytes='<h1>Hello changed value!</h1>'",
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(
+            equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
   }
 
   @Test
@@ -123,13 +128,15 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content={'bytes':'<h1>Hello changed value!</h1>'}",
+        "-v", "content={'bytes':'<h1>Hello changed value!</h1>'}",
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(
+            equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
   }
 
   @Test
@@ -141,12 +148,13 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes=" + arg,
+        "-v", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
         .withRequestBody(equalToJson("""
             {"content": {"bytes": {"nana": "lele"}}}""")));
   }
@@ -157,12 +165,13 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes=",
+        "-v", "content.bytes=",
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
         .withRequestBody(equalToJson("""
             {"content": {"bytes": null}}""")));
   }
@@ -173,13 +182,14 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v","content.bytes='<h1>Hello changed value!</h1>'",
-        "-v","$..bytes='bytes'",
+        "-v", "content.bytes='<h1>Hello changed value!</h1>'",
+        "-v", "$..bytes='bytes'",
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
         .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"bytes\"}}")));
   }
 
@@ -189,13 +199,15 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-sv","content.bytes=<h1>Hello changed value!</h1>",
+        "-sv", "content.bytes=<h1>Hello changed value!</h1>",
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(
+            equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
   }
 
   @Test
@@ -207,13 +219,15 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-sv","content.bytes=" + arg,
+        "-sv", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"<h1>This works ąćpretty well...</h1>\"}}")));
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        .withRequestBody(
+            equalToJson("{\"content\": {\"bytes\": \"<h1>This works ąćpretty well...</h1>\"}}")));
   }
 
   @Test
@@ -225,12 +239,13 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-sv","content.bytes=" + arg,
+        "-sv", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then
     assertThat(result.exitCode()).isZero();
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+    wm.verify(putRequestedFor(urlEqualTo(
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
         .withRequestBody(matchingJsonPath("content.bytes", new ContainsPattern("PNG"))));
   }
 
@@ -240,8 +255,9 @@ public class PublishPayloadCommandTest {
   }
 
   private static void stubSchemas() {
-    String response = """
-        {"pages":{"type":"record","name":"Page","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]}}""";
+    String response = "{\"pages\":{\"type\":\"record\",\"name\":\"Page\","
+                      + "\"namespace\":\"dev.streamx.blueprints.data\",\"fields\":[{"
+                      + "\"name\":\"content\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}}";
 
     wm.stubFor(WireMock.get(getSchema())
         .willReturn(responseDefinition().withStatus(SC_OK).withBody(response)
@@ -252,9 +268,10 @@ public class PublishPayloadCommandTest {
 
   private static void stubPublication() {
     PublisherSuccessResult result = new PublisherSuccessResult(123456L);
-    wm.stubFor(put(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY))
-        .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
-            .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+    wm.stubFor(
+        put(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY))
+            .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
   }
 
   @NotNull

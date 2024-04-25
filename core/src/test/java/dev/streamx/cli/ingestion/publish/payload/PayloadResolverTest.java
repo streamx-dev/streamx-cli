@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 class PayloadResolverTest {
 
   private static final JsonNode EXAMPLE_JSON_NODE;
+
   static {
     try {
       EXAMPLE_JSON_NODE = new ObjectMapper().readTree("{\"nana\": \"lele\"}");
@@ -52,7 +53,8 @@ class PayloadResolverTest {
   @Test
   void shouldValidateFileContent() {
     // given
-    String corruptedPathArg = "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+    String corruptedPathArg =
+        "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
 
     // when
     Exception exception = catchException(() -> cut.createPayload(corruptedPathArg));

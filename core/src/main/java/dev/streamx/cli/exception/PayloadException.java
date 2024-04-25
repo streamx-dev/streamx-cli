@@ -7,6 +7,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 public class PayloadException extends RuntimeException {
+
   private PayloadException(String message, Exception exception) {
     super(message, exception);
   }
@@ -17,12 +18,12 @@ public class PayloadException extends RuntimeException {
 
         Supplied payload:
         %s
-        
+
         Make sure that:
          * it's valid JSON,
          * object property names are properly single-quoted (') or double-quoted ("),
          * strings are properly single-quoted (') or double-quoted (")
-        
+
         Details: %s""".formatted(payload, exception.getMessage()), exception);
   }
 
@@ -33,7 +34,7 @@ public class PayloadException extends RuntimeException {
 
         Supplied payload:
         %s
-        
+
         Details: %s""".formatted(payload, exception.getMessage()), exception);
   }
 
@@ -43,7 +44,7 @@ public class PayloadException extends RuntimeException {
 
   public static PayloadException fileReadingException(IOException exception, Path path) {
     return new PayloadException("Could not read file. \nPath: " + path + "\n"
-        + "Details: " + exception.getMessage(), exception);
+                                + "Details: " + exception.getMessage(), exception);
   }
 
   public static PayloadException ioException(Exception exception) {

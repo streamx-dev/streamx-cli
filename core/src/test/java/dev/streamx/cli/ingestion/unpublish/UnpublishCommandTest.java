@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusMainTest
 public class UnpublishCommandTest {
+
   private static final String CHANNEL = "pages";
   private static final String KEY = "index.html";
 
@@ -68,8 +69,11 @@ public class UnpublishCommandTest {
   }
 
   private static void stubSchemas() {
-    String response = """
-        {"pages":{"type":"record","name":"Page","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]},"bad-request-channel":{"type":"record","name":"Whatever","namespace":"dev.streamx.blueprints.data","fields":[]}}""";
+    String response = "{\"pages\":{\"type\":\"record\",\"name\":\"Page\",\"namespace\":"
+                      + "\"dev.streamx.blueprints.data\",\"fields\":[{\"name\":\"content\","
+                      + "\"type\":[\"null\",\"bytes\"],\"default\":null}]},"
+                      + "\"bad-request-channel\":{\"type\":\"record\",\"name\":\"Whatever\","
+                      + "\"namespace\":\"dev.streamx.blueprints.data\",\"fields\":[]}}";
 
     wm.stubFor(WireMock.get(getSchema())
         .willReturn(responseDefinition().withStatus(SC_OK).withBody(response)
@@ -80,9 +84,10 @@ public class UnpublishCommandTest {
 
   private static void stubUnpublication() {
     PublisherSuccessResult result = new PublisherSuccessResult(123456L);
-    wm.stubFor(WireMock.delete(getPublicationPath(UnpublishCommandTest.CHANNEL, UnpublishCommandTest.KEY))
-        .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
-            .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+    wm.stubFor(
+        WireMock.delete(getPublicationPath(UnpublishCommandTest.CHANNEL, UnpublishCommandTest.KEY))
+            .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
   }
 
   @NotNull

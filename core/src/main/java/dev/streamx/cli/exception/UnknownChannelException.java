@@ -1,6 +1,7 @@
 package dev.streamx.cli.exception;
 
 public class UnknownChannelException extends RuntimeException {
+
   private final String channel;
   private final String availableChannels;
 

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusMainTest
 public class IngestionArgumentsValidationTest {
+
   private static final String CHANNEL = "pages";
   private static final String KEY = "index.html";
 
@@ -34,7 +35,7 @@ public class IngestionArgumentsValidationTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Missing required argument","<channel>");
+    assertThat(result.getErrorOutput()).contains("Missing required argument", "<channel>");
   }
 
   @Test
@@ -44,7 +45,7 @@ public class IngestionArgumentsValidationTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Missing required argument","<key>");
+    assertThat(result.getErrorOutput()).contains("Missing required argument", "<key>");
   }
 
   @Test

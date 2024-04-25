@@ -2,11 +2,11 @@ package dev.streamx.cli.run;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-import dev.streamx.cli.run.RunCommand.MeshSource;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
+import dev.streamx.cli.run.RunCommand.MeshSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
