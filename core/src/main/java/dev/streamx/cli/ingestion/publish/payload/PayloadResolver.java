@@ -1,5 +1,8 @@
 package dev.streamx.cli.ingestion.publish.payload;
 
+import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.readContent;
+import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.readStringContent;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,10 +26,6 @@ import dev.streamx.cli.ingestion.publish.ValueArguments;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,7 +38,6 @@ import org.apache.commons.lang3.tuple.Pair;
 public class PayloadResolver {
 
   private static final String NULL_JSON_SOURCE = "null";
-  private static final String AT_FILE_SIGN = "@";
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -160,32 +158,6 @@ public class PayloadResolver {
     }
   }
 
-  private static String readStringContent(String argument) {
-    if (argument.startsWith(AT_FILE_SIGN)) {
-      return new String(readFile(argument), StandardCharsets.UTF_8);
-    } else {
-      return argument;
-    }
-  }
-
-  private static byte[] readContent(String data) {
-    if (data.startsWith(AT_FILE_SIGN)) {
-      return readFile(data);
-    } else {
-      return data.getBytes(StandardCharsets.UTF_8);
-    }
-  }
-
-  private static byte[] readFile(String data) {
-    Path path = Path.of(data.substring(1));
-    try {
-      return Files.readAllBytes(path);
-    } catch (NoSuchFileException e) {
-      throw PayloadException.noSuchFileException(e, path);
-    } catch (IOException e) {
-      throw PayloadException.fileReadingException(e, path);
-    }
-  }
 
   private void configureDefaults() {
     Configuration.setDefaults(new Configuration.Defaults() {
