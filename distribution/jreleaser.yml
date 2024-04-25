@@ -46,9 +46,6 @@ distributions:
     tags:
       - streamx
       - cli
-#    artifacts:
-#      - path: target/streamx-cli-{{projectVersion}}.zip
-#      - path: target/streamx-cli-{{projectVersion}}.tar.gz
 
 packagers:
   brew:
@@ -60,18 +57,6 @@ packagers:
   scoop:
     active: ALWAYS
     continueOnError: false
-#  sdkman:
-#    active: ALWAYS
-#    continueOnError: false
-#    connectTimeout: 20
-#    readTimeout: 60
-#    candidate: streamx
-#  chocolatey:
-#    active: ALWAYS
-#    continueOnError: true
-#    remoteBuild: true
-#    iconUrl: https://quarkus.io/assets/images/chocolatey-app-icon.png
-#    packageVersion: '{{projectVersionMajor}}.{{projectVersionMinor}}.{{projectVersionPatch}}'
 
 assemble:
   javaArchive:
@@ -82,4 +67,4 @@ assemble:
         - input: '.'
           includes: [ 'LICENSE' ]
       mainJar:
-        path: target/{{distributionName}}-cli-{{projectVersion}}-runner.jar
+        path: distribution/target/{{distributionName}}-cli-{{projectVersion}}-runner.jar
