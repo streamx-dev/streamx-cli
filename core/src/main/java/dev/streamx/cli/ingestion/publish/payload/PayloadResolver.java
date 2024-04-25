@@ -153,8 +153,7 @@ public class PayloadResolver {
             throw ValueException.jsonParseException(exception, jsonPath, source);
           },
           (exception, source) -> {
-            throw ValueException.genericJsonProcessingException(exception,
-                jsonPath, source);
+            throw ValueException.genericJsonProcessingException(exception, jsonPath, source);
           }
       ).json();
     }

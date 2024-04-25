@@ -76,8 +76,8 @@ public class PublishPayloadCommandTest {
   @Test
   public void shouldRejectInvalidFile(QuarkusMainLauncher launcher) {
     // given
-    String corruptedPathArg = "@target/test-classes/dev/streamx/cli/publish/payload/"
-                              + "invalid-payload.json";
+    String corruptedPathArg =
+        "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
