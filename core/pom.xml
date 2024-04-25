@@ -8,7 +8,7 @@
     <version>0.2.4</version>
   </parent>
 
-  <artifactId>streamx-cli-commands</artifactId>
+  <artifactId>streamx-cli-core</artifactId>
 
   <properties>
     <maven.compiler.release>17</maven.compiler.release>

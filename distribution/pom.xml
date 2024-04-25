@@ -7,7 +7,7 @@
     <version>0.2.4</version>
   </parent>
 
-  <artifactId>streamx-cli-jreleaser</artifactId>
+  <artifactId>streamx-cli-distribution</artifactId>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>

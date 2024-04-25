@@ -7,9 +7,9 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>commands</module>
-    <module>jreleaser</module>
-    <module>init</module>
+    <module>core</module>
+    <module>distribution</module>
+    <module>entrypoint</module>
   </modules>
 
   <scm>
@@ -59,12 +59,12 @@
 
       <dependency>
         <groupId>dev.streamx.cli</groupId>
-        <artifactId>streamx-cli-init</artifactId>
+        <artifactId>streamx-cli-entrypoint</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>dev.streamx.cli</groupId>
-        <artifactId>streamx-cli-commands</artifactId>
+        <artifactId>streamx-cli-core</artifactId>
         <version>${project.version}</version>
       </dependency>
 
