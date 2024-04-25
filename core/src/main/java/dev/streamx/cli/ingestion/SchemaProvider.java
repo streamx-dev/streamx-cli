@@ -57,7 +57,8 @@ public class SchemaProvider {
       String body = EntityUtils.toString(entity, "UTF-8");
 
       ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(body, new TypeReference<>() {});
+      return objectMapper.readValue(body, new TypeReference<>() {
+      });
     } catch (ConnectException e) {
       throw new UnableToConnectIngestionServiceException(ingestionUrl);
     } catch (IOException e) {

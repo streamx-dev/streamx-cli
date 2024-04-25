@@ -42,9 +42,11 @@ public class PayloadResolver {
   private static final String AT_FILE_SIGN = "@";
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
+
   static {
     objectMapper.enable(Feature.ALLOW_SINGLE_QUOTES);
   }
+
   private final JsonProvider jsonProvider;
   private final MappingProvider mappingProvider;
 
@@ -72,8 +74,12 @@ public class PayloadResolver {
   private JsonNode doCreatePayload(String data, List<ValueArguments> values) throws IOException {
     DocumentContext documentContext = prepareWrappedJsonNode(
         data,
-        (exception, source) -> { throw PayloadException.jsonParseException(exception, source); },
-        (exception, source) -> { throw PayloadException.genericJsonProcessingException(exception, source); }
+        (exception, source) -> {
+          throw PayloadException.jsonParseException(exception, source);
+        },
+        (exception, source) -> {
+          throw PayloadException.genericJsonProcessingException(exception, source);
+        }
     );
 
     replaceValues(documentContext, values);
@@ -84,7 +90,7 @@ public class PayloadResolver {
   private static DocumentContext prepareWrappedJsonNode(String data,
       BiConsumer<JsonParseException, String> onJsonParseException,
       BiConsumer<JsonProcessingException, String> onJsonProcessingException
-      ) {
+  ) {
     String source = null;
     try {
       source = readStringContent(data);
@@ -110,7 +116,7 @@ public class PayloadResolver {
       return;
     }
 
-    for (ValueArguments valueArgument: valueArguments) {
+    for (ValueArguments valueArgument : valueArguments) {
       Pair<JsonPath, String> extract = valueReplacementExtractor.extract(valueArgument.getValue());
 
       JsonPath jsonPath = extract.getKey();
@@ -121,7 +127,8 @@ public class PayloadResolver {
       } catch (PathNotFoundException e) {
         throw ValueException.pathNotFoundException(jsonPath);
       } catch (IllegalArgumentException | InvalidPathException e) {
-        throw ValueException.genericJsonProcessingException(e, jsonPath, documentContext.jsonString());
+        throw ValueException.genericJsonProcessingException(e, jsonPath,
+            documentContext.jsonString());
       }
     }
   }
@@ -142,9 +149,13 @@ public class PayloadResolver {
     } else {
       return prepareWrappedJsonNode(
           value,
-          (exception, source) -> { throw ValueException.jsonParseException(exception, jsonPath, source); },
-          (exception, source) -> { throw ValueException.genericJsonProcessingException(exception,
-              jsonPath, source); }
+          (exception, source) -> {
+            throw ValueException.jsonParseException(exception, jsonPath, source);
+          },
+          (exception, source) -> {
+            throw ValueException.genericJsonProcessingException(exception,
+                jsonPath, source);
+          }
       ).json();
     }
   }

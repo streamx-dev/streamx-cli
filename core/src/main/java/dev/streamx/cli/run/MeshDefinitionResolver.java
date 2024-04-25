@@ -48,7 +48,7 @@ class MeshDefinitionResolver {
     } else {
       throw new ParameterException(parseResult.subcommand().commandSpec().commandLine(),
           "Missing mesh definition. Use '-f' or '--blueprints-mesh' option or "
-              + "make sure 'streamx-mesh.yml' exists in current directory.");
+          + "make sure 'streamx-mesh.yml' exists in current directory.");
     }
   }
 
@@ -67,7 +67,8 @@ class MeshDefinitionResolver {
   }
 
   @NotNull
-  private MeshDefinitionResolver.MeshDefinition resolveExplicitlyGivenMeshDefinitionFile(MeshSource meshSource) throws IOException {
+  private MeshDefinitionResolver.MeshDefinition resolveExplicitlyGivenMeshDefinitionFile(
+      MeshSource meshSource) throws IOException {
     Path path = Path.of(meshSource.meshDefinitionFile);
     ServiceMesh serviceMesh = this.mapper.read(path);
 

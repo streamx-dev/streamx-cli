@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class RunCommandTest {
 
   @Test
-  void shouldRunStreamXBlueprintMesh(QuarkusMainLauncher launcher) {
+  void shouldRunStreamxBlueprintMesh(QuarkusMainLauncher launcher) {
     LaunchResult result = launcher.launch("run", "--blueprints-mesh");
 
     assertThat(result.getOutput()).contains("STREAMX IS READY!");
@@ -23,6 +23,7 @@ public class RunCommandTest {
 
   @ApplicationScoped
   public static class Listener {
+
     void onMeshStarted(@Observes MeshStarted event) {
       ApplicationLifecycleManager.exit();
     }

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+  "-//Checkstyle//DTD SuppressionFilter Configuration 1.0//EN"
+  "https://checkstyle.org/dtds/suppressions_1_0.dtd">
+<!-- Default setup of check style suppressions. This file can be overridden on module level. -->
+<suppressions>
+  <suppress checks="javadoc" files="."/>
+  <suppress checks="AbbreviationAsWordInName" files=".+IT\.java$"/>
+</suppressions>

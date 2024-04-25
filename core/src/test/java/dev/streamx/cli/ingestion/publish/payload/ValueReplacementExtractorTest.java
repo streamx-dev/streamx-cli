@@ -6,7 +6,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.jayway.jsonpath.JsonPath;
 import dev.streamx.cli.exception.ValueException;
-import dev.streamx.cli.ingestion.publish.payload.ValueReplacementExtractor;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -48,7 +47,8 @@ class ValueReplacementExtractorTest {
   static Stream<Arguments> extractPair() {
     return Stream.of(
         arguments("nana.lele=newValue", JsonPath.compile("nana.lele"), "newValue"),
-        arguments("$..book[?(@.author =~ /.*REES/i)]=newValue", JsonPath.compile("$..book[?(@.author =~ /.*REES/i)]"), "newValue"),
+        arguments("$..book[?(@.author =~ /.*REES/i)]=newValue",
+            JsonPath.compile("$..book[?(@.author =~ /.*REES/i)]"), "newValue"),
         arguments("jsonPath=", JsonPath.compile("jsonPath"), ""),
         arguments("$..*[?(@.*=='=')]===", JsonPath.compile("$..*[?(@.*=='=')]"), "=="),
         arguments("===", JsonPath.compile("="), "=")

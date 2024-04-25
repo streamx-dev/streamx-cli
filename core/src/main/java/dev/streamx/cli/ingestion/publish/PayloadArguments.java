@@ -6,6 +6,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public class PayloadArguments {
+
   @Option(names = {"-d", "--data"},
       description = "Published payload",
       required = true)

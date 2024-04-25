@@ -25,11 +25,12 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusMainTest
 public class PublishCommandTest {
+
   private static final String CHANNEL = "pages";
   private static final String BAD_REQUEST_CHANNEL = "bad-request-channel";
   private static final String KEY = "index.html";
   private static final String DATA = """
-        {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
+      {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
 
   @RegisterExtension
   static WireMockExtension wm = WireMockExtension.newInstance()
@@ -50,7 +51,10 @@ public class PublishCommandTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Publication Ingestion REST endpoint known error. Code: INVALID_PUBLICATION_PAYLOAD. Message: Error message");
+    assertThat(result.getErrorOutput()).contains(
+        "Publication Ingestion REST endpoint known error. "
+        + "Code: INVALID_PUBLICATION_PAYLOAD. "
+        + "Message: Error message");
   }
 
   @Test
@@ -103,8 +107,12 @@ public class PublishCommandTest {
   }
 
   private static void stubSchemas() {
-    String response = """
-        {"pages":{"type":"record","name":"Page","namespace":"dev.streamx.blueprints.data","fields":[{"name":"content","type":["null","bytes"],"default":null}]},"bad-request-channel":{"type":"record","name":"Whatever","namespace":"dev.streamx.blueprints.data","fields":[]}}""";
+    String response = "{\"pages\":{\"type\":\"record\",\"name\":\"Page\","
+                      + "\"namespace\":\"dev.streamx.blueprints.data\","
+                      + "\"fields\":[{\"name\":\"content\",\"type\":[\"null\",\"bytes\"],"
+                      + "\"default\":null}]},\"bad-request-channel\":{\"type\":\"record\","
+                      + "\"name\":\"Whatever\",\"namespace\":\"dev.streamx.blueprints.data\","
+                      + "\"fields\":[]}}";
 
     wm.stubFor(WireMock.get(getSchema())
         .willReturn(responseDefinition().withStatus(SC_OK).withBody(response)
@@ -119,8 +127,10 @@ public class PublishCommandTest {
         .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
             .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
-    FailureResponse badRequest  = new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message");
-    wm.stubFor(WireMock.put(getPublicationPath(PublishCommandTest.BAD_REQUEST_CHANNEL, PublishCommandTest.KEY))
+    FailureResponse badRequest = new FailureResponse("INVALID_PUBLICATION_PAYLOAD",
+        "Error message");
+    wm.stubFor(WireMock.put(
+            getPublicationPath(PublishCommandTest.BAD_REQUEST_CHANNEL, PublishCommandTest.KEY))
         .willReturn(responseDefinition().withStatus(SC_BAD_REQUEST).withBody(Json.write(badRequest))
             .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
   }

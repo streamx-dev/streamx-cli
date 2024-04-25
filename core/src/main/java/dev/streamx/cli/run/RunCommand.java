@@ -33,11 +33,12 @@ public class RunCommand implements Runnable {
   MeshSource meshSource;
 
   static class MeshSource {
-    @Option(names = { "-f", "--file" }, paramLabel = "mesh definition file",
+
+    @Option(names = {"-f", "--file"}, paramLabel = "mesh definition file",
         description = "Path to mesh definition file")
     String meshDefinitionFile;
 
-    @Option(names = { "--blueprints-mesh" },
+    @Option(names = {"--blueprints-mesh"},
         description = "Use predefined blueprints-mesh")
     boolean blueprintsMesh;
   }

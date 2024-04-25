@@ -8,7 +8,7 @@ import java.util.logging.LogRecord;
 import java.util.stream.Stream;
 
 @LoggingFilter(name = "tc-pull-filter")
-public class TestContainerLogFilter  implements Filter {
+public class TestContainerLogFilter implements Filter {
 
   @Override
   public boolean isLoggable(LogRecord record) {
