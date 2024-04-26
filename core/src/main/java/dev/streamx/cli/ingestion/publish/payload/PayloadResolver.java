@@ -58,20 +58,21 @@ public class PayloadResolver {
   }
 
   public JsonNode createPayload(String data) {
-    return createPayload(data, List.of());
+    return createPayload(null, data, List.of());
   }
 
-  public JsonNode createPayload(String data, List<ValueArguments> values) {
+  public JsonNode createPayload(String payloadArg, String data, List<ValueArguments> values) {
     try {
-      return doCreatePayload(data, values);
+      return doCreatePayload(payloadArg, data, values);
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }
   }
 
-  private JsonNode doCreatePayload(String data, List<ValueArguments> values) throws IOException {
+  private JsonNode doCreatePayload(String payloadArg, String data, List<ValueArguments> values)
+      throws IOException {
     DocumentContext documentContext = prepareWrappedJsonNode(
-        data,
+        payloadArg, data,
         (exception, source) -> {
           throw PayloadException.jsonParseException(exception, source);
         },
@@ -85,13 +86,13 @@ public class PayloadResolver {
     return documentContext.json();
   }
 
-  private static DocumentContext prepareWrappedJsonNode(String data,
+  private static DocumentContext prepareWrappedJsonNode(String payloadArg, String data,
       BiConsumer<JsonParseException, String> onJsonParseException,
       BiConsumer<JsonProcessingException, String> onJsonProcessingException
   ) {
     String source = null;
     try {
-      source = readStringContent(data);
+      source = readStringContent(payloadArg, data);
 
       String nullSafeSource = Optional.of(source)
           .filter(StringUtils::isNotEmpty)
@@ -141,11 +142,12 @@ public class PayloadResolver {
 
       return JacksonUtils.toJsonNode(bytes);
     } else if (valueArgument.isString()) {
-      String content = readStringContent(value);
+      String content = readStringContent(null, value);
 
       return TextNode.valueOf(content);
     } else {
       return prepareWrappedJsonNode(
+          null,
           value,
           (exception, source) -> {
             throw ValueException.jsonParseException(exception, jsonPath, source);

@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
-import dev.streamx.cli.ingestion.IngestionTargetArguments;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
+import java.util.List;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -21,7 +21,7 @@ import picocli.CommandLine.Spec;
 public class PublishCommand implements Runnable {
 
   @ArgGroup(exclusive = false, multiplicity = "1")
-  IngestionTargetArguments ingestionTargetArguments;
+  PublishTargetArguments ingestionTargetArguments;
 
   @ArgGroup(exclusive = false)
   IngestionArguments ingestionArguments;
@@ -46,7 +46,9 @@ public class PublishCommand implements Runnable {
     validateChannel();
 
     JsonNode jsonNode = payloadResolver.createPayload(
-        payloadArguments.data, payloadArguments.values);
+        ingestionTargetArguments.payload,
+        payloadArguments != null ? payloadArguments.data : null,
+        payloadArguments != null ? payloadArguments.values : List.of());
 
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);

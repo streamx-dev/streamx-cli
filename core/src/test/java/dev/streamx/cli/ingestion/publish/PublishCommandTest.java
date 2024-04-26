@@ -31,6 +31,8 @@ public class PublishCommandTest {
   private static final String KEY = "index.html";
   private static final String DATA = """
       {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
+  private static final String PAYLOAD_PATH =
+      "target/test-classes/dev/streamx/cli/publish/payload/helloworld-payload.json";
 
   @RegisterExtension
   static WireMockExtension wm = WireMockExtension.newInstance()
@@ -80,6 +82,17 @@ public class PublishCommandTest {
         "--ingestion-url=" + getIngestionUrl(),
         "--data=" + DATA,
         CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+  }
+
+  @Test
+  public void shouldPublishUsingPayloadFromPayloadArg(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        CHANNEL, KEY, PAYLOAD_PATH);
 
     // then
     assertThat(result.exitCode()).isZero();

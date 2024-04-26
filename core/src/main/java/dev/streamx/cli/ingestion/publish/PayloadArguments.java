@@ -9,7 +9,7 @@ public class PayloadArguments {
 
   @Option(names = {"-d", "--data"},
       description = "Published payload",
-      required = true)
+      required = false)
   String data;
 
   @ArgGroup(exclusive = false, multiplicity = "0..*")
