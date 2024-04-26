@@ -61,18 +61,18 @@ public class PayloadResolver {
     return createPayload(null, data, List.of());
   }
 
-  public JsonNode createPayload(String payloadArg, String data, List<ValueArguments> values) {
+  public JsonNode createPayload(String payloadFileArg, String data, List<ValueArguments> values) {
     try {
-      return doCreatePayload(payloadArg, data, values);
+      return doCreatePayload(payloadFileArg, data, values);
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }
   }
 
-  private JsonNode doCreatePayload(String payloadArg, String data, List<ValueArguments> values)
+  private JsonNode doCreatePayload(String payloadFileArg, String data, List<ValueArguments> values)
       throws IOException {
     DocumentContext documentContext = prepareWrappedJsonNode(
-        payloadArg, data,
+        payloadFileArg, data,
         (exception, source) -> {
           throw PayloadException.jsonParseException(exception, source);
         },
@@ -86,13 +86,13 @@ public class PayloadResolver {
     return documentContext.json();
   }
 
-  private static DocumentContext prepareWrappedJsonNode(String payloadArg, String data,
+  private static DocumentContext prepareWrappedJsonNode(String payloadFileArg, String data,
       BiConsumer<JsonParseException, String> onJsonParseException,
       BiConsumer<JsonProcessingException, String> onJsonProcessingException
   ) {
     String source = null;
     try {
-      source = readStringContent(payloadArg, data);
+      source = readStringContent(payloadFileArg, data);
 
       String nullSafeSource = Optional.of(source)
           .filter(StringUtils::isNotEmpty)

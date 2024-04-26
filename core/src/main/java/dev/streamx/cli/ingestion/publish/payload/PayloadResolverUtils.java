@@ -11,9 +11,9 @@ import org.apache.commons.lang3.StringUtils;
 class PayloadResolverUtils {
   private static final String AT_FILE_SIGN = "@";
 
-  static String readStringContent(String payloadArg, String argument) {
-    if (StringUtils.isNotEmpty(payloadArg)) {
-      return new String(readFile(payloadArg), StandardCharsets.UTF_8);
+  static String readStringContent(String payloadFileArg, String argument) {
+    if (StringUtils.isNotEmpty(payloadFileArg)) {
+      return new String(readFile(payloadFileArg), StandardCharsets.UTF_8);
     }
     if (argument.startsWith(AT_FILE_SIGN)) {
       return new String(readFile(argument.substring(1)), StandardCharsets.UTF_8);

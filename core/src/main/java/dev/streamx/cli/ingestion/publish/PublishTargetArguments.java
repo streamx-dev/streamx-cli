@@ -5,11 +5,16 @@ import picocli.CommandLine.Parameters;
 
 public class PublishTargetArguments extends IngestionTargetArguments {
 
-  @Parameters(index = "2", description = "Publish payload", arity = "0..1")
-  String payload;
+  @Parameters(index = "2", arity = "0..1",
+      paramLabel = "payloadFile",
+      description = "File containing payload to publish.\n"
+          + "This is optional argument.\n"
+          + "This argument shortcut to equal to adding -d file://<payloadFile>\n"
+          + "If this argument occurs, it has highest priority in defining payload.")
+  String payloadFile;
 
-  public String getPayload() {
-    return payload;
+  public String getPayloadFile() {
+    return payloadFile;
   }
 }
 

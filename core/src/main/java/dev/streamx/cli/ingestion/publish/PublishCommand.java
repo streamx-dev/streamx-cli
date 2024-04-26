@@ -46,7 +46,7 @@ public class PublishCommand implements Runnable {
     validateChannel();
 
     JsonNode jsonNode = payloadResolver.createPayload(
-        ingestionTargetArguments.payload,
+        ingestionTargetArguments.payloadFile,
         payloadArguments != null ? payloadArguments.data : null,
         payloadArguments != null ? payloadArguments.values : List.of());
 
