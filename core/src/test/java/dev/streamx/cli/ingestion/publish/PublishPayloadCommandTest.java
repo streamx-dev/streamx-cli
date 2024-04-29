@@ -50,7 +50,7 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v", "content.b[]ytes='<h1>Hello changed value!</h1>'",
+        "-d", "content.b[]ytes='<h1>Hello changed value!</h1>'",
         CHANNEL, KEY);
 
     // then
@@ -64,8 +64,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-v", "content.bytes=@nana",
+        "-d", "content.bytes=@nana",
         CHANNEL, KEY);
 
     // then
@@ -82,8 +81,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-v", "content.bytes=" + corruptedPathArg,
+        "-d", "content.bytes=" + corruptedPathArg,
         CHANNEL, KEY);
 
     // then
@@ -92,26 +90,11 @@ public class PublishPayloadCommandTest {
   }
 
   @Test
-  public void shouldRejectNonExistingJsonPath(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-v", "content.byte='<h1>Hello changed value!</h1>'",
-        CHANNEL, KEY);
-
-    // then
-    assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("JsonPath could not be found.");
-  }
-
-  @Test
   public void shouldPublishReplacedJsonPath(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-v", "content.bytes='<h1>Hello changed value!</h1>'",
+        "-d", "content.bytes='<h1>Hello changed value!</h1>'",
         CHANNEL, KEY);
 
     // then
@@ -128,7 +111,7 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v", "content={'bytes':'<h1>Hello changed value!</h1>'}",
+        "-d", "content={'bytes':'<h1>Hello changed value!</h1>'}",
         CHANNEL, KEY);
 
     // then
@@ -147,8 +130,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-v", "content.bytes=" + arg,
+        "-d", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then
@@ -165,7 +147,7 @@ public class PublishPayloadCommandTest {
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "-d", DATA,
-        "-v", "content.bytes=",
+        "-d", "content.bytes=",
         CHANNEL, KEY);
 
     // then
@@ -181,9 +163,8 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-v", "content.bytes='<h1>Hello changed value!</h1>'",
-        "-v", "$..bytes='bytes'",
+        "-d", "content.bytes='<h1>Hello changed value!</h1>'",
+        "-d", "$..bytes='bytes'",
         CHANNEL, KEY);
 
     // then
@@ -198,8 +179,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-sv", "content.bytes=<h1>Hello changed value!</h1>",
+        "-sd", "content.bytes=<h1>Hello changed value!</h1>",
         CHANNEL, KEY);
 
     // then
@@ -218,8 +198,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-sv", "content.bytes=" + arg,
+        "-sd", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then
@@ -238,8 +217,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", DATA,
-        "-sv", "content.bytes=" + arg,
+        "-sd", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then

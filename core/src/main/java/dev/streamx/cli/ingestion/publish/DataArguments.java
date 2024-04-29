@@ -4,20 +4,28 @@ import java.util.Optional;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class ValueArguments {
+public class DataArguments {
 
-  @Option(names = {"-v", "--value"},
-      description = "Pair of JsonPath and it's replacements. "
+  @ArgGroup(exclusive = true)
+  DataType dataType;
+
+  @Option(names = {"-d", "--data"},
+      // FIXME
+      description = "FIXME Pair of JsonPath and it's replacements. "
                     + "By default replacement is considered as json data.",
       required = true
   )
   String value;
 
-  @ArgGroup(exclusive = true)
-  ValueType valueType;
+  public static DataArguments of(String data) {
+    DataArguments arg = new DataArguments();
+    arg.value = data;
 
-  static class ValueType {
+    return arg;
+  }
 
+  static class DataType {
+    // FIXME change to "-j" if it's json
     @Option(names = "-b",
         description = "Indicates that replacement is binary data",
         defaultValue = "false"
@@ -44,10 +52,10 @@ public class ValueArguments {
   }
 
   public boolean isBinary() {
-    return Optional.ofNullable(valueType).map(ValueType::isBinary).orElse(false);
+    return Optional.ofNullable(dataType).map(DataType::isBinary).orElse(false);
   }
 
   public boolean isString() {
-    return Optional.ofNullable(valueType).map(ValueType::isString).orElse(false);
+    return Optional.ofNullable(dataType).map(DataType::isString).orElse(false);
   }
 }

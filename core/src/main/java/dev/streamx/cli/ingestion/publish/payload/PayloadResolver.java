@@ -1,43 +1,36 @@
 package dev.streamx.cli.ingestion.publish.payload;
 
+import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.prepareWrappedJsonNode;
 import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.readContent;
 import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.readStringContent;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import dev.streamx.cli.exception.PayloadException;
 import dev.streamx.cli.exception.ValueException;
-import dev.streamx.cli.ingestion.publish.ValueArguments;
+import dev.streamx.cli.ingestion.publish.DataArguments;
+import dev.streamx.cli.ingestion.publish.payload.InitialPayloadResolver.InitialPayload;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import org.apache.avro.util.internal.JacksonUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 public class PayloadResolver {
-
-  private static final String NULL_JSON_SOURCE = "null";
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -49,30 +42,35 @@ public class PayloadResolver {
   private final MappingProvider mappingProvider;
 
   @Inject
+  InitialPayloadResolver initialPayloadResolver;
+
+  @Inject
   ValueReplacementExtractor valueReplacementExtractor;
 
   PayloadResolver() {
-    jsonProvider = new JacksonJsonNodeJsonProvider(objectMapper);
+    jsonProvider = new PropertyCreatingJacksonJsonNodeJsonProvider(objectMapper);
     mappingProvider = new JacksonMappingProvider(objectMapper);
     configureDefaults();
   }
 
   public JsonNode createPayload(String data) {
-    return createPayload(null, data, List.of());
+    return createPayload(List.of(DataArguments.of(data)));
   }
 
-  public JsonNode createPayload(String payloadFileArg, String data, List<ValueArguments> values) {
+  public JsonNode createPayload(List<DataArguments> dataArgs) {
     try {
-      return doCreatePayload(payloadFileArg, data, values);
+      return doCreatePayload(dataArgs);
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }
   }
 
-  private JsonNode doCreatePayload(String payloadFileArg, String data, List<ValueArguments> values)
+  private JsonNode doCreatePayload(List<DataArguments> dataArgs)
       throws IOException {
+    InitialPayload result = initialPayloadResolver.computeInitialPayload(dataArgs);
+
     DocumentContext documentContext = prepareWrappedJsonNode(
-        payloadFileArg, data,
+        result.initialData(),
         (exception, source) -> {
           throw PayloadException.jsonParseException(exception, source);
         },
@@ -81,42 +79,20 @@ public class PayloadResolver {
         }
     );
 
-    replaceValues(documentContext, values);
+    replaceValues(documentContext, result.replacements());
 
     return documentContext.json();
   }
 
-  private static DocumentContext prepareWrappedJsonNode(String payloadFileArg, String data,
-      BiConsumer<JsonParseException, String> onJsonParseException,
-      BiConsumer<JsonProcessingException, String> onJsonProcessingException
-  ) {
-    String source = null;
-    try {
-      source = readStringContent(payloadFileArg, data);
-
-      String nullSafeSource = Optional.of(source)
-          .filter(StringUtils::isNotEmpty)
-          .orElse(NULL_JSON_SOURCE);
-
-      return JsonPath.parse(nullSafeSource);
-    } catch (InvalidJsonException e) {
-      Throwable cause = e.getCause();
-      if (cause instanceof JsonParseException exception) {
-        onJsonParseException.accept(exception, source);
-      } else if (cause instanceof JsonProcessingException exception) {
-        onJsonProcessingException.accept(exception, source);
-      }
-      throw PayloadException.ioException(e);
-    }
-  }
-
-  private void replaceValues(DocumentContext documentContext, List<ValueArguments> valueArguments) {
-    if (valueArguments == null || valueArguments.isEmpty()) {
+  private void replaceValues(DocumentContext documentContext, List<DataArguments> dataArguments) {
+    if (dataArguments == null || dataArguments.isEmpty()) {
       return;
     }
 
-    for (ValueArguments valueArgument : valueArguments) {
-      Pair<JsonPath, String> extract = valueReplacementExtractor.extract(valueArgument.getValue());
+    for (DataArguments valueArgument : dataArguments) {
+      String value = valueArgument.getValue();
+      Pair<JsonPath, String> extract = valueReplacementExtractor.extract(value)
+          .orElseThrow(() -> ValueException.noJsonPathFoundException(value));
 
       JsonPath jsonPath = extract.getKey();
       JsonNode replacement = extractReplacement(valueArgument, extract);
@@ -132,7 +108,7 @@ public class PayloadResolver {
     }
   }
 
-  private static JsonNode extractReplacement(ValueArguments valueArgument,
+  private static JsonNode extractReplacement(DataArguments valueArgument,
       Pair<JsonPath, String> extract) {
     JsonPath jsonPath = extract.getKey();
     String value = extract.getValue();
@@ -142,12 +118,11 @@ public class PayloadResolver {
 
       return JacksonUtils.toJsonNode(bytes);
     } else if (valueArgument.isString()) {
-      String content = readStringContent(null, value);
+      String content = readStringContent(value);
 
       return TextNode.valueOf(content);
     } else {
       return prepareWrappedJsonNode(
-          null,
           value,
           (exception, source) -> {
             throw ValueException.jsonParseException(exception, jsonPath, source);

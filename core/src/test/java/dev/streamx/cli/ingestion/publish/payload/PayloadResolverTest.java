@@ -7,9 +7,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.exception.PayloadException;
-import java.util.List;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+@QuarkusTest
 class PayloadResolverTest {
 
   private static final JsonNode EXAMPLE_JSON_NODE;
@@ -22,7 +24,8 @@ class PayloadResolverTest {
     }
   }
 
-  PayloadResolver cut = new PayloadResolver();
+  @Inject
+  PayloadResolver cut;
 
   @Test
   void shouldValidateData() {
@@ -36,20 +39,6 @@ class PayloadResolverTest {
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
     assertThat(exception).hasMessageContaining("Payload could not be parsed.");
-  }
-
-  @Test
-  void shouldTreatPayloadArgAsData() {
-    // given
-    String dataArg = "@target/test-classes/dev/streamx/cli/publish/payload/payload.json";
-    String payloadArg = "target/test-classes/dev/streamx/cli/publish/payload/payload.json";
-
-    // when
-    JsonNode dataPayload = cut.createPayload(dataArg);
-    JsonNode payloadArgPayload = cut.createPayload(payloadArg, null, List.of());
-
-    // then
-    assertThat(dataPayload).isEqualTo(payloadArgPayload);
   }
 
   @Test

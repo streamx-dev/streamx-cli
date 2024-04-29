@@ -24,12 +24,11 @@ class ValueReplacementExtractorTest {
   })
   void shouldNotExtractPair(String arg) {
     // when
-    Exception exception = catchException(() -> cut.extract(arg));
+    var result = cut.extract(arg);
 
     // then
-    assertThat(exception)
-        .isInstanceOf(ValueException.class)
-        .hasMessageContaining("Could not find valid jsonPath in given argument");
+    assertThat(result).isNotNull();
+    assertThat(result.isPresent()).isFalse();
   }
 
   @ParameterizedTest
@@ -40,8 +39,9 @@ class ValueReplacementExtractorTest {
 
     // then
     assertThat(result).isNotNull();
-    assertThat(result.getKey().getPath()).isEqualTo(key.getPath());
-    assertThat(result.getValue()).isEqualTo(newValue);
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().getKey().getPath()).isEqualTo(key.getPath());
+    assertThat(result.get().getValue()).isEqualTo(newValue);
   }
 
   static Stream<Arguments> extractPair() {

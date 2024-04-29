@@ -7,10 +7,15 @@ import dev.streamx.cli.ingestion.IngestionArguments;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
+import dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -45,10 +50,24 @@ public class PublishCommand implements Runnable {
   public void run() {
     validateChannel();
 
-    JsonNode jsonNode = payloadResolver.createPayload(
-        ingestionTargetArguments.payloadFile,
-        payloadArguments != null ? payloadArguments.data : null,
-        payloadArguments != null ? payloadArguments.values : List.of());
+    var payloadFileArgument = Optional.ofNullable(ingestionTargetArguments)
+        .map(PublishTargetArguments::getPayloadFile)
+        .map(arg -> {
+          DataArguments payloadFileAsDataArgument = new DataArguments();
+          payloadFileAsDataArgument.value =
+              PayloadResolverUtils.AT_FILE_SIGN + arg;
+
+          return payloadFileAsDataArgument;
+        });
+    var dataArgumentsStream = Optional.ofNullable(payloadArguments)
+        .map(PayloadArguments::getDataArgs).stream()
+        .flatMap(Collection::stream);
+
+    List<DataArguments> mergedDataArgumentsList = Stream.concat(payloadFileArgument.stream(),
+            dataArgumentsStream)
+        .collect(Collectors.toList());
+
+    JsonNode jsonNode = payloadResolver.createPayload(mergedDataArgumentsList);
 
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
