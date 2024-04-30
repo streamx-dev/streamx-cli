@@ -25,25 +25,25 @@ public class DataArguments {
   }
 
   static class DataType {
-    // FIXME change to "-j" if it's json
     @Option(names = "-b",
         description = "Indicates that replacement is binary data",
         defaultValue = "false"
     )
     boolean binary;
 
-    @Option(names = "-s",
-        description = "Indicates that replacement is raw string",
+
+    @Option(names = "-j",
+        description = "Indicates that replacement is valid json",
         defaultValue = "false"
     )
-    boolean string;
+    boolean json;
 
     public boolean isBinary() {
       return binary;
     }
 
-    public boolean isString() {
-      return string;
+    public boolean isJson() {
+      return json;
     }
   }
 
@@ -55,7 +55,7 @@ public class DataArguments {
     return Optional.ofNullable(dataType).map(DataType::isBinary).orElse(false);
   }
 
-  public boolean isString() {
-    return Optional.ofNullable(dataType).map(DataType::isString).orElse(false);
+  public boolean isJson() {
+    return Optional.ofNullable(dataType).map(DataType::isJson).orElse(false);
   }
 }

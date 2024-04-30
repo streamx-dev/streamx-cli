@@ -6,6 +6,7 @@ import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
+import dev.streamx.cli.ingestion.publish.DataArguments.DataType;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils;
 import dev.streamx.clients.ingestion.StreamxClient;
@@ -56,6 +57,8 @@ public class PublishCommand implements Runnable {
           DataArguments payloadFileAsDataArgument = new DataArguments();
           payloadFileAsDataArgument.value =
               PayloadResolverUtils.AT_FILE_SIGN + arg;
+          payloadFileAsDataArgument.dataType = new DataType();
+          payloadFileAsDataArgument.dataType.json = true;
 
           return payloadFileAsDataArgument;
         });

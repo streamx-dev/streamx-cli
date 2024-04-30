@@ -113,15 +113,7 @@ public class PayloadResolver {
     JsonPath jsonPath = extract.getKey();
     String value = extract.getValue();
 
-    if (valueArgument.isBinary()) {
-      byte[] bytes = readContent(value);
-
-      return JacksonUtils.toJsonNode(bytes);
-    } else if (valueArgument.isString()) {
-      String content = readStringContent(value);
-
-      return TextNode.valueOf(content);
-    } else {
+    if (valueArgument.isJson()) {
       return prepareWrappedJsonNode(
           value,
           (exception, source) -> {
@@ -131,9 +123,16 @@ public class PayloadResolver {
             throw ValueException.genericJsonProcessingException(exception, jsonPath, source);
           }
       ).json();
+    } else if (valueArgument.isBinary()) {
+      byte[] bytes = readContent(value);
+
+      return JacksonUtils.toJsonNode(bytes);
+    } else {
+      String content = readStringContent(value);
+
+      return TextNode.valueOf(content);
     }
   }
-
 
   private void configureDefaults() {
     Configuration.setDefaults(new Configuration.Defaults() {
