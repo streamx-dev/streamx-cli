@@ -76,11 +76,23 @@ public class PublishCommandTest {
   }
 
   @Test
-  public void shouldPublishUsingIngestionClient(QuarkusMainLauncher launcher) {
+  public void shouldPublishUsing(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
         "--data=" + DATA,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+  }
+
+  @Test
+  public void shouldPublishBinaryData(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-bd=" + DATA,
         CHANNEL, KEY);
 
     // then

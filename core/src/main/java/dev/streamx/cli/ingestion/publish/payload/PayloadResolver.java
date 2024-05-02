@@ -1,61 +1,40 @@
 package dev.streamx.cli.ingestion.publish.payload;
 
-import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.prepareWrappedJsonNode;
-import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.readContent;
-import static dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils.readStringContent;
-
-import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.jayway.jsonpath.spi.json.JsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
-import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import dev.streamx.cli.exception.PayloadException;
 import dev.streamx.cli.exception.ValueException;
 import dev.streamx.cli.ingestion.publish.DataArguments;
 import dev.streamx.cli.ingestion.publish.payload.InitialPayloadResolver.InitialPayload;
+import dev.streamx.cli.ingestion.publish.payload.source.RawPayload;
+import dev.streamx.cli.ingestion.publish.payload.source.SourceResolver;
+import dev.streamx.cli.ingestion.publish.payload.typed.SourceType;
+import dev.streamx.cli.ingestion.publish.payload.typed.TypedPayloadFragmentResolver;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
-import org.apache.avro.util.internal.JacksonUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
 public class PayloadResolver {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
-
-  static {
-    objectMapper.enable(Feature.ALLOW_SINGLE_QUOTES);
-  }
-
-  private final JsonProvider jsonProvider;
-  private final MappingProvider mappingProvider;
-
   @Inject
   InitialPayloadResolver initialPayloadResolver;
 
   @Inject
+  SourceResolver sourceResolver;
+
+  @Inject
+  TypedPayloadFragmentResolver typedPayloadFragmentResolver;
+
+  @Inject
   ValueReplacementExtractor valueReplacementExtractor;
-
-  PayloadResolver() {
-    jsonProvider = new PropertyCreatingJacksonJsonNodeJsonProvider(objectMapper);
-    mappingProvider = new JacksonMappingProvider(objectMapper);
-    configureDefaults();
-  }
-
-  public JsonNode createPayload(String data) {
-    return createPayload(List.of(DataArguments.of(data)));
-  }
 
   public JsonNode createPayload(List<DataArguments> dataArgs) {
     try {
@@ -69,19 +48,27 @@ public class PayloadResolver {
       throws IOException {
     InitialPayload result = initialPayloadResolver.computeInitialPayload(dataArgs);
 
-    DocumentContext documentContext = prepareWrappedJsonNode(
-        result.initialData(),
-        (exception, source) -> {
-          throw PayloadException.jsonParseException(exception, source);
-        },
-        (exception, source) -> {
-          throw PayloadException.genericJsonProcessingException(exception, source);
-        }
-    );
+    String initialData = result.initialData();
+    DocumentContext documentContext = prepareInitialDocument(initialData);
 
     replaceValues(documentContext, result.replacements());
 
     return documentContext.json();
+  }
+
+  private DocumentContext prepareInitialDocument(String initialData) {
+    try {
+      JsonNode initialJson = extractPayloadFragment(
+          DataArguments.ofJsonNode(initialData), initialData);
+
+      return JsonPath.parse(initialJson);
+    } catch (JsonParseException exception) {
+      throw PayloadException.jsonParseException(exception, initialData);
+    } catch (JsonProcessingException exception) {
+      throw PayloadException.genericJsonProcessingException(exception, initialData);
+    } catch (IOException e) {
+      throw PayloadException.ioException(e);
+    }
   }
 
   private void replaceValues(DocumentContext documentContext, List<DataArguments> dataArguments) {
@@ -95,7 +82,18 @@ public class PayloadResolver {
           .orElseThrow(() -> ValueException.noJsonPathFoundException(value));
 
       JsonPath jsonPath = extract.getKey();
-      JsonNode replacement = extractReplacement(valueArgument, extract);
+      JsonNode replacement;
+      String extractValue = extract.getValue();
+
+      try {
+        replacement = extractPayloadFragment(valueArgument, extractValue);
+      } catch (JsonParseException exception) {
+        throw ValueException.jsonParseException(exception, jsonPath, extractValue);
+      } catch (JsonProcessingException exception) {
+        throw ValueException.genericJsonProcessingException(exception, jsonPath, extractValue);
+      } catch (IOException e) {
+        throw PayloadException.ioException(e);
+      }
 
       try {
         documentContext = documentContext.set(jsonPath, replacement);
@@ -108,48 +106,17 @@ public class PayloadResolver {
     }
   }
 
-  private static JsonNode extractReplacement(DataArguments valueArgument,
-      Pair<JsonPath, String> extract) {
-    JsonPath jsonPath = extract.getKey();
-    String value = extract.getValue();
-
-    if (valueArgument.isJson()) {
-      return prepareWrappedJsonNode(
-          value,
-          (exception, source) -> {
-            throw ValueException.jsonParseException(exception, jsonPath, source);
-          },
-          (exception, source) -> {
-            throw ValueException.genericJsonProcessingException(exception, jsonPath, source);
-          }
-      ).json();
-    } else if (valueArgument.isBinary()) {
-      byte[] bytes = readContent(value);
-
-      return JacksonUtils.toJsonNode(bytes);
-    } else {
-      String content = readStringContent(value);
-
-      return TextNode.valueOf(content);
+  private JsonNode extractPayloadFragment(DataArguments valueArgument, String value)
+      throws IOException {
+    RawPayload rawPayload = sourceResolver.resolve(value);
+    SourceType sourceType = SourceType.STRING;
+    if (valueArgument.isBinary()) {
+      sourceType = SourceType.BINARY;
     }
-  }
+    if (valueArgument.isJson()) {
+      sourceType = SourceType.JSON;
+    }
 
-  private void configureDefaults() {
-    Configuration.setDefaults(new Configuration.Defaults() {
-      @Override
-      public JsonProvider jsonProvider() {
-        return jsonProvider;
-      }
-
-      @Override
-      public Set<Option> options() {
-        return Set.of();
-      }
-
-      @Override
-      public MappingProvider mappingProvider() {
-        return mappingProvider;
-      }
-    });
+    return typedPayloadFragmentResolver.resolveFragment(rawPayload, sourceType).jsonNode();
   }
 }

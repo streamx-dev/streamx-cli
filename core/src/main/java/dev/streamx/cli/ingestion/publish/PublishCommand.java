@@ -8,7 +8,7 @@ import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
 import dev.streamx.cli.ingestion.publish.DataArguments.DataType;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
-import dev.streamx.cli.ingestion.publish.payload.PayloadResolverUtils;
+import dev.streamx.cli.ingestion.publish.payload.source.FileSourceResolver;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
@@ -32,7 +32,7 @@ public class PublishCommand implements Runnable {
   @ArgGroup(exclusive = false)
   IngestionArguments ingestionArguments;
 
-  @ArgGroup(exclusive = false, heading = "Payload arguments:\n")
+  @ArgGroup(exclusive = false, heading = "\n@|bold Payload arguments:|@\n")
   PayloadArguments payloadArguments;
 
   @Spec
@@ -56,7 +56,7 @@ public class PublishCommand implements Runnable {
         .map(arg -> {
           DataArguments payloadFileAsDataArgument = new DataArguments();
           payloadFileAsDataArgument.value =
-              PayloadResolverUtils.AT_FILE_SIGN + arg;
+              FileSourceResolver.FILE_STRATEGY_PREFIX + arg;
           payloadFileAsDataArgument.dataType = new DataType();
           payloadFileAsDataArgument.dataType.json = true;
 

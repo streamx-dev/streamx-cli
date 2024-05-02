@@ -1,5 +1,6 @@
 package dev.streamx.cli.ingestion.publish.payload;
 
+import dev.streamx.cli.exception.PayloadException;
 import dev.streamx.cli.ingestion.publish.DataArguments;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -9,8 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
 class InitialPayloadResolver {
-
-  // FIXME reorganise classes in package
 
   @Inject
   ValueReplacementExtractor valueReplacementExtractor;
@@ -23,7 +22,7 @@ class InitialPayloadResolver {
     String data = dataArgs.stream()
         .map(DataArguments::getValue)
         .findFirst()
-        .orElseThrow(); // FIXME handle message, exception and others
+        .orElseThrow(PayloadException::payloadNotFound);
 
     boolean firstDataIsInitialPayload = valueReplacementExtractor.extract(data)
         .map(Pair::getLeft)
@@ -32,8 +31,8 @@ class InitialPayloadResolver {
       initialData = data;
       replacements = dataArgs.subList(1, dataArgs.size());
     }
-    InitialPayload result = new InitialPayload(initialData, replacements);
-    return result;
+
+    return new InitialPayload(initialData, replacements);
   }
 
   record InitialPayload(String initialData, List<DataArguments> replacements) {

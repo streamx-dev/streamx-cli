@@ -9,7 +9,9 @@ public class PublishTargetArguments extends IngestionTargetArguments {
       paramLabel = "payloadFile",
       description = "File containing payload to publish.\n"
           + "This is optional argument.\n"
-          + "This argument shortcut to equal to adding -d file://<payloadFile>\n"
+          + "This argument shortcut to equal to \n"
+          + "@|yellow -d=file://<payloadFile>|@ "
+          + "specified before other @|yellow -d |@ params\n\n"
           + "If this argument occurs, it has highest priority in defining payload.")
   String payloadFile;
 

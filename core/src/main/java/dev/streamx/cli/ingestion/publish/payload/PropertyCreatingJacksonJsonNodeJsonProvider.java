@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 
-class PropertyCreatingJacksonJsonNodeJsonProvider extends JacksonJsonNodeJsonProvider {
-  PropertyCreatingJacksonJsonNodeJsonProvider(ObjectMapper objectMapper) {
+public class PropertyCreatingJacksonJsonNodeJsonProvider extends JacksonJsonNodeJsonProvider {
+  public PropertyCreatingJacksonJsonNodeJsonProvider(ObjectMapper objectMapper) {
     super(objectMapper);
   }
 

@@ -64,7 +64,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", "content.bytes=@nana",
+        "-d", "content.bytes=file://nana",
         CHANNEL, KEY);
 
     // then
@@ -76,7 +76,7 @@ public class PublishPayloadCommandTest {
   public void shouldRejectInvalidFile(QuarkusMainLauncher launcher) {
     // given
     String corruptedPathArg =
-        "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+        "file://target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -125,7 +125,7 @@ public class PublishPayloadCommandTest {
   @Test
   public void shouldPublishReplacedFromFile(QuarkusMainLauncher launcher) {
     // given
-    String arg = "@target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -193,7 +193,7 @@ public class PublishPayloadCommandTest {
   @Test
   public void shouldPublishReplacedJsonPathWithStringValueFromFile(QuarkusMainLauncher launcher) {
     // given
-    String arg = "@target/test-classes/dev/streamx/cli/publish/payload/raw-text.txt";
+    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/raw-text.txt";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -212,7 +212,7 @@ public class PublishPayloadCommandTest {
   @Test
   public void shouldPublishReplacedJsonPathWithBinaryValue(QuarkusMainLauncher launcher) {
     // given
-    String arg = "@target/test-classes/dev/streamx/cli/publish/payload/example-image.png";
+    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/example-image.png";
 
     // when
     LaunchResult result = launcher.launch("publish",
