@@ -53,12 +53,12 @@ public class PublishCommand implements Runnable {
     var payloadFileArgument = Optional.ofNullable(ingestionTargetArguments)
         .map(PublishTargetArguments::getPayloadFile)
         .map(arg -> PayloadArgument.ofJsonNode(FileSourceResolver.FILE_STRATEGY_PREFIX + arg));
-    var dataArgumentsStream = Optional.ofNullable(payloadArguments)
+    var payloadArgStream = Optional.ofNullable(payloadArguments)
         .map(PayloadArguments::getPayloadArgs).stream()
         .flatMap(Collection::stream);
 
     List<PayloadArgument> mergedPayloadArgumentList = Stream.concat(payloadFileArgument.stream(),
-            dataArgumentsStream)
+            payloadArgStream)
         .collect(Collectors.toList());
 
     JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);

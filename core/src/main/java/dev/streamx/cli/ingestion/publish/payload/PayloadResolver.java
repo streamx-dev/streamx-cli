@@ -36,17 +36,17 @@ public class PayloadResolver {
   @Inject
   ValueReplacementExtractor valueReplacementExtractor;
 
-  public JsonNode createPayload(List<PayloadArgument> dataArgs) {
+  public JsonNode createPayload(List<PayloadArgument> payloadArguments) {
     try {
-      return doCreatePayload(dataArgs);
+      return doCreatePayload(payloadArguments);
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }
   }
 
-  private JsonNode doCreatePayload(List<PayloadArgument> dataArgs)
+  private JsonNode doCreatePayload(List<PayloadArgument> payloadArguments)
       throws IOException {
-    InitialPayload result = initialPayloadResolver.computeInitialPayload(dataArgs);
+    InitialPayload result = initialPayloadResolver.computeInitialPayload(payloadArguments);
 
     String initialData = result.initialData();
     DocumentContext documentContext = prepareInitialDocument(initialData);

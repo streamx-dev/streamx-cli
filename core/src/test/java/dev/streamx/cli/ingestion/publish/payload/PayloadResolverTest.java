@@ -130,7 +130,7 @@ class PayloadResolverTest {
     assertThat(exception).isInstanceOf(ValueException.class);
   }
 
-  public JsonNode createPayload(String data) {
-    return cut.createPayload(List.of(PayloadArgument.ofString(data)));
+  public JsonNode createPayload(String payload) {
+    return cut.createPayload(List.of(PayloadArgument.ofString(payload)));
   }
 }

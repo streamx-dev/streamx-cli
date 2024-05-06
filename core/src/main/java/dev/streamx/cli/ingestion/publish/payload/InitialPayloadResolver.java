@@ -15,24 +15,24 @@ class InitialPayloadResolver {
   ValueReplacementExtractor valueReplacementExtractor;
 
   @NotNull
-  InitialPayload computeInitialPayload(List<PayloadArgument> dataArgs) {
-    String initialData = "{}";
-    List<PayloadArgument> replacements = dataArgs;
+  InitialPayload computeInitialPayload(List<PayloadArgument> payloadArguments) {
+    String initialPayload = "{}";
+    List<PayloadArgument> replacements = payloadArguments;
 
-    String data = dataArgs.stream()
+    String firstPayloadArgValue = payloadArguments.stream()
         .map(PayloadArgument::getValue)
         .findFirst()
         .orElseThrow(PayloadException::payloadNotFound);
 
-    boolean firstDataIsInitialPayload = valueReplacementExtractor.extract(data)
+    boolean firstDataIsInitialPayload = valueReplacementExtractor.extract(firstPayloadArgValue)
         .map(Pair::getLeft)
         .isEmpty();
     if (firstDataIsInitialPayload) {
-      initialData = data;
-      replacements = dataArgs.subList(1, dataArgs.size());
+      initialPayload = firstPayloadArgValue;
+      replacements = payloadArguments.subList(1, payloadArguments.size());
     }
 
-    return new InitialPayload(initialData, replacements);
+    return new InitialPayload(initialPayload, replacements);
   }
 
   record InitialPayload(String initialData, List<PayloadArgument> replacements) {

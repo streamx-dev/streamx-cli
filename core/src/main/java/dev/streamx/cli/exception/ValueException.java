@@ -32,9 +32,9 @@ public class ValueException extends RuntimeException {
         %s
 
         Make sure that:
-         * you need JSON as replacement
-            (alternatively use '-s' to indicate replacement is raw text
-            or use '-b' to indicate replacement is binary data),
+         * you need JSON node as replacement
+            (alternatively use '-s' to specify raw text replacement
+            or use '-b' to specify is binary replacement),
          * it's valid JSON,
          * object property names are properly single-quoted (') or double-quoted ("),
          * strings are properly single-quoted (') or double-quoted (")
