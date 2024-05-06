@@ -73,7 +73,7 @@ public class PayloadArgument {
     if (payload.isJson()) {
       return payload.json;
     }
-    throw new IllegalArgumentException("Unknown data parameter."); // FIXME
+    throw new IllegalStateException("There must be some type. Something went wrong...");
   }
 
   public boolean isBinary() {

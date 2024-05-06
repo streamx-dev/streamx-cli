@@ -11,13 +11,13 @@ public class ValueException extends RuntimeException {
 
   public static ValueException noJsonPathFoundException(String valueArg) {
     return new ValueException("""
-        Could not find valid jsonPath in given argument.
+        Could not find valid jsonPath in given option.
 
-        Argument: %s
+        Option: %s
 
         Verify:
          * if given jsonPath is valid (according to https://github.com/json-path/JsonPath docs),
-         * if '=' is present in argument"""
+         * if '=' is present in option"""
         .formatted(valueArg), null);
   }
 

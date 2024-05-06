@@ -1,11 +1,9 @@
 package dev.streamx.cli.ingestion.publish.payload;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchException;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.jayway.jsonpath.JsonPath;
-import dev.streamx.cli.exception.ValueException;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

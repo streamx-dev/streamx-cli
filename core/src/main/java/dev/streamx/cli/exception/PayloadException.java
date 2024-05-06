@@ -21,8 +21,8 @@ public class PayloadException extends RuntimeException {
         Payload definition not found.
 
         Make sure that:
-         * there is optional third argument pointing path to file with payload,
-         * or there is at least one payload defining argument (-s/-b/-j)
+         * there is optional third parameter pointing path to file with payload,
+         * or there is at least one payload defining option (-s/-b/-j)
          """);
   }
 

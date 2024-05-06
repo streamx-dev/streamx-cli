@@ -19,7 +19,7 @@ public class PayloadArguments {
               Payload can also be created by specifying (one or more)
               jsonPath with payload fragment
                 e.g. @|yellow publish -s type=string -s content.bytes=hello (...)|@
-              will send @|yellow {"content":"string","content":{"bytes":"hello"}}|@
+              will send @|yellow {"type":"string","content":{"bytes":"hello"}}|@
               to ingestion service.
     
               There are few possibilities to define parameter value:
@@ -28,9 +28,9 @@ public class PayloadArguments {
               * otherwise raw value will be used as value
     
               Payload fragment type:
-              * if value is @|bold string|@ fragment use @|yellow -s|@
-              * if value is @|bold json|@ fragment use @|yellow -j|@
-              * if value is @|bold binary|@ value fragment use @|yellow -b|@\s
+              * if value is @|bold string|@ fragment use @|yellow -s|@ option
+              * if value is @|bold json|@ fragment use @|yellow -j|@ option
+              * if value is @|bold binary|@ value fragment use @|yellow -b|@ option\s
           """
   )
   List<PayloadArgument> payloadArgs = new ArrayList<>();

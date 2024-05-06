@@ -8,11 +8,11 @@ public class PublishTargetArguments extends IngestionTargetArguments {
   @Parameters(index = "2", arity = "0..1",
       paramLabel = "payloadFile",
       description = "File containing payload to publish.\n"
-          + "This is optional argument.\n"
-          + "This argument shortcut to equal to \n"
+          + "This is optional parameter.\n"
+          + "This parameter is shortcut to equal to \n"
           + "@|yellow -j=file://<payloadFile>|@ "
           + "specified before other @|yellow -j |@ params\n\n"
-          + "If this argument occurs, it has highest priority in defining payload.")
+          + "If this parameter is present, it has highest priority in defining payload.")
   String payloadFile;
 
   public String getPayloadFile() {

@@ -11,7 +11,7 @@ public class UnableToConnectIngestionServiceException extends RuntimeException {
                                             """
                                         + "* if mesh is up and running,\n"
                                         + "* provided ingestionUrl is set properly"
-                                        + " (if it's not - add proper '--ingestionUrl' argument)";
+                                        + " (if it's not - add proper '--ingestionUrl' option)";
 
   private final String ingestionUrl;
 
