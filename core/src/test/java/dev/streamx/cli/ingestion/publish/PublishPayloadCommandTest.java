@@ -49,8 +49,8 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-jd", DATA,
-        "-d", "content.b[]ytes=<h1>Hello changed value!</h1>",
+        "-j", DATA,
+        "-s", "content.b[]ytes=<h1>Hello changed value!</h1>",
         CHANNEL, KEY);
 
     // then
@@ -64,7 +64,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", "content.bytes=file://nana",
+        "-s", "content.bytes=file://nana",
         CHANNEL, KEY);
 
     // then
@@ -81,7 +81,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-jd", "content.bytes=" + corruptedPathArg,
+        "-j", "content.bytes=" + corruptedPathArg,
         CHANNEL, KEY);
 
     // then
@@ -94,7 +94,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", "content.bytes=<h1>Hello changed value!</h1>",
+        "-s", "content.bytes=<h1>Hello changed value!</h1>",
         CHANNEL, KEY);
 
     // then
@@ -110,8 +110,8 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-jd", DATA,
-        "-jd", "content={'bytes':'<h1>Hello changed value!</h1>'}",
+        "-j", DATA,
+        "-j", "content={'bytes':'<h1>Hello changed value!</h1>'}",
         CHANNEL, KEY);
 
     // then
@@ -130,7 +130,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-jd", "content.bytes=" + arg,
+        "-j", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then
@@ -146,8 +146,8 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-jd", DATA,
-        "-jd", "content.bytes=",
+        "-j", DATA,
+        "-j", "content.bytes=",
         CHANNEL, KEY);
 
     // then
@@ -163,8 +163,8 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", "content.bytes=<h1>Hello changed value!</h1>",
-        "-d", "$..bytes=bytes",
+        "-s", "content.bytes=<h1>Hello changed value!</h1>",
+        "-s", "$..bytes=bytes",
         CHANNEL, KEY);
 
     // then
@@ -179,7 +179,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", "content.bytes=<h1>Hello changed value!</h1>",
+        "-s", "content.bytes=<h1>Hello changed value!</h1>",
         CHANNEL, KEY);
 
     // then
@@ -198,7 +198,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", "content.bytes=" + arg,
+        "-s", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then
@@ -217,7 +217,7 @@ public class PublishPayloadCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-d", "content.bytes=" + arg,
+        "-s", "content.bytes=" + arg,
         CHANNEL, KEY);
 
     // then

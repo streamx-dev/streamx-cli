@@ -48,7 +48,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
+        "--json-content=" + DATA,
         BAD_REQUEST_CHANNEL, KEY);
 
     // then
@@ -67,7 +67,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + invalidJson,
+        "--json-content=" + invalidJson,
         BAD_REQUEST_CHANNEL, KEY);
 
     // then
@@ -80,7 +80,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
+        "--json-content=" + DATA,
         CHANNEL, KEY);
 
     // then
@@ -92,7 +92,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-bd=" + DATA,
+        "-b=" + DATA,
         CHANNEL, KEY);
 
     // then
@@ -118,7 +118,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
+        "--json-content=" + DATA,
         channel, KEY);
 
     // then

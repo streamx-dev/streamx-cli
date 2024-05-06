@@ -9,7 +9,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import dev.streamx.cli.exception.PayloadException;
 import dev.streamx.cli.exception.ValueException;
-import dev.streamx.cli.ingestion.publish.DataArguments;
+import dev.streamx.cli.ingestion.publish.PayloadArgument;
 import dev.streamx.cli.ingestion.publish.payload.InitialPayloadResolver.InitialPayload;
 import dev.streamx.cli.ingestion.publish.payload.source.RawPayload;
 import dev.streamx.cli.ingestion.publish.payload.source.SourceResolver;
@@ -36,7 +36,7 @@ public class PayloadResolver {
   @Inject
   ValueReplacementExtractor valueReplacementExtractor;
 
-  public JsonNode createPayload(List<DataArguments> dataArgs) {
+  public JsonNode createPayload(List<PayloadArgument> dataArgs) {
     try {
       return doCreatePayload(dataArgs);
     } catch (IOException e) {
@@ -44,7 +44,7 @@ public class PayloadResolver {
     }
   }
 
-  private JsonNode doCreatePayload(List<DataArguments> dataArgs)
+  private JsonNode doCreatePayload(List<PayloadArgument> dataArgs)
       throws IOException {
     InitialPayload result = initialPayloadResolver.computeInitialPayload(dataArgs);
 
@@ -59,7 +59,7 @@ public class PayloadResolver {
   private DocumentContext prepareInitialDocument(String initialData) {
     try {
       JsonNode initialJson = extractPayloadFragment(
-          DataArguments.ofJsonNode(initialData), initialData);
+          PayloadArgument.ofJsonNode(initialData), initialData);
 
       return JsonPath.parse(initialJson);
     } catch (JsonParseException exception) {
@@ -71,12 +71,13 @@ public class PayloadResolver {
     }
   }
 
-  private void replaceValues(DocumentContext documentContext, List<DataArguments> dataArguments) {
-    if (dataArguments == null || dataArguments.isEmpty()) {
+  private void replaceValues(DocumentContext documentContext,
+      List<PayloadArgument> payloadArguments) {
+    if (payloadArguments == null || payloadArguments.isEmpty()) {
       return;
     }
 
-    for (DataArguments valueArgument : dataArguments) {
+    for (PayloadArgument valueArgument : payloadArguments) {
       String value = valueArgument.getValue();
       Pair<JsonPath, String> extract = valueReplacementExtractor.extract(value)
           .orElseThrow(() -> ValueException.noJsonPathFoundException(value));
@@ -106,7 +107,7 @@ public class PayloadResolver {
     }
   }
 
-  private JsonNode extractPayloadFragment(DataArguments valueArgument, String value)
+  private JsonNode extractPayloadFragment(PayloadArgument valueArgument, String value)
       throws IOException {
     RawPayload rawPayload = sourceResolver.resolve(value);
     SourceType sourceType = SourceType.STRING;

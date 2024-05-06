@@ -1,7 +1,7 @@
 package dev.streamx.cli.ingestion.publish.payload;
 
 import dev.streamx.cli.exception.PayloadException;
-import dev.streamx.cli.ingestion.publish.DataArguments;
+import dev.streamx.cli.ingestion.publish.PayloadArgument;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -15,12 +15,12 @@ class InitialPayloadResolver {
   ValueReplacementExtractor valueReplacementExtractor;
 
   @NotNull
-  InitialPayload computeInitialPayload(List<DataArguments> dataArgs) {
+  InitialPayload computeInitialPayload(List<PayloadArgument> dataArgs) {
     String initialData = "{}";
-    List<DataArguments> replacements = dataArgs;
+    List<PayloadArgument> replacements = dataArgs;
 
     String data = dataArgs.stream()
-        .map(DataArguments::getValue)
+        .map(PayloadArgument::getValue)
         .findFirst()
         .orElseThrow(PayloadException::payloadNotFound);
 
@@ -35,7 +35,7 @@ class InitialPayloadResolver {
     return new InitialPayload(initialData, replacements);
   }
 
-  record InitialPayload(String initialData, List<DataArguments> replacements) {
+  record InitialPayload(String initialData, List<PayloadArgument> replacements) {
 
   }
 }

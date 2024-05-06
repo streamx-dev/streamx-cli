@@ -6,7 +6,6 @@ import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
-import dev.streamx.cli.ingestion.publish.DataArguments.DataType;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.cli.ingestion.publish.payload.source.FileSourceResolver;
 import dev.streamx.clients.ingestion.StreamxClient;
@@ -32,7 +31,7 @@ public class PublishCommand implements Runnable {
   @ArgGroup(exclusive = false)
   IngestionArguments ingestionArguments;
 
-  @ArgGroup(exclusive = false, heading = "\n@|bold Payload arguments:|@\n")
+  @ArgGroup(exclusive = false)
   PayloadArguments payloadArguments;
 
   @Spec
@@ -53,24 +52,16 @@ public class PublishCommand implements Runnable {
 
     var payloadFileArgument = Optional.ofNullable(ingestionTargetArguments)
         .map(PublishTargetArguments::getPayloadFile)
-        .map(arg -> {
-          DataArguments payloadFileAsDataArgument = new DataArguments();
-          payloadFileAsDataArgument.value =
-              FileSourceResolver.FILE_STRATEGY_PREFIX + arg;
-          payloadFileAsDataArgument.dataType = new DataType();
-          payloadFileAsDataArgument.dataType.json = true;
-
-          return payloadFileAsDataArgument;
-        });
+        .map(arg -> PayloadArgument.ofJsonNode(FileSourceResolver.FILE_STRATEGY_PREFIX + arg));
     var dataArgumentsStream = Optional.ofNullable(payloadArguments)
-        .map(PayloadArguments::getDataArgs).stream()
+        .map(PayloadArguments::getPayloadArgs).stream()
         .flatMap(Collection::stream);
 
-    List<DataArguments> mergedDataArgumentsList = Stream.concat(payloadFileArgument.stream(),
+    List<PayloadArgument> mergedPayloadArgumentList = Stream.concat(payloadFileArgument.stream(),
             dataArgumentsStream)
         .collect(Collectors.toList());
 
-    JsonNode jsonNode = payloadResolver.createPayload(mergedDataArgumentsList);
+    JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);
 
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);

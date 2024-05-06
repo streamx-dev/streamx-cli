@@ -22,7 +22,7 @@ public class PayloadException extends RuntimeException {
 
         Make sure that:
          * there is optional third argument pointing path to file with payload,
-         * or there is at least one -d parameter
+         * or there is at least one payload defining argument (-s/-b/-j)
          """);
   }
 

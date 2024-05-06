@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.exception.PayloadException;
 import dev.streamx.cli.exception.ValueException;
-import dev.streamx.cli.ingestion.publish.DataArguments;
+import dev.streamx.cli.ingestion.publish.PayloadArgument;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -103,7 +103,10 @@ class PayloadResolverTest {
 
     // when
     Exception exception = catchException(() ->
-        cut.createPayload(List.of(DataArguments.of(arg), DataArguments.ofBinary("$..ana")))
+        cut.createPayload(List.of(
+            PayloadArgument.ofString(arg),
+            PayloadArgument.ofBinary("$..ana"))
+        )
     );
 
     // then
@@ -117,7 +120,10 @@ class PayloadResolverTest {
 
     // when
     Exception exception = catchException(() ->
-        cut.createPayload(List.of(DataArguments.of(arg), DataArguments.ofBinary("$..ana=lele")))
+        cut.createPayload(List.of(
+            PayloadArgument.ofString(arg),
+            PayloadArgument.ofBinary("$..ana=lele"))
+        )
     );
 
     // then
@@ -125,6 +131,6 @@ class PayloadResolverTest {
   }
 
   public JsonNode createPayload(String data) {
-    return cut.createPayload(List.of(DataArguments.of(data)));
+    return cut.createPayload(List.of(PayloadArgument.ofString(data)));
   }
 }
