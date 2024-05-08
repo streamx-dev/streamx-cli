@@ -77,8 +77,8 @@ public class PayloadResolver {
       return;
     }
 
-    for (PayloadArgument valueArgument : payloadArguments) {
-      String value = valueArgument.getValue();
+    for (PayloadArgument payloadArgument : payloadArguments) {
+      String value = payloadArgument.getValue();
       Pair<JsonPath, String> extract = valueReplacementExtractor.extract(value)
           .orElseThrow(() -> ValueException.noJsonPathFoundException(value));
 
@@ -87,7 +87,7 @@ public class PayloadResolver {
       String extractValue = extract.getValue();
 
       try {
-        replacement = extractPayloadFragment(valueArgument, extractValue);
+        replacement = extractPayloadFragment(payloadArgument, extractValue);
       } catch (JsonParseException exception) {
         throw ValueException.jsonParseException(exception, jsonPath, extractValue);
       } catch (JsonProcessingException exception) {
@@ -107,14 +107,14 @@ public class PayloadResolver {
     }
   }
 
-  private JsonNode extractPayloadFragment(PayloadArgument valueArgument, String value)
+  private JsonNode extractPayloadFragment(PayloadArgument payloadArgument, String value)
       throws IOException {
     RawPayload rawPayload = sourceResolver.resolve(value);
     SourceType sourceType = SourceType.STRING;
-    if (valueArgument.isBinary()) {
+    if (payloadArgument.isBinary()) {
       sourceType = SourceType.BINARY;
     }
-    if (valueArgument.isJson()) {
+    if (payloadArgument.isJson()) {
       sourceType = SourceType.JSON;
     }
 

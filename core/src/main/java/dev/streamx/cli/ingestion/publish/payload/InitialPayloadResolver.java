@@ -25,7 +25,6 @@ class InitialPayloadResolver {
         .orElseThrow(PayloadException::payloadNotFound);
 
     boolean firstDataIsInitialPayload = valueReplacementExtractor.extract(firstPayloadArgValue)
-        .map(Pair::getLeft)
         .isEmpty();
     if (firstDataIsInitialPayload) {
       initialPayload = firstPayloadArgValue;
