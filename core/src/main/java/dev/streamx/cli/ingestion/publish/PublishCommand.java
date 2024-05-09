@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -48,21 +49,11 @@ public class PublishCommand implements Runnable {
 
   @Override
   public void run() {
-    validateChannel();
 
-    var payloadFileArgument = Optional.ofNullable(ingestionTargetArguments)
-        .map(PublishTargetArguments::getPayloadFile)
-        .map(arg -> PayloadArgument.ofJsonNode(FileSourceResolver.FILE_STRATEGY_PREFIX + arg));
-    var payloadArgStream = Optional.ofNullable(payloadArguments)
-        .map(PayloadArguments::getPayloadArgs).stream()
-        .flatMap(Collection::stream);
-
-    List<PayloadArgument> mergedPayloadArgumentList = Stream.concat(payloadFileArgument.stream(),
-            payloadArgStream)
-        .collect(Collectors.toList());
-
+    List<PayloadArgument> mergedPayloadArgumentList = prependPayloadFile();
     JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);
 
+    validateChannel();
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
 
@@ -73,6 +64,21 @@ public class PublishCommand implements Runnable {
     } catch (StreamxClientException e) {
       throw new IngestionClientException(e);
     }
+  }
+
+  @NotNull
+  private List<PayloadArgument> prependPayloadFile() {
+    var payloadFileArgument = Optional.ofNullable(ingestionTargetArguments)
+        .map(PublishTargetArguments::getPayloadFile)
+        .map(arg -> PayloadArgument.ofJsonNode(FileSourceResolver.FILE_STRATEGY_PREFIX + arg));
+    var payloadArgStream = Optional.ofNullable(payloadArguments)
+        .map(PayloadArguments::getPayloadArgs).stream()
+        .flatMap(Collection::stream);
+
+    List<PayloadArgument> mergedPayloadArgumentList = Stream.concat(payloadFileArgument.stream(),
+            payloadArgStream)
+        .collect(Collectors.toList());
+    return mergedPayloadArgumentList;
   }
 
   private void validateChannel() {

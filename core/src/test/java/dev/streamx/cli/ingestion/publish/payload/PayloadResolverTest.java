@@ -31,6 +31,16 @@ class PayloadResolverTest {
   PayloadResolver cut;
 
   @Test
+  void shouldValidateMissingPayload() {
+    // when
+    Exception exception = catchException(() -> cut.createPayload(List.of()));
+
+    // then
+    assertThat(exception).isInstanceOf(PayloadException.class);
+    assertThat(exception).hasMessageContaining("Payload definition not found.");
+  }
+
+  @Test
   void shouldValidateData() {
     // given
     String corruptedArg = """

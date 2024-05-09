@@ -41,15 +41,10 @@ public class PayloadResolver {
   ObjectMapper objectMapper;
 
   public JsonNode createPayload(List<PayloadArgument> payloadArguments) {
-    try {
-      return doCreatePayload(payloadArguments);
-    } catch (IOException e) {
-      throw PayloadException.ioException(e);
+    if (CollectionUtils.isEmpty(payloadArguments)) {
+      throw PayloadException.payloadNotFound();
     }
-  }
 
-  private JsonNode doCreatePayload(List<PayloadArgument> payloadArguments)
-      throws IOException {
     DocumentContext documentContext = prepareInitialDocument();
 
     documentContext = mergePayloads(documentContext, payloadArguments);
@@ -65,9 +60,6 @@ public class PayloadResolver {
 
   private DocumentContext mergePayloads(DocumentContext documentContext,
       List<PayloadArgument> payloadArguments) {
-    if (CollectionUtils.isEmpty(payloadArguments)) {
-      throw PayloadException.payloadNotFound();
-    }
 
     for (PayloadArgument payloadArgument : payloadArguments) {
       String value = payloadArgument.getValue();
