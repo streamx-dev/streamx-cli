@@ -1,6 +1,6 @@
 package dev.streamx.cli.ingestion.publish;
 
-import java.util.Optional;
+import dev.streamx.cli.ingestion.publish.payload.typed.SourceType;
 import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
@@ -76,15 +76,15 @@ public class PayloadArgument {
     throw new IllegalStateException("There must be some type. Something went wrong...");
   }
 
-  public boolean isBinary() {
-    return Optional.ofNullable(payload).map(Payload::isBinary).orElse(false);
-  }
+  public SourceType getSourceType() {
+    if (payload != null) {
+      if (payload.isBinary()) {
+        return SourceType.BINARY;
+      } else if (payload.isJson()) {
+        return SourceType.JSON;
+      }
+    }
 
-  public boolean isJson() {
-    return Optional.ofNullable(payload).map(Payload::isJson).orElse(false);
-  }
-
-  public boolean isString() {
-    return Optional.ofNullable(payload).map(Payload::isString).orElse(false);
+    return SourceType.STRING;
   }
 }

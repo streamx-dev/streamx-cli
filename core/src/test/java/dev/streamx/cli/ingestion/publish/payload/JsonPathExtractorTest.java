@@ -10,9 +10,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class ValueReplacementExtractorTest {
+class JsonPathExtractorTest {
 
-  ValueReplacementExtractor cut = new ValueReplacementExtractor();
+  JsonPathExtractor cut = new JsonPathExtractor();
 
   @ParameterizedTest
   @ValueSource(strings = {

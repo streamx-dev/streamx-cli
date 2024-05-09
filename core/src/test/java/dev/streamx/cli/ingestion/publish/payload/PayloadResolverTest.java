@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.catchException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.streamx.cli.exception.JsonPathReplacementException;
 import dev.streamx.cli.exception.PayloadException;
-import dev.streamx.cli.exception.ValueException;
 import dev.streamx.cli.ingestion.publish.PayloadArgument;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -97,40 +97,40 @@ class PayloadResolverTest {
   }
 
   @Test
-  void shouldValidateMissingJsonPathOfNonInitialPayload() {
+  void shouldValidateMissingJsonPathOfNonJsonNodePayload() {
     // given
     String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
 
     // when
     Exception exception = catchException(() ->
         cut.createPayload(List.of(
-            PayloadArgument.ofString(arg),
+            PayloadArgument.ofJsonNode(arg),
             PayloadArgument.ofBinary("$..ana"))
         )
     );
 
     // then
-    assertThat(exception).isInstanceOf(ValueException.class);
+    assertThat(exception).isInstanceOf(JsonPathReplacementException.class);
   }
 
   @Test
-  void shouldValidateNonexistingJsonPathOfNonInitialPayload() {
+  void shouldValidateNonexistingJsonPathOfNonJsonNodePayload() {
     // given
     String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
 
     // when
     Exception exception = catchException(() ->
         cut.createPayload(List.of(
-            PayloadArgument.ofString(arg),
+            PayloadArgument.ofJsonNode(arg),
             PayloadArgument.ofBinary("$..ana=lele"))
         )
     );
 
     // then
-    assertThat(exception).isInstanceOf(ValueException.class);
+    assertThat(exception).isInstanceOf(JsonPathReplacementException.class);
   }
 
   public JsonNode createPayload(String payload) {
-    return cut.createPayload(List.of(PayloadArgument.ofString(payload)));
+    return cut.createPayload(List.of(PayloadArgument.ofJsonNode(payload)));
   }
 }

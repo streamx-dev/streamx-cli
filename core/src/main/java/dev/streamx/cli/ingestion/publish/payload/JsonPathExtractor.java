@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 
 @ApplicationScoped
-class ValueReplacementExtractor {
+class JsonPathExtractor {
 
   Optional<Pair<JsonPath, String>> extract(String valueArg) {
     for (int idx = valueArg.indexOf("=");

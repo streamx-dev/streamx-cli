@@ -92,7 +92,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "-b=" + DATA,
+        "-b=content='<h1>Hello World!</h1>'",
         CHANNEL, KEY);
 
     // then
