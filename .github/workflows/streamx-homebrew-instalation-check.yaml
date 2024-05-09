@@ -1,0 +1,39 @@
+name: StreamX Homebrew Installation Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-homebrew-installation:
+    strategy:
+      matrix:
+          os:
+            - ubuntu-latest
+            - macos-latest
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Set up homebrew 
+        uses: 'Homebrew/actions/setup-homebrew@master'
+
+      - name: Install StreamX via Homebrew
+        run: |
+          brew install streamx-dev/tap/streamx
+
+      - name: Verify streamx --version output
+        run: |
+          output=$(streamx --version)
+          expected_prefix="streamx-cli version:"
+          if [[ "$output" != "$expected_prefix"* ]]; then
+            "Error: Expected output to start with '$expected_prefix', but got: $output"
+            exit 1
+          else
+            echo "Output: '$output' is with expected prefix"
+          fi
