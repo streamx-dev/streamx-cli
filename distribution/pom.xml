@@ -53,7 +53,7 @@
               <archive>
                 <manifest>
                   <mainClass>
-                    dev.streamx.cli.StreamxCommand
+                    dev.streamx.cli.EntrypointMain
                   </mainClass>
                 </manifest>
               </archive>
