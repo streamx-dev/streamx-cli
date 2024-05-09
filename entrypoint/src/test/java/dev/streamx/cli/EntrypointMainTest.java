@@ -53,11 +53,27 @@ public class EntrypointMainTest {
 
   @Test
   void shouldOverrideProdFileLogName() {
+    // given
+    System.clearProperty("%prod.quarkus.log.file.path");
+
     // when
     EntrypointMain.main(new String[] {});
 
     // then
     String fileName = System.getProperty("%prod.quarkus.log.file.path");
     Assertions.assertTrue(fileName.matches(STREAMX_LOG_REGEX));
+  }
+
+  @Test
+  void shouldUseProvidedProdFileLogName() {
+    // given
+    System.setProperty("%prod.quarkus.log.file.path", ".streamx.log");
+
+    // when
+    EntrypointMain.main(new String[] {});
+
+    // then
+    String fileName = System.getProperty("%prod.quarkus.log.file.path");
+    Assertions.assertEquals(".streamx.log", fileName);
   }
 }

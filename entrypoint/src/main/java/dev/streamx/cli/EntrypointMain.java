@@ -37,6 +37,10 @@ public class EntrypointMain {
   }
 
   private static void overrideLogFileName() {
+    if (System.getProperty(LOG_FILE_PATH_PROPERTY_NAME) != null) {
+      return;
+    }
+
     String date = DATE_FORMAT.format(new Date());
     String streamxLogPath = String.format(STREAMX_LOG_FILE_NAME_PATTERN, date);
 
