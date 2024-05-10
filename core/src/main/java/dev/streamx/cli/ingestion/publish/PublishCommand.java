@@ -75,10 +75,7 @@ public class PublishCommand implements Runnable {
         .map(PayloadArguments::getPayloadArgs).stream()
         .flatMap(Collection::stream);
 
-    List<PayloadArgument> mergedPayloadArgumentList = Stream.concat(payloadFileArgument.stream(),
-            payloadArgStream)
-        .collect(Collectors.toList());
-    return mergedPayloadArgumentList;
+    return Stream.concat(payloadFileArgument.stream(), payloadArgStream).toList();
   }
 
   private void validateChannel() {

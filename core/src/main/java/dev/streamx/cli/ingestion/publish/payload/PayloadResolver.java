@@ -66,7 +66,8 @@ public class PayloadResolver {
       Pair<JsonPath, String> extract = extractJsonPathReplacement(payloadArgument, value);
 
       JsonPath jsonPath = extract.getKey();
-      JsonNode replacement = extractPayloadFragment(payloadArgument, extract.getValue(), jsonPath);
+      SourceType sourceType = payloadArgument.getSourceType();
+      JsonNode replacement = extractPayloadFragment(sourceType, extract.getValue(), jsonPath);
 
       documentContext = merge(documentContext, jsonPath, replacement, value);
     }
@@ -136,10 +137,10 @@ public class PayloadResolver {
     return replacement;
   }
 
-  private JsonNode extractPayloadFragment(PayloadArgument payloadArgument, String rawReplacement,
+  private JsonNode extractPayloadFragment(SourceType sourceType, String rawReplacement,
       JsonPath jsonPath) {
     try {
-      return extractPayloadFragment(payloadArgument, rawReplacement);
+      return extractPayloadFragment(sourceType, rawReplacement);
     } catch (JsonParseException exception) {
       if (jsonPath != null) {
         throw JsonPathReplacementException.jsonParseException(exception, jsonPath, rawReplacement);
@@ -154,10 +155,9 @@ public class PayloadResolver {
     }
   }
 
-  private JsonNode extractPayloadFragment(PayloadArgument payloadArgument, String rawSource)
+  private JsonNode extractPayloadFragment(SourceType sourceType, String rawSource)
       throws IOException {
     RawPayload rawPayload = sourceResolver.resolve(rawSource);
-    SourceType sourceType = payloadArgument.getSourceType();
 
     return typedPayloadFragmentResolver.resolveFragment(rawPayload, sourceType).jsonNode();
   }
