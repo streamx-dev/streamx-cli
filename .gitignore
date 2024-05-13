@@ -43,3 +43,4 @@ nb-configuration.xml
 
 streamx.log
 streamx.*
+streamx-*.log

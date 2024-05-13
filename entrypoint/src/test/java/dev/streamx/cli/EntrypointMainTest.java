@@ -10,6 +10,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class EntrypointMainTest {
 
+  private static final String STREAMX_LOG_REGEX =
+      "\\.streamx/streamx-[0-9]{4}_[0-9]{2}_[0-9]{2}__[0-9]{2}_[0-9]{2}_[0-9]{2}_[0-9]{3}\\.log";
+
   @BeforeEach
   void setup() {
     StreamxCommand.clearLaunched();
@@ -46,5 +49,31 @@ public class EntrypointMainTest {
     // then
     Assertions.assertFalse(StreamxCommand.isLaunched());
     Assertions.assertEquals("Java 17 or higher is required!\n", byteArrayOutputStream.toString());
+  }
+
+  @Test
+  void shouldOverrideProdFileLogName() {
+    // given
+    System.clearProperty("%prod.quarkus.log.file.path");
+
+    // when
+    EntrypointMain.main(new String[] {});
+
+    // then
+    String fileName = System.getProperty("%prod.quarkus.log.file.path");
+    Assertions.assertTrue(fileName.matches(STREAMX_LOG_REGEX));
+  }
+
+  @Test
+  void shouldUseProvidedProdFileLogName() {
+    // given
+    System.setProperty("%prod.quarkus.log.file.path", ".streamx.log");
+
+    // when
+    EntrypointMain.main(new String[] {});
+
+    // then
+    String fileName = System.getProperty("%prod.quarkus.log.file.path");
+    Assertions.assertEquals(".streamx.log", fileName);
   }
 }

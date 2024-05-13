@@ -4,7 +4,7 @@
   <parent>
     <groupId>dev.streamx.cli</groupId>
     <artifactId>streamx-cli</artifactId>
-    <version>0.2.4</version>
+    <version>0.2.5</version>
   </parent>
 
   <artifactId>streamx-cli-distribution</artifactId>
@@ -14,7 +14,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <jreleaser-maven-plugin.version>1.10.0</jreleaser-maven-plugin.version>
+    <jreleaser-maven-plugin.version>1.12.0</jreleaser-maven-plugin.version>
   </properties>
 
   <dependencies>
