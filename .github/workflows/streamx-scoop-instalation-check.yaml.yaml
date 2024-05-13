@@ -1,0 +1,33 @@
+name: StreamX Scoop Installation Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-scoop-installation:
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Set up Scoop
+        uses: MinoruSekine/setup-scoop@v4
+
+      - name: Install StreamX via Scoop and validate installation 
+        run: |
+          scoop bucket add streamx-dev https://github.com/streamx-dev/scoop-streamx-dev.git
+          scoop install streamx
+
+          $output = (streamx --version)
+          $expected_prefix = "streamx-cli version:"
+          if ($output -notlike "$expected_prefix*") {
+            Write-Output "Error: Expected output to start with '$expected_prefix', but got: $output"
+            exit 1
+          } else {
+            Write-Output "Output: '$output' starts with the expected prefix."
+          }
