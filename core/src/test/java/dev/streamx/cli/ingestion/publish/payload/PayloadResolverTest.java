@@ -6,9 +6,15 @@ import static org.assertj.core.api.Assertions.catchException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.streamx.cli.exception.JsonPathReplacementException;
 import dev.streamx.cli.exception.PayloadException;
+import dev.streamx.cli.ingestion.publish.PayloadArgument;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
+@QuarkusTest
 class PayloadResolverTest {
 
   private static final JsonNode EXAMPLE_JSON_NODE;
@@ -21,7 +27,18 @@ class PayloadResolverTest {
     }
   }
 
-  PayloadResolver cut = new PayloadResolver();
+  @Inject
+  PayloadResolver cut;
+
+  @Test
+  void shouldValidateMissingPayload() {
+    // when
+    Exception exception = catchException(() -> cut.createPayload(List.of()));
+
+    // then
+    assertThat(exception).isInstanceOf(PayloadException.class);
+    assertThat(exception).hasMessageContaining("Payload definition not found.");
+  }
 
   @Test
   void shouldValidateData() {
@@ -30,7 +47,7 @@ class PayloadResolverTest {
         {"nana": " """;
 
     // when
-    Exception exception = catchException(() -> cut.createPayload(corruptedArg));
+    Exception exception = catchException(() -> createPayload(corruptedArg));
 
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
@@ -40,10 +57,10 @@ class PayloadResolverTest {
   @Test
   void shouldValidatePath() {
     // given
-    String corruptedArg = "@nonexisting";
+    String corruptedArg = "file://nonexisting";
 
     // when
-    Exception exception = catchException(() -> cut.createPayload(corruptedArg));
+    Exception exception = catchException(() -> createPayload(corruptedArg));
 
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
@@ -54,10 +71,10 @@ class PayloadResolverTest {
   void shouldValidateFileContent() {
     // given
     String corruptedPathArg =
-        "@target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+        "file://target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
 
     // when
-    Exception exception = catchException(() -> cut.createPayload(corruptedPathArg));
+    Exception exception = catchException(() -> createPayload(corruptedPathArg));
 
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
@@ -71,7 +88,7 @@ class PayloadResolverTest {
         {"nana": "lele"}""";
 
     // when
-    JsonNode payload = cut.createPayload(arg);
+    JsonNode payload = createPayload(arg);
 
     // then
     assertThat(payload).isEqualTo(EXAMPLE_JSON_NODE);
@@ -80,12 +97,50 @@ class PayloadResolverTest {
   @Test
   void shouldExtractDataFromFileAndConvertToJsonNode() {
     // given
-    String arg = "@target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
 
     // when
-    JsonNode payload = cut.createPayload(arg);
+    JsonNode payload = createPayload(arg);
 
     // then
     assertThat(payload).isEqualTo(EXAMPLE_JSON_NODE);
+  }
+
+  @Test
+  void shouldValidateMissingJsonPathOfNonJsonNodePayload() {
+    // given
+    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+
+    // when
+    Exception exception = catchException(() ->
+        cut.createPayload(List.of(
+            PayloadArgument.ofJsonNode(arg),
+            PayloadArgument.ofBinary("$..ana"))
+        )
+    );
+
+    // then
+    assertThat(exception).isInstanceOf(JsonPathReplacementException.class);
+  }
+
+  @Test
+  void shouldValidateNonexistingJsonPathOfNonJsonNodePayload() {
+    // given
+    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+
+    // when
+    Exception exception = catchException(() ->
+        cut.createPayload(List.of(
+            PayloadArgument.ofJsonNode(arg),
+            PayloadArgument.ofBinary("$..ana=lele"))
+        )
+    );
+
+    // then
+    assertThat(exception).isInstanceOf(JsonPathReplacementException.class);
+  }
+
+  public JsonNode createPayload(String payload) {
+    return cut.createPayload(List.of(PayloadArgument.ofJsonNode(payload)));
   }
 }

@@ -4,13 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
-import dev.streamx.cli.ingestion.IngestionTargetArguments;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
+import dev.streamx.cli.ingestion.publish.payload.source.FileSourceResolver;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -21,12 +27,12 @@ import picocli.CommandLine.Spec;
 public class PublishCommand implements Runnable {
 
   @ArgGroup(exclusive = false, multiplicity = "1")
-  IngestionTargetArguments ingestionTargetArguments;
+  PublishTargetArguments ingestionTargetArguments;
 
   @ArgGroup(exclusive = false)
   IngestionArguments ingestionArguments;
 
-  @ArgGroup(exclusive = false, heading = "Payload arguments:\n")
+  @ArgGroup(exclusive = false)
   PayloadArguments payloadArguments;
 
   @Spec
@@ -43,11 +49,11 @@ public class PublishCommand implements Runnable {
 
   @Override
   public void run() {
+
+    List<PayloadArgument> mergedPayloadArgumentList = prependPayloadFile();
+    JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);
+
     validateChannel();
-
-    JsonNode jsonNode = payloadResolver.createPayload(
-        payloadArguments.data, payloadArguments.values);
-
     try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
       var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
 
@@ -58,6 +64,18 @@ public class PublishCommand implements Runnable {
     } catch (StreamxClientException e) {
       throw new IngestionClientException(e);
     }
+  }
+
+  @NotNull
+  private List<PayloadArgument> prependPayloadFile() {
+    var payloadFileArgument = Optional.ofNullable(ingestionTargetArguments)
+        .map(PublishTargetArguments::getPayloadFile)
+        .map(arg -> PayloadArgument.ofJsonNode(FileSourceResolver.FILE_STRATEGY_PREFIX + arg));
+    var payloadArgStream = Optional.ofNullable(payloadArguments)
+        .map(PayloadArguments::getPayloadArgs).stream()
+        .flatMap(Collection::stream);
+
+    return Stream.concat(payloadFileArgument.stream(), payloadArgStream).toList();
   }
 
   private void validateChannel() {

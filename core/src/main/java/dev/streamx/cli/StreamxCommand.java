@@ -14,6 +14,7 @@ import picocli.CommandLine.Command;
 @QuarkusMain(name = "StreamX CLI Main")
 @TopCommand
 @Command(mixinStandardHelpOptions = true,
+    name = "streamx",
     subcommands = {RunCommand.class, PublishCommand.class, UnpublishCommand.class},
     versionProvider = VersionProvider.class)
 public class StreamxCommand implements QuarkusApplication {

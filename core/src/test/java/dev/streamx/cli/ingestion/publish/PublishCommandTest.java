@@ -31,6 +31,8 @@ public class PublishCommandTest {
   private static final String KEY = "index.html";
   private static final String DATA = """
       {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
+  private static final String PAYLOAD_PATH =
+      "target/test-classes/dev/streamx/cli/publish/payload/helloworld-payload.json";
 
   @RegisterExtension
   static WireMockExtension wm = WireMockExtension.newInstance()
@@ -46,7 +48,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
+        "--json-content=" + DATA,
         BAD_REQUEST_CHANNEL, KEY);
 
     // then
@@ -65,7 +67,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + invalidJson,
+        "--json-content=" + invalidJson,
         BAD_REQUEST_CHANNEL, KEY);
 
     // then
@@ -74,12 +76,35 @@ public class PublishCommandTest {
   }
 
   @Test
-  public void shouldPublishUsingIngestionClient(QuarkusMainLauncher launcher) {
+  public void shouldPublishUsing(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
+        "--json-content=" + DATA,
         CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+  }
+
+  @Test
+  public void shouldPublishBinaryData(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-b=content='<h1>Hello World!</h1>'",
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+  }
+
+  @Test
+  public void shouldPublishUsingPayloadFromPayloadArg(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        CHANNEL, KEY, PAYLOAD_PATH);
 
     // then
     assertThat(result.exitCode()).isZero();
@@ -93,7 +118,7 @@ public class PublishCommandTest {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
-        "--data=" + DATA,
+        "--json-content=" + DATA,
         channel, KEY);
 
     // then
