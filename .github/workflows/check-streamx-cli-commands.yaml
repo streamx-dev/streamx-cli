@@ -15,7 +15,7 @@ on:
     branches:
 
 jobs:
-  check-streamx-commands:
+  check-streamx-cli-commands:
 
     runs-on: ubuntu-latest
     steps:
@@ -60,12 +60,12 @@ jobs:
       - name: Run streamX in Backgrounds
         run: |
           source /tmp/rcfile
-          nohup streamx run -f ./.github/workflows_data/streamx-mesh.yml > background_output.log 2>&1 &  # Run command in the background
+          nohup streamx run -f ./.github/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
           echo "Started command in the background. Process ID: $!"
 
       - name: Wait for STREAMX IS READY!
         run: |
-          for i in {1..120}; do  # Check for up to 60 times with a delay
+          for i in {1..120}; do 
             if grep -q "STREAMX IS READY!" background_output.log; then
               echo "Defined string found in background output."
               break
@@ -75,9 +75,10 @@ jobs:
             fi
           done
 
-      - name: Run Tests SH2
+      - name: Run StreamX CLI tests
         run: |
           source /tmp/rcfile
           cd ./.github/workflows_data/
-          . testStreamX.sh
+          chmod +x ./test_streamx_cli.sh
+          . test_streamx_cli.sh http://localhost:8081
 
