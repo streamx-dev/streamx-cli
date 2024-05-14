@@ -13,7 +13,6 @@ on:
         default: 'build'
   push:
     branches:
-      - main
 
 jobs:
   check-streamx-commands:
