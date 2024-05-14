@@ -40,6 +40,24 @@ public class PayloadResolver {
   @PayloadProcessing
   ObjectMapper objectMapper;
 
+  /**
+   * <p>Payload is created by merging all payload fragments derived from payload arguments
+   * into one Json. Creating payload fragment from each payload argument is done in three steps:
+   * <ol>
+   *   <li>Finding and filter out jsonPath to replace with value e.g.
+   *   {@code content.bytes=file:///text.txt }</li>
+   *   <li>Resolving content of json node e.g. resolving {@code file:///text.txt }</li>
+   *   <li>Recreating full payload fragment from json path (if json path was passed)
+   *   or creating json from resolved content</li>
+   * </ol>
+   * </p>
+   * <p>All payload fragments are merged into single json. E.g.
+   * {@code -j content.num=123 -j {"content":{"text":"text"}}}
+   * results in {@code {"content":{"text":"text", "num":123}}}
+   * </p>
+   * @param payloadArguments List of arguments creating payload fragments
+   * @return Merged json created from payload arguments
+   */
   public JsonNode createPayload(List<PayloadArgument> payloadArguments) {
     if (CollectionUtils.isEmpty(payloadArguments)) {
       throw PayloadException.payloadNotFound();
@@ -62,14 +80,16 @@ public class PayloadResolver {
       List<PayloadArgument> payloadArguments) {
 
     for (PayloadArgument payloadArgument : payloadArguments) {
-      String value = payloadArgument.getValue();
-      Pair<JsonPath, String> extract = extractJsonPathReplacement(payloadArgument, value);
+      String rawPayloadArgumentValue = payloadArgument.getValue();
+      Pair<JsonPath, String> extract = extractJsonPathReplacement(
+          payloadArgument, rawPayloadArgumentValue);
 
       JsonPath jsonPath = extract.getKey();
+      String replacementSource = extract.getValue();
       SourceType sourceType = payloadArgument.getSourceType();
-      JsonNode replacement = extractPayloadFragment(sourceType, extract.getValue(), jsonPath);
+      JsonNode replacement = extractPayloadFragment(sourceType, replacementSource, jsonPath);
 
-      documentContext = merge(documentContext, jsonPath, replacement, value);
+      documentContext = merge(documentContext, jsonPath, replacement, rawPayloadArgumentValue);
     }
     return documentContext;
   }
@@ -137,27 +157,28 @@ public class PayloadResolver {
     return replacement;
   }
 
-  private JsonNode extractPayloadFragment(SourceType sourceType, String rawReplacement,
+  private JsonNode extractPayloadFragment(SourceType sourceType, String replacementSource,
       JsonPath jsonPath) {
     try {
-      return extractPayloadFragment(sourceType, rawReplacement);
+      return extractPayloadFragment(sourceType, replacementSource);
     } catch (JsonParseException exception) {
       if (jsonPath != null) {
-        throw JsonPathReplacementException.jsonParseException(exception, jsonPath, rawReplacement);
+        throw JsonPathReplacementException.jsonParseException(exception, jsonPath,
+            replacementSource);
       } else {
-        throw PayloadException.jsonParseException(exception, rawReplacement);
+        throw PayloadException.jsonParseException(exception, replacementSource);
       }
     } catch (JsonProcessingException exception) {
       throw JsonPathReplacementException.genericJsonProcessingException(exception, jsonPath,
-          rawReplacement);
+          replacementSource);
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }
   }
 
-  private JsonNode extractPayloadFragment(SourceType sourceType, String rawSource)
+  private JsonNode extractPayloadFragment(SourceType sourceType, String replacementSource)
       throws IOException {
-    RawPayload rawPayload = sourceResolver.resolve(rawSource);
+    RawPayload rawPayload = sourceResolver.resolve(replacementSource);
 
     return typedPayloadFragmentResolver.resolveFragment(rawPayload, sourceType).jsonNode();
   }
