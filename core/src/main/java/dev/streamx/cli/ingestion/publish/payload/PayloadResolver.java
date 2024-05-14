@@ -42,7 +42,8 @@ public class PayloadResolver {
 
   /**
    * <p>Payload is created by merging all payload fragments derived from payload arguments
-   * into one Json. Creating payload fragment from each payload argument is done in three steps:
+   * into single Json. The creation of payload fragment from each payload argument is done
+   * in three steps:
    * <ol>
    *   <li>Finding and filter out jsonPath to replace with value e.g.
    *   {@code content.bytes=file:///text.txt }</li>
