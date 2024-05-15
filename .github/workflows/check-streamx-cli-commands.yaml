@@ -68,7 +68,7 @@ jobs:
           # streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml
 
 
-          nohup streamx --version > background_output.log 2>&1 & 
+          nohup 'streamx' --version > background_output.log 2>&1 & 
           sleep 10
           cat background_output.log
 
