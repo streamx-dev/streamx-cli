@@ -69,14 +69,15 @@ jobs:
 
           chmod +x ./.github/workflows/workflows_data/runStreamx.sh
 
-          nohup ./.github/workflows/workflows_data/runStreamx.sh > background_output.log 2>&1 & 
+          # nohup ./.github/workflows/workflows_data/runStreamx.sh > background_output.log 2>&1 & 
+          nohup source /tmp/rcfile;streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
           echo "Started command in the background. Process ID: $!"
 
       - name: Wait for STREAMX IS READY!
         run: |
           for i in {1..36}; do 
             if grep -q "STREAMX IS READY!" background_output.log; then
-              echo "Defined string found in background output."
+              echo "STREAMX IS READY!"
               break
             else
               echo "STREAMX still starting, retrying in 5 seconds..."
@@ -84,7 +85,6 @@ jobs:
             fi
           done
 
-          cat background_output.log
           if ! grep -q "STREAMX IS READY!" background_output.log; then
             cat background_output.log
             echo "ERROR: 'STREAMX IS READY!' not found in background output."
