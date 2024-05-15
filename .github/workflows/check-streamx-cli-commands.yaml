@@ -58,7 +58,7 @@ jobs:
         run: |
           ./mvnw clean install
           rc=/tmp/rcfile
-          echo 'alias streamx="java -jar $(ls ./distribution/target/streamx-cli-*-runner.jar)"' >> $rc
+          echo 'alias streamx="java -jar $(realpath ./distribution/target/streamx-cli-*-runner.jar)"' >> $rc
           cat /tmp/rcfile
 
       - name: Run streamX in Backgrounds
