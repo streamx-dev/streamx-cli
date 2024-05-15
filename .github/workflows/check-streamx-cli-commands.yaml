@@ -14,6 +14,9 @@ on:
   push:
     branches:
 
+permissions:
+  id-token: write
+
 jobs:
   check-streamx-cli-commands:
 
