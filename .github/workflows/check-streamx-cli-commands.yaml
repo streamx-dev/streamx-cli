@@ -58,19 +58,13 @@ jobs:
         run: |
           ./mvnw clean install
           rc=/tmp/rcfile
-          pwd
-          ls
-          TMP_VAR=$(ls ./distribution/target/streamx-cli-*-runner.jar)
-          java -jar $TMP_VAR --version
           echo 'alias streamx="java -jar $(ls ./distribution/target/streamx-cli-*-runner.jar)"' >> $rc
           cat /tmp/rcfile
 
       - name: Run streamX in Backgrounds
         run: |
           source /tmp/rcfile
-          cat /tmp/rcfile
-          streamx --version
-          nohup streamx run -f ./.github/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
+          nohup streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
           echo "Started command in the background. Process ID: $!"
 
       - name: Wait for STREAMX IS READY!
