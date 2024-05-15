@@ -4,7 +4,7 @@ STREAMX_URL="$1"
 
 error() {
   echo "$@" 1>&2
-  exit 1
+#   exit 1
 }
 
 check_http_response() {
