@@ -18,7 +18,7 @@ public class SettingsStore {
   String rootDir;
 
   @Inject
-  @SettingProcessing
+  @SettingsProcessing
   ObjectMapper objectMapper;
 
   public <T> Optional<T> retrieveSettings(String settingFile, Class<T> clazz) {

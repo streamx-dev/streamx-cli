@@ -8,7 +8,7 @@ import jakarta.enterprise.context.Dependent;
 public class SettingsConfig {
 
   @ApplicationScoped
-  @SettingProcessing
+  @SettingsProcessing
   ObjectMapper settingProcessingObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper();
 
