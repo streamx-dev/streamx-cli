@@ -66,6 +66,12 @@ jobs:
           source /tmp/rcfile
           streamx --version
           # streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml
+
+
+          nohup streamx --version > background_output.log 2>&1 & 
+          sleep 10
+          cat background_output.log
+
           nohup streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
           echo "Started command in the background. Process ID: $!"
 
@@ -80,6 +86,8 @@ jobs:
               sleep 5
             fi
           done
+
+          cat background_output.log
           if ! grep -q "STREAMX IS READY!" background_output.log; then
             echo "ERROR: 'STREAMX IS READY!' not found in background output."
             exit 1
