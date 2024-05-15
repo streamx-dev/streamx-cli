@@ -28,7 +28,7 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_STREAMX_RELEASES_SNAPSHOT_DEPLOY_SA }}
+          service_account: ${{ secrets.GCP_STREAMX_RELEASES_READ_SA }}
 
       - name: Set up JDK 17s
         uses: actions/setup-java@v4

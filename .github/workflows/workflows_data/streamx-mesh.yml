@@ -1,10 +1,10 @@
-defaultRegistry: ghcr.io/streamx-dev/streamx-blueprints
+defaultRegistry: ghcr.io/streamx-dev/streamx
 defaultImageTag: latest-jvm
-tenant: streamx
+tenant: "streamx"
 
 processing:
   relay:
-    image: relay-processing-service
+    image: reference-relay-processing-service
     incoming:
       incoming-pages:
         topic: inboxes/pages
@@ -18,7 +18,7 @@ processing:
 
 delivery:
   web-delivery-service:
-    image: web-delivery-service
+    image: reference-web-delivery-service
     incoming:
       pages:
         topic: outboxes/pages
