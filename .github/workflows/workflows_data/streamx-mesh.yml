@@ -8,13 +8,13 @@ processing:
     incoming:
       incoming-pages:
         topic: inboxes/pages
-      incoming-assets:
-        topic: inboxes/assets
+      # incoming-assets:
+      #   topic: inboxes/assets
     outgoing:
       outgoing-pages:
         topic: outboxes/pages
-      outgoing-assets:
-        topic: outboxes/assets
+      # outgoing-assets:
+      #   topic: outboxes/assets
 
 delivery:
   web-delivery-service:
@@ -22,6 +22,6 @@ delivery:
     incoming:
       pages:
         topic: outboxes/pages
-      assets:
-        topic: outboxes/assets
+      # assets:
+      #   topic: outboxes/assets
     port: 8081

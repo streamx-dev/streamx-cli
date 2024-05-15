@@ -80,6 +80,10 @@ jobs:
               sleep 5
             fi
           done
+          if ! grep -q "STREAMX IS READY!" background_output.log; then
+            echo "ERROR: 'STREAMX IS READY!' not found in background output."
+            exit 1
+          fi
 
       - name: Run StreamX CLI tests
         run: |

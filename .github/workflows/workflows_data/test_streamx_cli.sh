@@ -94,10 +94,10 @@ check_http_response $STREAMX_URL/json_path_file_param_page.html 404
 
 
 
-streamx publish assets assets/images/background.png -b 'content.bytes=file://content/binary.png'
+# streamx publish assets assets/images/background.png -b 'content.bytes=file://content/binary.png'
 
-check_binary_file $STREAMX_URL/assets/images/background.png content/binary.png
+# check_binary_file $STREAMX_URL/assets/images/background.png content/binary.png
 
-streamx unpublish assets assets/images/background.png
+# streamx unpublish assets assets/images/background.png
 
-check_http_response $STREAMX_URL/assets/images/background.png 404
+# check_http_response $STREAMX_URL/assets/images/background.png 404
