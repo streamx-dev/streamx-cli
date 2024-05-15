@@ -37,6 +37,7 @@ check_binary_file() {
     echo "Checking '$URL' file"
 
     if diff "/tmp/downloaded_image.jpg" "$IMAGE_PATH" >/dev/null; then
+        echo "Files match"
     else
         error "Files are different"
     fi

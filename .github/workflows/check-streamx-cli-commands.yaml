@@ -94,7 +94,7 @@ jobs:
       - name: Run StreamX CLI tests
         run: |
           source /tmp/rcfile
-          cd ./.github/workflows_data/
+          cd ./.github/workflows/workflows_data/
           chmod +x ./test_streamx_cli.sh
           . test_streamx_cli.sh http://localhost:8081
 
