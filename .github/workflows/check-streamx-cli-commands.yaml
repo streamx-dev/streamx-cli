@@ -64,7 +64,9 @@ jobs:
       - name: Run streamX in Backgrounds
         run: |
           source /tmp/rcfile
-          nohup streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
+          streamx --version
+          streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml
+          # nohup streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
           echo "Started command in the background. Process ID: $!"
 
       - name: Wait for STREAMX IS READY!
