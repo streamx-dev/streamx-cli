@@ -8,6 +8,7 @@ error() {
 }
 
 check_http_response() {
+    sleep 2
     local URL="$1"
     local HTTP_CODE="$2"
     local CONTENT="$3"
