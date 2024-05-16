@@ -61,6 +61,8 @@ jobs:
           echo 'alias streamx="java -jar $(realpath ./distribution/target/streamx-cli-*-runner.jar)"' >> $rc
           cat /tmp/rcfile
 
+      # to skrypt do ogarniecia reszty
+
       - name: Run streamX in Backgrounds
         run: |
           source /tmp/rcfile
@@ -69,9 +71,9 @@ jobs:
 
           chmod +x ./.github/workflows/workflows_data/runStreamx.sh
 
-          # nohup ./.github/workflows/workflows_data/runStreamx.sh > background_output.log 2>&1 & 
+          nohup ./.github/workflows/workflows_data/runStreamx.sh > background_output.log 2>&1 & 
           # nohup source /tmp/rcfile;streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml > background_output.log 2>&1 & 
-          nohup bash -c 'source /tmp/rcfile && streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml' > background_output.log 2>&1 &
+          # nohup bash -c 'source /tmp/rcfile && streamx run -f ./.github/workflows/workflows_data/streamx-mesh.yml' > background_output.log 2>&1 &
 
           echo "Started command in the background. Process ID: $!"
 
