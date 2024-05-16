@@ -45,25 +45,23 @@ jobs:
           echo 'shopt -s expand_aliases' > $rc
 
       - name: Set up homebrew 
-        if: inputs.streamx_source == 'install'
+        if: inputs.streamx_source == '' || inputs.streamx_source == 'install'
         uses: 'Homebrew/actions/setup-homebrew@master'
 
       - name: Install StreamX via Homebrew
-        if: inputs.streamx_source == 'install'
+        if: inputs.streamx_source == '' || inputs.streamx_source == 'install'
         run: |
           brew install streamx-dev/tap/streamx
 
-      - name: Build streamX
-        if: inputs.streamx_source == '' || inputs.streamx_source == 'build'
+      - name: Build StreamX
+        if: inputs.streamx_source == 'build'
         run: |
           ./mvnw clean install
           rc=/tmp/rcfile
           echo 'alias streamx="java -jar $(realpath ./distribution/target/streamx-cli-*-runner.jar)"' >> $rc
           cat /tmp/rcfile
 
-      # to skrypt do ogarniecia reszty
-
-      - name: Run streamX in Backgrounds
+      - name: Run StreamX in Backgrounds
         run: |
           source /tmp/rcfile
           streamx --version
@@ -77,7 +75,7 @@ jobs:
 
           echo "Started command in the background. Process ID: $!"
 
-      - name: Wait for STREAMX IS READY!
+      - name: Wait until StreamX is ready!
         run: |
           for i in {1..36}; do 
             if grep -q "STREAMX IS READY!" background_output.log; then
