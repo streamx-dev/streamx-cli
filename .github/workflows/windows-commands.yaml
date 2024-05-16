@@ -1,0 +1,59 @@
+name: Check streamX CLI commands Windows
+
+on:
+  push:
+    branches:
+
+jobs:
+  check-streamx-cli-commands-windows:
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17s
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Set up Scoop
+        uses: MinoruSekine/setup-scoop@v4
+
+      - name: Install StreamX via Scoop and validate installation 
+        run: |
+          scoop bucket add streamx-dev https://github.com/streamx-dev/scoop-streamx-dev.git
+          scoop install streamx
+
+      - name: Run streamX in Background
+        run: |
+          Start-Process -FilePath "streamx" -ArgumentList "run", "-f", "./.github/workflows_data/streamx-mesh.yml" -NoNewWindow -RedirectStandardOutput "background_output.log"
+          Write-Host "Started command in the background. Process ID: $PID"
+
+      - name: Wait for STREAMX IS READY!
+        run: |
+          $found = $false
+          for ($i = 1; $i -le 120; $i++) {
+              if (Select-String -Path "background_output.log" -Pattern "STREAMX IS READY!") {
+                  Write-Host "Defined string found in background output."
+                  $found = $true
+                  break
+              } else {
+                  Write-Host "STREAMX still starting, retrying in 5 seconds..."
+                  Start-Sleep -Seconds 5
+              }
+          }
+          if (-not $found) {
+              Write-Error "STREAMX did not start within the specified time."
+              exit 1
+          }
+
+      - name: Run StreamX CLI tests
+        run: |
+          . .\tmp\rcfile
+          Set-Location .\github\workflows_data\
+          & .\test_streamx_cli.ps1 http://localhost:8081
+
+
