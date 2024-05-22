@@ -24,11 +24,6 @@ public class RunCommand implements Runnable {
       |____/ \\__|_|  \\___|\\__,_|_| |_| |_/_/\\_\\.dev
                                                \s""";
 
-  private static final String LICENCE = """
-      Distributed under StreamX End-User License Agreement 1.0
-      https://www.streamx.dev/licenses/eula-v1-0.html
-      """;
-
   @ArgGroup
   MeshSource meshSource;
 
@@ -53,7 +48,6 @@ public class RunCommand implements Runnable {
   public void run() {
     try {
       print(BANNER);
-      print(LICENCE);
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
 
       print("Setting up system containers...");

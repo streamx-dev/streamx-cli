@@ -30,4 +30,9 @@ public class LicenceException extends RuntimeException {
          * your 'streamx' version is up to date.
          """.formatted(url, url));
   }
+
+  public static LicenceException licenceAcceptanceRejectedException() {
+    return new LicenceException("""
+        License acceptance is required for using StreamX.""");
+  }
 }

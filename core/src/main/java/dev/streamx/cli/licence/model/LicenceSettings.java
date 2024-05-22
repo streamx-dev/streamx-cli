@@ -1,9 +1,8 @@
 package dev.streamx.cli.licence.model;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-public record LicenceSettings(LocalDateTime lastFetchDate,
-                              String lastFetchLicenceUrl,
+public record LicenceSettings(Optional<LastLicenceFetch> lastLicenceFetch,
                               List<LicenceApproval> licenceApprovals
 ) { }

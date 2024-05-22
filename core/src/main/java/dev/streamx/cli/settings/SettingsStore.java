@@ -1,7 +1,7 @@
 package dev.streamx.cli.settings;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.streamx.cli.exception.SettingsFileException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -22,20 +22,16 @@ public class SettingsStore {
   ObjectMapper objectMapper;
 
   public <T> Optional<T> retrieveSettings(String settingFile, Class<T> clazz) {
+    Path path = resolveSettingFile(settingFile);
     try {
-      Path path = resolveSettingFile(settingFile);
       if (Files.exists(path)) {
         T result = objectMapper.readValue(path.toFile(), clazz);
         return Optional.of(result);
       } else {
         return Optional.empty();
       }
-    } catch (JsonProcessingException e) {
-      // FIXME
-      throw new RuntimeException(e);
     } catch (IOException e) {
-      // FIXME
-      throw new RuntimeException(e);
+      throw new SettingsFileException(path.toString(), e);
     }
   }
 
@@ -44,17 +40,16 @@ public class SettingsStore {
     try {
       Path rootPath = Path.of(rootDir);
       if (!Files.exists(rootPath)) {
-        Files.createDirectory(rootPath);
+        Files.createDirectories(rootPath);
       }
     } catch (IOException e) {
-      // FIXME
-      throw new RuntimeException(e);
+      throw new SettingsFileException(path.toString(), e);
     }
+
     try {
       objectMapper.writeValue(path.toFile(), settings);
     } catch (IOException e) {
-      // FIXME
-      throw new RuntimeException(e);
+      throw new SettingsFileException(path.toString(), e);
     }
   }
 

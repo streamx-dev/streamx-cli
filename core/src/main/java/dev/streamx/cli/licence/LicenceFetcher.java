@@ -22,12 +22,12 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
-public class LicenceFetcher {
+class LicenceFetcher {
 
   @ConfigProperty(name = "streamx.cli.licence.current-licence-url")
   String licenceUrl;
 
-  @ConfigProperty(name = "streamx.cli.licence.timeout", defaultValue = "10000")
+  @ConfigProperty(name = "streamx.cli.licence.timeout", defaultValue = "5000")
   int licenceFetchTimeout;
 
   @Inject

@@ -15,17 +15,20 @@ class LicenceWiremockConfigs {
 
   public static class StandardWiremockLicence extends AbstractWiremockLicences {
 
+    public static final String LICENCE_URL = "http://fake.streamx.dev/eula.html";
+    public static final String LICENCE_NAME = "EULA";
+
     @Override
     public Map<String, String> start() {
       String response = """
           licences:
               streamx-cli:
-                  name: "EULA"
-                  url: "http://fake.streamx.dev/eula.html"
+                  name: "%s"
+                  url: "%s"
               default:
                   name: "Apachee"
                   url: "http://fake.streamx.dev/apachee.html"
-          """;
+          """.formatted(LICENCE_NAME, LICENCE_URL);
       int delayMillis = 0;
 
       return startServer(response, delayMillis);
