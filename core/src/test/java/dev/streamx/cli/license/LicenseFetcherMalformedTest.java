@@ -1,9 +1,10 @@
-package dev.streamx.cli.licence;
+package dev.streamx.cli.license;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import dev.streamx.cli.exception.LicenceException;
+import dev.streamx.cli.exception.LicenseException;
+import dev.streamx.cli.license.LicenseWiremockConfigs.MalformedWiremockLicense;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -11,19 +12,19 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(restrictToAnnotatedClass = true,
-    value = LicenceWiremockConfigs.MalformedWiremockLicence.class)
-class LicenceFetcherMalformedTest {
+    value = MalformedWiremockLicense.class)
+class LicenseFetcherMalformedTest {
 
   @Inject
-  LicenceFetcher cut;
+  LicenseFetcher cut;
 
   @Test
-  void shouldHandleMalformedLicence() {
+  void shouldHandleMalformedLicense() {
     // when
-    Throwable throwable = catchThrowable(() -> cut.fetchCurrentLicence());
+    Throwable throwable = catchThrowable(() -> cut.fetchCurrentLicense());
 
     // then
-    assertThat(throwable).isInstanceOf(LicenceException.class);
+    assertThat(throwable).isInstanceOf(LicenseException.class);
     assertThat(throwable).hasMessageContainingAll("File '", "' has malformed content.");
   }
 }

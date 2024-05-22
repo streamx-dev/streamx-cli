@@ -1,11 +1,11 @@
-package dev.streamx.cli.licence.input;
+package dev.streamx.cli.license.input;
 
 import java.io.IOException;
 
 public class StdInLineReadStrategy implements AcceptingStrategy {
 
   @Override
-  public boolean isLicenceAccepted() {
+  public boolean isLicenseAccepted() {
     try {
       do {
         char c = (char) System.in.read();

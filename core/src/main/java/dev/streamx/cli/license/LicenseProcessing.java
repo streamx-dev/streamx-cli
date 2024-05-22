@@ -1,4 +1,4 @@
-package dev.streamx.cli.licence;
+package dev.streamx.cli.license;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -13,4 +13,4 @@ import java.lang.annotation.Target;
 @Qualifier
 @Retention(RUNTIME)
 @Target({TYPE, METHOD, FIELD, PARAMETER})
-public @interface LicenceProcessing {}
+public @interface LicenseProcessing {}

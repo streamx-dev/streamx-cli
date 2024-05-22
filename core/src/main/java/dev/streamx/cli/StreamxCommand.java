@@ -2,8 +2,8 @@ package dev.streamx.cli;
 
 import dev.streamx.cli.ingestion.publish.PublishCommand;
 import dev.streamx.cli.ingestion.unpublish.UnpublishCommand;
-import dev.streamx.cli.licence.LicenceArguments;
-import dev.streamx.cli.licence.LicenceProcessorEntrypoint;
+import dev.streamx.cli.license.LicenseArguments;
+import dev.streamx.cli.license.LicenseProcessorEntrypoint;
 import dev.streamx.cli.run.RunCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.runtime.Quarkus;
@@ -30,10 +30,10 @@ public class StreamxCommand implements QuarkusApplication {
   ExceptionHandler exceptionHandler;
 
   @Inject
-  LicenceProcessorEntrypoint licenceProcessorEntrypoint;
+  LicenseProcessorEntrypoint licenseProcessorEntrypoint;
 
   @ArgGroup(exclusive = false)
-  LicenceArguments licenceArguments;
+  LicenseArguments licenseArguments;
   private CommandLine commandLine;
 
   @Override
@@ -57,7 +57,7 @@ public class StreamxCommand implements QuarkusApplication {
   }
 
   private void init() {
-    licenceProcessorEntrypoint.process();
+    licenseProcessorEntrypoint.process();
   }
 
   public static void main(String... args) {

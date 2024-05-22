@@ -1,10 +1,10 @@
-package dev.streamx.cli.licence;
+package dev.streamx.cli.license;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import dev.streamx.cli.licence.input.AcceptingStrategy;
-import dev.streamx.cli.licence.input.FixedValueStrategy;
-import dev.streamx.cli.licence.input.StdInLineReadStrategy;
+import dev.streamx.cli.license.input.AcceptingStrategy;
+import dev.streamx.cli.license.input.FixedValueStrategy;
+import dev.streamx.cli.license.input.StdInLineReadStrategy;
 import io.quarkus.arc.DefaultBean;
 import io.quarkus.arc.profile.IfBuildProfile;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,11 +13,11 @@ import jakarta.enterprise.inject.Produces;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Dependent
-class LicenceConfig {
+class LicenseConfig {
 
   @ApplicationScoped
-  @LicenceProcessing
-  ObjectMapper licencesProcessingObjectMapper() {
+  @LicenseProcessing
+  ObjectMapper licensesProcessingObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
     return objectMapper;
@@ -27,7 +27,7 @@ class LicenceConfig {
   @IfBuildProfile("test")
   AcceptingStrategy fixedValue(
       @ConfigProperty(
-          name = "streamx.cli.licence.accepting-strategy.fixed.value",
+          name = "streamx.cli.license.accepting-strategy.fixed.value",
           defaultValue = "true"
       ) boolean value) {
     return new FixedValueStrategy(value);

@@ -2,18 +2,18 @@ package dev.streamx.cli.exception;
 
 import java.net.URI;
 
-public class LicenceException extends RuntimeException {
+public class LicenseException extends RuntimeException {
 
-  private LicenceException(String message, Exception exception) {
+  private LicenseException(String message, Exception exception) {
     super(message, exception);
   }
 
-  private LicenceException(String message) {
+  private LicenseException(String message) {
     super(message);
   }
 
-  public static LicenceException licenceFetchException(URI url) {
-    return new LicenceException("""
+  public static LicenseException licenseFetchException(URI url) {
+    return new LicenseException("""
         File '%s' couldn't be fetched.
 
         Make sure that:
@@ -22,8 +22,8 @@ public class LicenceException extends RuntimeException {
          """.formatted(url, url));
   }
 
-  public static LicenceException malformedLicenceException(URI url) {
-    return new LicenceException("""
+  public static LicenseException malformedLicenseException(URI url) {
+    return new LicenseException("""
         File '%s' has malformed content.
 
         Make sure that:
@@ -31,8 +31,8 @@ public class LicenceException extends RuntimeException {
          """.formatted(url, url));
   }
 
-  public static LicenceException licenceAcceptanceRejectedException() {
-    return new LicenceException("""
+  public static LicenseException licenseAcceptanceRejectedException() {
+    return new LicenseException("""
         License acceptance is required for using StreamX.""");
   }
 }

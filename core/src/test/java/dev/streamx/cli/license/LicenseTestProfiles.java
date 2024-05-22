@@ -1,6 +1,6 @@
-package dev.streamx.cli.licence;
+package dev.streamx.cli.license;
 
-import dev.streamx.cli.licence.LicenceWiremockConfigs.StandardWiremockLicence;
+import dev.streamx.cli.license.LicenseWiremockConfigs.StandardWiremockLicense;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import java.util.ArrayList;
@@ -8,18 +8,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LicenceTestProfiles {
+public class LicenseTestProfiles {
 
-  public static class AcceptingLicenceTestProfile extends ProceedingTestProfile {
+  public static class AcceptingLicenseTestProfile extends ProceedingTestProfile {
 
   }
 
-  public static class RejectingLicenceTestProfile extends ProceedingTestProfile {
+  public static class RejectingLicenseTestProfile extends ProceedingTestProfile {
 
     @Override
     public Map<String, String> getConfigOverrides() {
       Map<String, String> overrides = super.getConfigOverrides();
-      overrides.put("streamx.cli.licence.accepting-strategy.fixed.value", "false");
+      overrides.put("streamx.cli.license.accepting-strategy.fixed.value", "false");
       return overrides;
     }
   }
@@ -35,7 +35,7 @@ public class LicenceTestProfiles {
           new ArrayList<>(QuarkusTestProfile.super.testResources());
 
       testResourceEntries.add(new TestResourceEntry(TestSettingsLifecycleManager.class));
-      testResourceEntries.add(new TestResourceEntry(StandardWiremockLicence.class));
+      testResourceEntries.add(new TestResourceEntry(StandardWiremockLicense.class));
 
       return testResourceEntries;
     }
@@ -44,7 +44,7 @@ public class LicenceTestProfiles {
     public Map<String, String> getConfigOverrides() {
       return new HashMap<>(
           Map.of(
-          "streamx.cli.licence.strategy", "PROCEED"
+          "streamx.cli.license.strategy", "PROCEED"
           )
       );
     }

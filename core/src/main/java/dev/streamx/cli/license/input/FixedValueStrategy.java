@@ -1,4 +1,4 @@
-package dev.streamx.cli.licence.input;
+package dev.streamx.cli.license.input;
 
 public class FixedValueStrategy implements AcceptingStrategy {
   private final boolean fixedValue;
@@ -8,7 +8,7 @@ public class FixedValueStrategy implements AcceptingStrategy {
   }
 
   @Override
-  public boolean isLicenceAccepted() {
+  public boolean isLicenseAccepted() {
     return fixedValue;
   }
 }
