@@ -4,6 +4,23 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
+## Run tests for the application
+
+You can run all tests including e2e against installed streamx using:
+```shell script
+./mvnw clean install -P all-tests -DstreamxCommandType=installed
+```
+
+You can run all tests including e2e against streamx jar from this code using:
+```shell script
+./mvnw clean install -P all-tests -DstreamxCommandType=built
+```
+
+E2e tests are omitted for:
+```shell script
+./mvnw clean install
+```
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:

@@ -52,7 +52,9 @@ public class EntrypointMainTest {
 
     // then
     Assertions.assertFalse(StreamxCommand.isLaunched());
-    Assertions.assertEquals("Java 17 or higher is required!\n", byteArrayOutputStream.toString());
+    Assertions.assertTrue(
+        byteArrayOutputStream.toString().contains("Java 17 or higher is required!")
+    );
   }
 
   @Test

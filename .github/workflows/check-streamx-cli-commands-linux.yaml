@@ -1,0 +1,51 @@
+name: Check streamX CLI commands for linux
+
+on:
+  workflow_dispatch:
+    inputs:
+      streamx_source:
+        type: choice
+        description: Choose to run test against built streamx or installed from public repos
+        options:
+          - built
+          - installed
+        required: true
+        default: 'built'
+
+permissions:
+  id-token: write
+
+jobs:
+  check-streamx-cli-commands-for-linux:
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_STREAMX_RELEASES_READ_SA }}
+
+      - name: Set up JDK 17s
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Set up homebrew
+        if: inputs.streamx_source == 'installed'
+        uses: 'Homebrew/actions/setup-homebrew@master'
+
+      - name: Install StreamX via Homebrew
+        if: inputs.streamx_source == 'installed'
+        run: |
+          brew install streamx-dev/tap/streamx
+
+      - name: Run StreamX tests
+        run: |
+          ./mvnw clean install -P all-tests -DstreamxCommandType=${{ inputs.streamx_source }}
