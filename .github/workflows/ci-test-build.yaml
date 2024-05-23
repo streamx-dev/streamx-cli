@@ -1,10 +1,10 @@
 name: 'Test: CI build'
 
 on:
-#  pull_request:
+  pull_request:
   push:
     branches:
-#      - main
+      - main
 
 permissions:
   id-token: write
@@ -25,9 +25,6 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_STREAMX_RELEASES_READ_SA }}
-# FIXME
-#          workload_identity_provider: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
-#          service_account: ${{ secrets.GCP_STREAMX_RELEASES_SNAPSHOT_DEPLOY_SA }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
