@@ -81,7 +81,7 @@
                 </goals>
                 <phase>deploy</phase>
                 <configuration>
-                  <dryrun>true</dryrun>
+                  <dryrun>false</dryrun>
                 </configuration>
               </execution>
             </executions>
