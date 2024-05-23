@@ -36,7 +36,7 @@ public class ProcessValidator {
         if (line == null) {
           continue;
         }
-        logger.error("OutputLine: " + line);
+        logger.debug(line);
         if (line.contains(targetOutput)) {
           logger.info("terminal command target output line found: " + line);
           return true;
