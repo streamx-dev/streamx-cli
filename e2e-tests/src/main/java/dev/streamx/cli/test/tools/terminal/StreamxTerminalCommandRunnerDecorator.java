@@ -18,6 +18,6 @@ public class StreamxTerminalCommandRunnerDecorator implements TerminalCommandRun
 
   @Override
   public Process run(String command) {
-    return wrappee.run(streamxTerminalCommand.command() + " " + command);
+    return wrappee.run(streamxTerminalCommand.getCommand() + " " + command);
   }
 }
