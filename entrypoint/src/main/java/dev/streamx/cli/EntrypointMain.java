@@ -9,7 +9,7 @@ public class EntrypointMain {
   private static final SimpleDateFormat DATE_FORMAT =
       new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss_SSS");
   private static final String LOG_FILE_PATH_PROPERTY_NAME = "%prod.quarkus.log.file.path";
-  private static final String STREAMX_LOG_FILE_NAME_PATTERN = ".streamx/streamx-%s.log";
+  private static final String STREAMX_LOG_FILE_NAME_PATTERN = "%s/.streamx/logs/streamx-%s.log";
 
   public static void main(String[] args) {
     int javaVersion = getJavaVersion();
@@ -41,8 +41,9 @@ public class EntrypointMain {
       return;
     }
 
+    String userHome = System.getProperty("user.home");
     String date = DATE_FORMAT.format(new Date());
-    String streamxLogPath = String.format(STREAMX_LOG_FILE_NAME_PATTERN, date);
+    String streamxLogPath = String.format(STREAMX_LOG_FILE_NAME_PATTERN, userHome, date);
 
     System.setProperty(LOG_FILE_PATH_PROPERTY_NAME, streamxLogPath);
   }
