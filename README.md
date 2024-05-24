@@ -38,6 +38,14 @@ You can create a native executable using:
 ./mvnw package -Dnative
 ```
 
+## Run streamxCLI communicating with cluster instance of streamx 
+
+there are flags:
+
+```--ingestion-url``` to specify streamx ingestion url
+
+```--validation.ssl.enabled``` to manage validation of ssl certificates. By default ssl validation is enabled
+
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
 ```shell script
 ./mvnw package -Dnative -Dquarkus.native.container-build=true
