@@ -48,7 +48,7 @@ public class HttpValidator {
       httpClient.close();
       logger.info("HttpClient closed");
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.error("Can not close http client", e);
     }
   }
 }

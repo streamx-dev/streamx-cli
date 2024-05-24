@@ -55,4 +55,4 @@ jobs:
 
       - name: Run StreamX tests
         run: |
-          ./mvnw clean install -P all-tests -DstreamxCommandType=${{ env.STREAMX_SOURCE }}
+          ./mvnw clean install -P all-tests -Dstreamx.cli.e2e.streamxCommandType=${{ env.STREAMX_SOURCE }}

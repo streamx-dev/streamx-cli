@@ -9,6 +9,8 @@
 
   <artifactId>streamx-cli-entrypoint</artifactId>
 
+  <name>StreamX Cli : ENTRYPOINT</name>
+
   <properties>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>

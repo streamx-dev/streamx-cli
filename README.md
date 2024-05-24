@@ -8,12 +8,12 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 You can run all tests including e2e against installed streamx using:
 ```shell script
-./mvnw clean install -P all-tests -DstreamxCommandType=installed
+./mvnw clean install -P all-tests -Dstreamx.cli.e2e.streamxCommandType=installed
 ```
 
 You can run all tests including e2e against streamx jar from this code using:
 ```shell script
-./mvnw clean install -P all-tests -DstreamxCommandType=built
+./mvnw clean install -P all-tests -streamx.cli.e2e.streamxCommandType=built
 ```
 
 E2e tests are omitted for:

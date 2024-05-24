@@ -1,27 +1,27 @@
 package dev.streamx.cli;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-@ApplicationScoped
-public class StreamxCommandProducer {
+public class StreamxTerminalCommandProducer {
 
   private static final String STREAMX_JAR_PATTER = ".*/streamx-cli-.*-runner\\.jar";
   private static final String JAR_DIR_FOR_INTELLIJ = "../distribution/target/";
   private static final String JAR_DIR_FOR_MAVEN = "./distribution/target/";
 
-  @ConfigProperty(name = "streamxCommandType", defaultValue = "built")
-  String streamxCommandType;
+  private final String streamxCommandType;
 
-  public StreamxCommand produce() {
+  public StreamxTerminalCommandProducer(String streamxCommandType) {
+    this.streamxCommandType = streamxCommandType;
+  }
+
+  public StreamxTerminalCommand produce() {
     String command =
         streamxCommandType.equalsIgnoreCase("installed")
             ? installed()
             : built();
-    return new StreamxCommand(command);
+    return new StreamxTerminalCommand(command);
   }
 
   public String built() {

@@ -1,6 +1,6 @@
 package dev.streamx.cli.test.tools.terminal;
 
-import dev.streamx.cli.StreamxCommand;
+import dev.streamx.cli.StreamxTerminalCommand;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -13,11 +13,11 @@ public class StreamxTerminalCommandRunnerDecorator implements TerminalCommandRun
   @Named("OsCommandRunner")
   TerminalCommandRunner wrappee;
   @Inject
-  StreamxCommand streamxCommand;
+  StreamxTerminalCommand streamxTerminalCommand;
 
 
   @Override
   public Process run(String command) {
-    return wrappee.run(streamxCommand.getCommand() + " " + command);
+    return wrappee.run(streamxTerminalCommand.getCommand() + " " + command);
   }
 }

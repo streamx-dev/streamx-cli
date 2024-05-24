@@ -1,5 +1,5 @@
 defaultRegistry: ghcr.io/streamx-dev/streamx
-defaultImageTag: latest-jvm
+defaultImageTag: ${streamx.version}-jvm
 tenant: "streamx"
 
 processing:

@@ -1,10 +1,10 @@
 package dev.streamx.cli;
 
-public class StreamxCommand {
+public class StreamxTerminalCommand {
 
   String command;
 
-  public StreamxCommand(String command) {
+  public StreamxTerminalCommand(String command) {
     this.command = command;
   }
 
