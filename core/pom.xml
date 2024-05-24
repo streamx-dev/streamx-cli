@@ -12,7 +12,7 @@
 
   <artifactId>streamx-cli-core</artifactId>
 
-  <name>StreamX Cli : CORE</name>
+  <name>StreamX Cli : Core</name>
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
 

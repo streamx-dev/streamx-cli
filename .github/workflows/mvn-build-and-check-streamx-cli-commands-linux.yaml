@@ -11,9 +11,6 @@ on:
           - installed
         required: true
         default: 'built'
-  push:
-    branches:
-      - '**'
 
 permissions:
   id-token: write

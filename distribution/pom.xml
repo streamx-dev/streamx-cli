@@ -9,7 +9,7 @@
 
   <artifactId>streamx-cli-distribution</artifactId>
 
-  <name>StreamX Cli : DISTRIBUTION</name>
+  <name>StreamX Cli : Distribution</name>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
