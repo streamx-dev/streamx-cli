@@ -121,7 +121,8 @@ public class StreamxCliTestsIT {
   @Test
   public void shouldPublishPageUsingJsonPathFileParamPage() {
     streamxCommand(
-        "publish pages json_path_file_param_page.html -s content.bytes=file://" + filePath("json_path_file_param_page.json"),
+        "publish pages json_path_file_param_page.html -s content.bytes=file://"
+            + filePath("json_path_file_param_page.json"),
         "Registered",
         2);
 
