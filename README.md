@@ -13,7 +13,7 @@ You can run all tests including e2e against installed streamx using:
 
 You can run all tests including e2e against streamx jar from this code using:
 ```shell script
-./mvnw clean install -P all-tests -Dstreamx.cli.e2e.streamxCommandType=built
+./mvnw clean install -P all-tests
 ```
 
 E2e tests are omitted for:

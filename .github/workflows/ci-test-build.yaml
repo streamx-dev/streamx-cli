@@ -35,4 +35,4 @@ jobs:
 
       - name: Build project
         run: |
-          ./mvnw clean verify -P all-tests -Dstreamx.cli.e2e.streamxCommandType=built
+          ./mvnw clean verify -P all-tests
