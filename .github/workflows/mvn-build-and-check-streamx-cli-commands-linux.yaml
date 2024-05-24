@@ -13,6 +13,7 @@ on:
         default: 'built'
   push:
     branches:
+      - '**'
 
 permissions:
   id-token: write
@@ -21,6 +22,10 @@ jobs:
   check-streamx-cli-commands-for-linux:
 
     runs-on: ubuntu-latest
+
+    env:
+      STREAMX_SOURCE: ${{ inputs.streamx_source || 'built' }}
+
     steps:
 
       - name: Checkout Code
@@ -50,4 +55,4 @@ jobs:
 
       - name: Run StreamX tests
         run: |
-          ./mvnw clean install -P all-tests -DstreamxCommandType=${{ inputs.streamx_source }}
+          ./mvnw clean install -P all-tests -DstreamxCommandType=${{ env.STREAMX_SOURCE }}
