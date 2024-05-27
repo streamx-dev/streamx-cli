@@ -42,7 +42,7 @@ public class StreamxCliTestsIT {
   @BeforeAll
   public void setup() {
     runStreamxCommand(
-        "run -f " + absolutePath("streamx-mesh.yml"),
+        "--accept-license run -f " + absolutePath("streamx-mesh.yml"),
         "STREAMX IS READY!",
         setupTimeoutInSec);
   }
@@ -62,14 +62,14 @@ public class StreamxCliTestsIT {
   ) {
 
     runStreamxCommand(
-        "publish pages " + pageName + " " +  commandContentPart,
+        "--accept-license publish pages " + pageName + " " +  commandContentPart,
         "Registered publish event on",
         CLI_SHORT_TIMEOUT_IN_SEC);
 
     validateStreamxPage(pageName, 200, expectedPageContent);
 
     runStreamxCommand(
-        "unpublish pages " + pageName,
+        "--accept-license unpublish pages " + pageName,
         "Registered unpublish event on",
         CLI_SHORT_TIMEOUT_IN_SEC);
 
