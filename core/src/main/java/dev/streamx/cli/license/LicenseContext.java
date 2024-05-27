@@ -5,13 +5,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class LicenseContext {
 
-  private boolean acceptLicense;
+  private boolean acceptLicenseFlag;
 
-  public boolean isAcceptLicenseFlagPresent() {
-    return acceptLicense;
+  public boolean isAcceptLicenseFlagSet() {
+    return acceptLicenseFlag;
   }
 
-  public void setAcceptLicense(boolean acceptLicense) {
-    this.acceptLicense = acceptLicense;
+  public void setAcceptLicenseFlag(boolean acceptLicense) {
+    this.acceptLicenseFlag = acceptLicense;
   }
 }

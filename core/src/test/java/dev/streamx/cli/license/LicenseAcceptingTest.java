@@ -41,20 +41,16 @@ class LicenseAcceptingTest {
   @Inject
   LicenseProcessorEntrypoint entrypoint;
 
-  @BeforeEach
-  void setup() {
-    licenseArguments.propagateAcceptLicense(false);
-  }
-
   @AfterEach
   void shutdown() {
+    clearAcceptLicenceFlag();
     clearSettings();
   }
 
   @Test
   void shouldAcceptLicenseForClearEnvironment() {
     // given
-    // clear environment
+    respondWithAcceptationIfUserIsAskedForAcceptance();
 
     // when
     entrypoint.process();
@@ -66,8 +62,9 @@ class LicenseAcceptingTest {
   }
 
   @Test
-  void shouldSkipAcceptanceIfFlagAcceptLicenseWasGiven() {
+  void shouldAutomaticallyAcceptLicenseIfFlagAcceptLicenseWasGiven() {
     // given
+    respondWithAcceptationIfUserIsAskedForAcceptance();
     licenseArguments.propagateAcceptLicense(true);
 
     // when
@@ -76,17 +73,16 @@ class LicenseAcceptingTest {
     // then
     LicenseSettings settings = verifyExistsLicense();
     verifyLastFetchedLicense(settings, LICENSE_NAME, LICENSE_URL);
-    assertThat(settings.licenseApprovals()).isEmpty();
+    verifySingleApprovedLicense(settings, LICENSE_NAME, LICENSE_URL);
   }
 
   @Test
-  void shouldAcceptLicenseForNonAcceptedLicense() {
+  void shouldAcceptLicenseForPreviouslyRejectedLicense() {
     // given
+    respondWithAcceptationIfUserIsAskedForAcceptance();
+
     LocalDateTime now = LocalDateTime.now();
-    prepareGivenSettings(new LicenseSettings(
-        Optional.of(new LastLicenseFetch(now, LICENSE_NAME, LICENSE_URL)),
-        List.of()
-    ));
+    prepareEnvironmentWithNoAcceptedLicense(now);
 
     // when
     entrypoint.process();
@@ -98,14 +94,12 @@ class LicenseAcceptingTest {
   }
 
   @Test
-  void shouldSkipAcceptanceIfLastLicenseDataWasRecently() {
+  void shouldSkipAcceptanceProceedingIfLastLicenseDataWasRecentlyRefreshed() {
     // given
-    LocalDateTime longTimeAgo = LocalDateTime.now().minusDays(6);
+    respondWithAcceptationIfUserIsAskedForAcceptance();
 
-    prepareGivenSettings(new LicenseSettings(
-        Optional.of(new LastLicenseFetch(longTimeAgo, OLD_NAME, OLD_URL)),
-        List.of(new LicenseApproval(longTimeAgo, OLD_NAME, OLD_URL))
-    ));
+    LocalDateTime littleTimeAgo = LocalDateTime.now().minusDays(6);
+    prepareEnvironmentWithAcceptedOutDatedLicense(littleTimeAgo);
 
     // when
     entrypoint.process();
@@ -117,14 +111,12 @@ class LicenseAcceptingTest {
   }
 
   @Test
-  void shouldRequireAcceptanceIfLastLicenseDataWasLittleOld() {
+  void shouldAcceptLicenseIfLastLicenseDataIsNotSoRecentlyRefreshed() {
     // given
-    LocalDateTime longTimeAgo = LocalDateTime.now().minusDays(8);
+    respondWithAcceptationIfUserIsAskedForAcceptance();
 
-    prepareGivenSettings(new LicenseSettings(
-        Optional.of(new LastLicenseFetch(longTimeAgo, OLD_NAME, OLD_URL)),
-        List.of(new LicenseApproval(longTimeAgo, OLD_NAME, OLD_URL))
-    ));
+    LocalDateTime notSoRecentTimeAgo = LocalDateTime.now().minusDays(8);
+    prepareEnvironmentWithAcceptedOutDatedLicense(notSoRecentTimeAgo);
 
     // when
     entrypoint.process();
@@ -133,6 +125,20 @@ class LicenseAcceptingTest {
     LicenseSettings settings = verifyExistsLicense();
     verifyLastFetchedLicense(settings, LICENSE_NAME, LICENSE_URL);
     verifyTwoApprovedLicense(settings, LICENSE_NAME, LICENSE_URL);
+  }
+
+  private void prepareEnvironmentWithNoAcceptedLicense(LocalDateTime now) {
+    prepareGivenSettings(new LicenseSettings(
+        Optional.of(new LastLicenseFetch(now, LICENSE_NAME, LICENSE_URL)),
+        List.of()
+    ));
+  }
+
+  private void prepareEnvironmentWithAcceptedOutDatedLicense(LocalDateTime littleTimeAgo) {
+    prepareGivenSettings(new LicenseSettings(
+        Optional.of(new LastLicenseFetch(littleTimeAgo, OLD_NAME, OLD_URL)),
+        List.of(new LicenseApproval(littleTimeAgo, OLD_NAME, OLD_URL))
+    ));
   }
 
   private void prepareGivenSettings(LicenseSettings givenSettings) {
@@ -181,6 +187,14 @@ class LicenseAcceptingTest {
     return settings;
   }
 
+  private void clearAcceptLicenceFlag() {
+    licenseArguments.propagateAcceptLicense(false);
+  }
+
+  private void respondWithAcceptationIfUserIsAskedForAcceptance() {
+    // this is assured by "streamx.cli.license.accepting-strategy.fixed.value=true"
+    // setting from @TestProfile(AcceptingLicenseTestProfile.class)
+  }
 
   private static void clearSettings() {
     try {

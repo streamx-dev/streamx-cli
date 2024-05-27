@@ -3,21 +3,13 @@ package dev.streamx.cli.license;
 import dev.streamx.cli.license.model.LastLicenseFetch;
 import dev.streamx.cli.license.model.LicenseSettings;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 @ApplicationScoped
 class LicenseAcceptanceVerifier {
 
-  @Inject
-  LicenseContext licenseContext;
-
   boolean isAcceptanceRequired(LicenseSettings licenseSettings) {
-    if (licenseContext.isAcceptLicenseFlagPresent()) {
-      return false;
-    }
-
     String licenseUrlRequiredToBeAccepted = licenseSettings.lastLicenseFetch()
         .map(LastLicenseFetch::licenseUrl)
         .orElseThrow(() -> new IllegalStateException(

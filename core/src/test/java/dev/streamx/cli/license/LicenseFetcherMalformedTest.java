@@ -25,6 +25,6 @@ class LicenseFetcherMalformedTest {
 
     // then
     assertThat(throwable).isInstanceOf(LicenseException.class);
-    assertThat(throwable).hasMessageContainingAll("File '", "' has malformed content.");
+    assertThat(throwable).hasMessageContainingAll("License could not be verified.");
   }
 }

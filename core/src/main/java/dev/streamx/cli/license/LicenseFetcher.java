@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.exception.LicenseException;
+import dev.streamx.cli.license.source.LicenseSource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -24,11 +25,11 @@ import org.jetbrains.annotations.NotNull;
 @ApplicationScoped
 class LicenseFetcher {
 
-  @ConfigProperty(name = "streamx.cli.license.current-license-url")
-  String licenseUrl;
-
   @ConfigProperty(name = "streamx.cli.license.timeout", defaultValue = "5000")
   int licenseFetchTimeout;
+
+  @Inject
+  LicenseSource licenseSource;
 
   @Inject
   @LicenseProcessing
@@ -47,8 +48,8 @@ class LicenseFetcher {
   private Licenses fetchLicenses() {
     URI licenseUrl = buildLicenseUrl();
     HttpGet httpRequest = prepareRequest(licenseUrl);
-    byte[] byteArray = fetchLicenseRawContent(httpRequest, licenseUrl);
-    return parseContent(byteArray, licenseUrl);
+    byte[] byteArray = fetchLicenseRawContent(httpRequest);
+    return parseContent(byteArray);
   }
 
   @NotNull
@@ -62,22 +63,22 @@ class LicenseFetcher {
   }
 
   @NotNull
-  private Licenses parseContent(byte[] byteArray, URI licenseUrl) {
+  private Licenses parseContent(byte[] byteArray) {
     try {
       return Optional.ofNullable(objectMapper.readValue(byteArray, StreamxLicensesYaml.class))
           .map(StreamxLicensesYaml::streamxCli)
           .orElseThrow();
     } catch (IOException | NoSuchElementException e) {
-      throw LicenseException.malformedLicenseException(licenseUrl);
+      throw LicenseException.malformedLicenseException();
     }
   }
 
-  private byte[] fetchLicenseRawContent(HttpGet httpRequest, URI licenseUrl) {
+  private byte[] fetchLicenseRawContent(HttpGet httpRequest) {
     byte[] byteArray;
     try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
       byteArray = EntityUtils.toByteArray(response.getEntity());
     } catch (IOException e) {
-      throw LicenseException.licenseFetchException(licenseUrl);
+      throw LicenseException.licenseFetchException();
     }
     return byteArray;
   }
@@ -85,7 +86,7 @@ class LicenseFetcher {
   @NotNull
   private URI buildLicenseUrl() {
     try {
-      return new URI(this.licenseUrl);
+      return new URI(this.licenseSource.getUrl());
     } catch (URISyntaxException e) {
       throw sneakyThrow(e);
     }

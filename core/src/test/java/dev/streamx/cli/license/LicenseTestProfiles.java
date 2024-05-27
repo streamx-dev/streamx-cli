@@ -44,7 +44,7 @@ public class LicenseTestProfiles {
     public Map<String, String> getConfigOverrides() {
       return new HashMap<>(
           Map.of(
-          "streamx.cli.license.strategy", "PROCEED"
+          "streamx.cli.license.proceeding.enabled", "true"
           )
       );
     }

@@ -25,6 +25,6 @@ class LicenseFetcherTimeoutTest {
 
     // then
     assertThat(throwable).isInstanceOf(LicenseException.class);
-    assertThat(throwable).hasMessageContainingAll("File '", "' couldn't be fetched.");
+    assertThat(throwable).hasMessageContainingAll("License could not be verified.");
   }
 }

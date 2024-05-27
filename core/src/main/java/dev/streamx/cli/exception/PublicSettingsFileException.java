@@ -9,7 +9,7 @@ public class PublicSettingsFileException extends SettingsFileException {
   @Override
   public String getMessage() {
     return """
-        Problem with setting file "%s".
+        Problem with settings file "%s".
 
         Detail: %s"""
         .formatted(getPathToSettings(), getCause().getMessage());

@@ -18,7 +18,7 @@ class LicenseRejectingTest {
   @Test
   void shouldRun() {
     // given
-    // environment is clear
+    respondWithRejectionIfUserIsAskedForAcceptance();
 
     // when
     Exception exception = Assertions.catchRuntimeException(() -> entrypoint.process());
@@ -26,5 +26,10 @@ class LicenseRejectingTest {
     // then
     Assertions.assertThat(exception).isInstanceOf(LicenseException.class)
         .hasMessageContaining("License acceptance is required for using StreamX.");
+  }
+
+  private void respondWithRejectionIfUserIsAskedForAcceptance() {
+    // this is assured by "streamx.cli.license.accepting-strategy.fixed.value=false"
+    // setting from @TestProfile(RejectingLicenseTestProfile.class)
   }
 }

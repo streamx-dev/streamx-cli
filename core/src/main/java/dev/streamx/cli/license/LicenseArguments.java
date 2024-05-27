@@ -12,7 +12,7 @@ public class LicenseArguments {
       defaultValue = "false")
   void propagateAcceptLicense(boolean acceptLicense) {
     LicenseContext context = CDI.current().select(LicenseContext.class).get();
-    context.setAcceptLicense(acceptLicense);
+    context.setAcceptLicenseFlag(acceptLicense);
   }
 }
 

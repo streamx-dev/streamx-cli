@@ -5,12 +5,12 @@ import dev.streamx.cli.exception.PublicSettingsFileException;
 import dev.streamx.cli.exception.SettingsFileException;
 import dev.streamx.cli.license.input.AcceptingStrategy;
 import dev.streamx.cli.license.model.LastLicenseFetch;
-import dev.streamx.cli.license.model.LicenseAcceptingStrategy;
 import dev.streamx.cli.license.model.LicenseSettings;
+import dev.streamx.cli.license.proceeding.LicenseProceedingStrategy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDateTime;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
@@ -21,8 +21,11 @@ public class LicenseProcessorEntrypoint {
       %s
       """;
 
-  @ConfigProperty(name = "streamx.cli.license.strategy")
-  LicenseAcceptingStrategy licenseAcceptingStrategy;
+  @Inject
+  Logger log;
+
+  @Inject
+  LicenseProceedingStrategy licenseProceeding;
 
   @Inject
   LicenseDataRefresher licenseDataRefresher;
@@ -36,6 +39,9 @@ public class LicenseProcessorEntrypoint {
   @Inject
   AcceptingStrategy acceptingStrategy;
 
+  @Inject
+  LicenseContext licenseContext;
+
   public void process() {
     try {
       doProcess();
@@ -45,7 +51,7 @@ public class LicenseProcessorEntrypoint {
   }
 
   private void doProcess() {
-    if (licenseAcceptingStrategy == LicenseAcceptingStrategy.SKIP) {
+    if (!licenseProceeding.isEnabled()) {
       return;
     }
 
@@ -65,10 +71,25 @@ public class LicenseProcessorEntrypoint {
     print("");
     print("Do you accept the license agreement? [Y/n]");
 
+    if (licenseContext.isAcceptLicenseFlagSet()) {
+      proceedAutomaticLicenseAcceptance(licenseSettings, now);
+      return;
+    }
+
     if (acceptingStrategy.isLicenseAccepted()) {
       licenseSettingsStore.acceptLicense(licenseSettings, now);
     } else {
       throw LicenseException.licenseAcceptanceRejectedException();
+    }
+  }
+
+  private void proceedAutomaticLicenseAcceptance(LicenseSettings licenseSettings,
+      LocalDateTime now) {
+    print("Y -> \"--accept-license\" was passed");
+    if (licenseSettings.lastLicenseFetch().isPresent()) {
+      licenseSettingsStore.acceptLicense(licenseSettings, now);
+    } else {
+      log.warn("Couldn't update accepted license data because of missing license data.");
     }
   }
 

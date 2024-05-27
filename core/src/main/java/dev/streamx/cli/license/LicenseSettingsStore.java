@@ -45,10 +45,7 @@ class LicenseSettingsStore {
     return updatedSettings;
   }
 
-  LicenseSettings acceptLicense(
-      LicenseSettings licenseSettings,
-      LocalDateTime now
-  ) {
+  void acceptLicense(LicenseSettings licenseSettings, LocalDateTime now) {
     LastLicenseFetch lastLicenseFetch = licenseSettings.lastLicenseFetch()
         .orElseThrow(() ->
             new IllegalStateException("Updating accepting requires missing license data"));
@@ -64,7 +61,5 @@ class LicenseSettingsStore {
     );
 
     settingsStore.updateSettings(LICENSE_SETTINGS_YAML, updatedSettings);
-
-    return updatedSettings;
   }
 }

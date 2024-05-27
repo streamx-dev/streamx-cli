@@ -12,23 +12,23 @@ public class LicenseException extends RuntimeException {
     super(message);
   }
 
-  public static LicenseException licenseFetchException(URI url) {
+  public static LicenseException licenseFetchException() {
     return new LicenseException("""
-        File '%s' couldn't be fetched.
+        License could not be verified.
 
         Make sure that:
          * there is internet connection,
-         * there are no proxy/firewall issues to access %s,
-         """.formatted(url, url));
+         * there are no proxy/firewall issues
+         """);
   }
 
-  public static LicenseException malformedLicenseException(URI url) {
+  public static LicenseException malformedLicenseException() {
     return new LicenseException("""
-        File '%s' has malformed content.
+        License could not be verified.
 
         Make sure that:
          * your 'streamx' version is up to date.
-         """.formatted(url, url));
+         """);
   }
 
   public static LicenseException licenseAcceptanceRejectedException() {
