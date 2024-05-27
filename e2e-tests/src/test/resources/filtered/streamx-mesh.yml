@@ -1,0 +1,21 @@
+defaultRegistry: ghcr.io/streamx-dev/streamx
+defaultImageTag: ${streamx.version}-jvm
+tenant: "streamx"
+
+processing:
+  relay:
+    image: reference-relay-processing-service
+    incoming:
+      incoming-pages:
+        topic: inboxes/pages
+    outgoing:
+      outgoing-pages:
+        topic: outboxes/pages
+
+delivery:
+  web-delivery-service:
+    image: reference-web-delivery-service
+    incoming:
+      pages:
+        topic: outboxes/pages
+    port: 8081

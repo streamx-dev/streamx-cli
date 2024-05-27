@@ -4,10 +4,12 @@
   <parent>
     <groupId>dev.streamx.cli</groupId>
     <artifactId>streamx-cli</artifactId>
-    <version>0.2.5</version>
+    <version>0.3.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>streamx-cli-distribution</artifactId>
+
+  <name>StreamX Cli : Distribution</name>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
@@ -32,14 +34,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.jreleaser</groupId>
-        <artifactId>jreleaser-maven-plugin</artifactId>
-        <version>${jreleaser-maven-plugin.version}</version>
-        <configuration>
-          <configFile>jreleaser.yml</configFile>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -69,4 +63,33 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jreleaser</groupId>
+            <artifactId>jreleaser-maven-plugin</artifactId>
+            <version>${jreleaser-maven-plugin.version}</version>
+            <configuration>
+              <configFile>jreleaser.yml</configFile>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>assemble</goal>
+                  <goal>full-release</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <dryrun>false</dryrun>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

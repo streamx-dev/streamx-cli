@@ -7,11 +7,12 @@
   <parent>
     <groupId>dev.streamx.cli</groupId>
     <artifactId>streamx-cli</artifactId>
-    <version>0.2.5</version>
+    <version>0.3.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>streamx-cli-core</artifactId>
 
+  <name>StreamX Cli : Core</name>
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
 
