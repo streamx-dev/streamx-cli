@@ -48,7 +48,7 @@ class LicenseSettingsStore {
   void acceptLicense(LicenseSettings licenseSettings, LocalDateTime now) {
     LastLicenseFetch lastLicenseFetch = licenseSettings.lastLicenseFetch()
         .orElseThrow(() ->
-            new IllegalStateException("Updating accepting requires license data"));
+            new IllegalStateException("Accepting license requires license data (which is absent)"));
 
     List<LicenseApproval> updatedLicenses = new ArrayList<>(licenseSettings.licenseApprovals());
     LicenseApproval licenseApproval = new LicenseApproval(now,

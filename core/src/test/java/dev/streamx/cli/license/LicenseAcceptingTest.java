@@ -56,7 +56,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldAcceptLicenseForClearEnvironment() {
     // given
-    prepareLicenseAcceptation();
+    userIsAcceptingLicense();
 
     // when
     entrypoint.process();
@@ -85,7 +85,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldAcceptLicenseForPreviouslyRejectedLicense() {
     // given
-    prepareLicenseAcceptation();
+    userIsAcceptingLicense();
 
     LocalDateTime now = LocalDateTime.now();
     prepareEnvironmentWithNoAcceptedLicense(now);
@@ -119,7 +119,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldAcceptLicenseIfLastLicenseDataIsNotSoRecentlyRefreshed() {
     // given
-    prepareLicenseAcceptation();
+    userIsAcceptingLicense();
 
     LocalDateTime notSoRecentTimeAgo = LocalDateTime.now().minusDays(8);
     prepareEnvironmentWithAcceptedOutDatedLicense(notSoRecentTimeAgo);
@@ -136,7 +136,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldThrowLicenseExceptionForRejectingLicense() {
     // given
-    prepareLicenseRejection();
+    userIsRejectingLicense();
 
     // when
     Exception exception = Assertions.catchRuntimeException(() -> entrypoint.process());
@@ -210,11 +210,11 @@ class LicenseAcceptingTest {
     licenseArguments.propagateAcceptLicense(false);
   }
 
-  private void prepareLicenseAcceptation() {
+  private void userIsAcceptingLicense() {
     doReturn(true).when(acceptingStrategy).isLicenseAccepted();
   }
 
-  private void prepareLicenseRejection() {
+  private void userIsRejectingLicense() {
     doReturn(false).when(acceptingStrategy).isLicenseAccepted();
   }
 
