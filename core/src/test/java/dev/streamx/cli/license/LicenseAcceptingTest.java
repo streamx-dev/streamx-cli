@@ -3,9 +3,12 @@ package dev.streamx.cli.license;
 import static dev.streamx.cli.license.LicenseWiremockConfigs.StandardWiremockLicense.LICENSE_NAME;
 import static dev.streamx.cli.license.LicenseWiremockConfigs.StandardWiremockLicense.LICENSE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
-import dev.streamx.cli.license.LicenseTestProfiles.AcceptingLicenseTestProfile;
+import dev.streamx.cli.exception.LicenseException;
 import dev.streamx.cli.license.LicenseTestProfiles.ProceedingTestProfile;
+import dev.streamx.cli.license.input.AcceptingStrategy;
 import dev.streamx.cli.license.model.LastLicenseFetch;
 import dev.streamx.cli.license.model.LicenseApproval;
 import dev.streamx.cli.license.model.LicenseSettings;
@@ -21,13 +24,13 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.assertj.core.api.Assertions;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@TestProfile(AcceptingLicenseTestProfile.class)
+@TestProfile(ProceedingTestProfile.class)
 class LicenseAcceptingTest {
 
   public static final String OLD_URL = "http://old.streamx.dev/license.html";
@@ -41,6 +44,9 @@ class LicenseAcceptingTest {
   @Inject
   LicenseProcessorEntrypoint entrypoint;
 
+  @Inject
+  AcceptingStrategy acceptingStrategy;
+
   @AfterEach
   void shutdown() {
     clearAcceptLicenceFlag();
@@ -50,7 +56,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldAcceptLicenseForClearEnvironment() {
     // given
-    respondWithAcceptationIfUserIsAskedForAcceptance();
+    prepareLicenseAcceptation();
 
     // when
     entrypoint.process();
@@ -64,7 +70,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldAutomaticallyAcceptLicenseIfFlagAcceptLicenseWasGiven() {
     // given
-    respondWithAcceptationIfUserIsAskedForAcceptance();
+    userShouldNotBeAskedForAcceptation();
     licenseArguments.propagateAcceptLicense(true);
 
     // when
@@ -79,7 +85,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldAcceptLicenseForPreviouslyRejectedLicense() {
     // given
-    respondWithAcceptationIfUserIsAskedForAcceptance();
+    prepareLicenseAcceptation();
 
     LocalDateTime now = LocalDateTime.now();
     prepareEnvironmentWithNoAcceptedLicense(now);
@@ -96,7 +102,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldSkipAcceptanceProceedingIfLastLicenseDataWasRecentlyRefreshed() {
     // given
-    respondWithAcceptationIfUserIsAskedForAcceptance();
+    userShouldNotBeAskedForAcceptation();
 
     LocalDateTime littleTimeAgo = LocalDateTime.now().minusDays(6);
     prepareEnvironmentWithAcceptedOutDatedLicense(littleTimeAgo);
@@ -113,7 +119,7 @@ class LicenseAcceptingTest {
   @Test
   void shouldAcceptLicenseIfLastLicenseDataIsNotSoRecentlyRefreshed() {
     // given
-    respondWithAcceptationIfUserIsAskedForAcceptance();
+    prepareLicenseAcceptation();
 
     LocalDateTime notSoRecentTimeAgo = LocalDateTime.now().minusDays(8);
     prepareEnvironmentWithAcceptedOutDatedLicense(notSoRecentTimeAgo);
@@ -125,6 +131,19 @@ class LicenseAcceptingTest {
     LicenseSettings settings = verifyExistsLicense();
     verifyLastFetchedLicense(settings, LICENSE_NAME, LICENSE_URL);
     verifyTwoApprovedLicense(settings, LICENSE_NAME, LICENSE_URL);
+  }
+
+  @Test
+  void shouldThrowLicenseExceptionForRejectingLicense() {
+    // given
+    prepareLicenseRejection();
+
+    // when
+    Exception exception = Assertions.catchRuntimeException(() -> entrypoint.process());
+
+    // then
+    Assertions.assertThat(exception).isInstanceOf(LicenseException.class)
+        .hasMessageContaining("License acceptance is required for using StreamX.");
   }
 
   private void prepareEnvironmentWithNoAcceptedLicense(LocalDateTime now) {
@@ -191,9 +210,17 @@ class LicenseAcceptingTest {
     licenseArguments.propagateAcceptLicense(false);
   }
 
-  private void respondWithAcceptationIfUserIsAskedForAcceptance() {
-    // this is assured by "streamx.cli.license.accepting-strategy.fixed.value=true"
-    // setting from @TestProfile(AcceptingLicenseTestProfile.class)
+  private void prepareLicenseAcceptation() {
+    doReturn(true).when(acceptingStrategy).isLicenseAccepted();
+  }
+
+  private void prepareLicenseRejection() {
+    doReturn(false).when(acceptingStrategy).isLicenseAccepted();
+  }
+
+  private void userShouldNotBeAskedForAcceptation() {
+    doThrow(new IllegalStateException("This shouldn't be used"))
+        .when(acceptingStrategy).isLicenseAccepted();
   }
 
   private static void clearSettings() {

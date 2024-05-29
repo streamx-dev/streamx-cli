@@ -7,22 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class LicenseTestProfiles {
-
-  public static class AcceptingLicenseTestProfile extends ProceedingTestProfile {
-
-  }
-
-  public static class RejectingLicenseTestProfile extends ProceedingTestProfile {
-
-    @Override
-    public Map<String, String> getConfigOverrides() {
-      Map<String, String> overrides = super.getConfigOverrides();
-      overrides.put("streamx.cli.license.accepting-strategy.fixed.value", "false");
-      return overrides;
-    }
-  }
 
   public static class ProceedingTestProfile implements QuarkusTestProfile {
 

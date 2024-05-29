@@ -5,7 +5,6 @@ import static dev.streamx.cli.license.source.ProdLicenseSource.PROD_LICENSE_SOUR
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dev.streamx.cli.license.input.AcceptingStrategy;
-import dev.streamx.cli.license.input.FixedValueStrategy;
 import dev.streamx.cli.license.input.StdInLineReadStrategy;
 import dev.streamx.cli.license.proceeding.LicenseProceedingStrategy;
 import dev.streamx.cli.license.proceeding.ProceedingLicenseDisabled;
@@ -30,16 +29,6 @@ class LicenseConfig {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
     return objectMapper;
-  }
-
-  @Produces
-  @IfBuildProfile("test")
-  AcceptingStrategy fixedValue(
-      @ConfigProperty(
-          name = "streamx.cli.license.accepting-strategy.fixed.value",
-          defaultValue = "true"
-      ) boolean value) {
-    return new FixedValueStrategy(value);
   }
 
   @Produces

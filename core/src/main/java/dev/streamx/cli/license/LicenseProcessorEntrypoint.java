@@ -85,7 +85,7 @@ public class LicenseProcessorEntrypoint {
 
   private void proceedAutomaticLicenseAcceptance(LicenseSettings licenseSettings,
       LocalDateTime now) {
-    print("Y -> \"--accept-license\" was passed");
+    print("Y -> \"--accept-license\" was passed as command flag");
     if (licenseSettings.lastLicenseFetch().isPresent()) {
       licenseSettingsStore.acceptLicense(licenseSettings, now);
     } else {

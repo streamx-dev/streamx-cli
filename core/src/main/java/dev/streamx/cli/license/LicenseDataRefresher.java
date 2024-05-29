@@ -45,7 +45,7 @@ class LicenseDataRefresher {
 
     LicenseFetchRequired fetchRequired = isFetchRequired(licenseSettings, now);
 
-    return updateSettingsWithFetchedData(fetchRequired, licenseSettings, now);
+    return updateSettings(fetchRequired, licenseSettings, now);
   }
 
   private LicenseFetchRequired isFetchRequired(LicenseSettings licenseSettings,
@@ -56,12 +56,12 @@ class LicenseDataRefresher {
           ? PREFERRED
           : YES;
     } else {
-      return resolveFetchRequiredForLicenseDataPresent(now, lastLicenseFetch);
+      return resolveFetchRequiredWhenLicenseDataPresent(now, lastLicenseFetch);
     }
   }
 
   @NotNull
-  private LicenseFetchRequired resolveFetchRequiredForLicenseDataPresent(LocalDateTime now,
+  private LicenseFetchRequired resolveFetchRequiredWhenLicenseDataPresent(LocalDateTime now,
       Optional<LastLicenseFetch> lastLicenseFetch) {
     LocalDateTime lastFetchDate = lastLicenseFetch.get().fetchDate();
 
@@ -86,7 +86,7 @@ class LicenseDataRefresher {
   }
 
   @NotNull
-  private LicenseSettings updateSettingsWithFetchedData(LicenseFetchRequired fetchRequired,
+  private LicenseSettings updateSettings(LicenseFetchRequired fetchRequired,
       LicenseSettings licenseSettings, LocalDateTime now) {
     if (fetchRequired == YES || fetchRequired == PREFERRED) {
       try {
