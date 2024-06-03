@@ -24,10 +24,10 @@ jobs:
           scoop install streamx
 
           $output = (streamx --version --accept-license) | Out-String
-          $expected_prefix = "streamx-cli version:"
-          if (-not $output.Contains($expected_prefix)) {
-            Write-Output "Error: Expected output to start with '$expected_prefix', but got: $output"
+          $expected_fragment = "streamx-cli version:"
+          if (-not $output.Contains($expected_fragment)) {
+            Write-Output "Error: Expected output to contain '$expected_fragment', but got: $output"
             exit 1
           } else {
-            Write-Output "Output: '$output' starts with the expected prefix."
+            Write-Output "Output: '$output' contains '$expected_fragment'."
           }
