@@ -25,7 +25,7 @@ jobs:
 
           $output = (streamx --version --accept-license)
           $expected_prefix = "streamx-cli version:"
-          if ($output -notcontains $expected_prefix) {
+          if (-not $output.Contains($expected_prefix)) {
             Write-Output "Error: Expected output to start with '$expected_prefix', but got: $output"
             exit 1
           } else {
