@@ -23,7 +23,7 @@ jobs:
           scoop bucket add streamx-dev https://github.com/streamx-dev/scoop-streamx-dev.git
           scoop install streamx
 
-          $output = (streamx --version)
+          $output = (streamx --version --accept-license)
           $expected_prefix = "streamx-cli version:"
           if ($output -notlike "$expected_prefix*") {
             Write-Output "Error: Expected output to start with '$expected_prefix', but got: $output"
