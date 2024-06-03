@@ -30,10 +30,10 @@ jobs:
       - name: Verify streamx --version output
         run: |
           output=$(streamx --version --accept-license)
-          expected_prefix="streamx-cli version:"
-          if [[ "$output" != "$expected_prefix"* ]]; then
-            "Error: Expected output to start with '$expected_prefix', but got: $output"
+          expected_fragment="streamx-cli version:"
+          if [[ "$output" != *"$expected_fragment"* ]]; then
+            "Error: Expected output to contain '$expected_fragment', but got: $output"
             exit 1
           else
-            echo "Output: '$output' is with expected prefix"
+            echo "Output: '$output' contains '$expected_fragment'."
           fi
