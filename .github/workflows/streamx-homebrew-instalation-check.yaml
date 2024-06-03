@@ -31,7 +31,7 @@ jobs:
         run: |
           output=$(streamx --version --accept-license)
           expected_prefix="streamx-cli version:"
-          if [[ "$output" != "$expected_prefix"* ]]; then
+          if [[ "$output" != *"$expected_prefix"* ]]; then
             "Error: Expected output to start with '$expected_prefix', but got: $output"
             exit 1
           else
