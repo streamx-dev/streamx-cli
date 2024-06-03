@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.streamx.cli</groupId>
   <artifactId>streamx-cli</artifactId>
-  <version>0.3.3</version>
+  <version>0.3.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git@github.com:streamx-dev/streamx-cli.git</connection>
     <developerConnection>scm:git:git@github.com:streamx-dev/streamx-cli.git</developerConnection>
-    <tag>0.3.3</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/streamx-dev/streamx-cli</url>
   </scm>
 
