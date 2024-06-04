@@ -35,7 +35,7 @@ This EULA can be revoked by DS at any time. In such case you are obliged to imme
 
 Privacy
 
-The Software will not communicate with DS servers therefore no personal data will be processed by us.
+The Software may communicate with DS servers only to receive and install updates, and to send anonymized usage information including (IP) address, and the date and time the Software was used, therefore no personal data will be processed by us.
 
 Intellectual Property
 
