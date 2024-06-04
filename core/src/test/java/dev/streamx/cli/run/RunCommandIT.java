@@ -9,14 +9,19 @@ import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 @QuarkusMainTest
-public class RunCommandTest {
+public class RunCommandIT {
 
   @Test
-  void shouldRunStreamxBlueprintMesh(QuarkusMainLauncher launcher) {
-    LaunchResult result = launcher.launch("run", "--blueprints-mesh");
+  void shouldRunStreamxExampleMesh(QuarkusMainLauncher launcher) {
+    String s = Paths.get("target/test-classes/streamx-mesh.yml")
+        .normalize()
+        .toAbsolutePath()
+        .toString();
+    LaunchResult result = launcher.launch("run", "-f=" + s);
 
     assertThat(result.getOutput()).contains("STREAMX IS READY!");
   }

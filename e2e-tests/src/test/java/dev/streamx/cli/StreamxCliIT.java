@@ -20,7 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class StreamxCliTestsIT {
+public class StreamxCliIT {
 
   private static final int CLI_SHORT_TIMEOUT_IN_SEC = 2;
   @ConfigProperty(name = "streamx.cli.e2e.web.delivery.port.url", defaultValue = "http://localhost:8081/")

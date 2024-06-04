@@ -53,7 +53,7 @@ public class PayloadException extends RuntimeException {
   }
 
   public static PayloadException noSuchFileException(NoSuchFileException exception, Path path) {
-    return new PayloadException("File do not exists. \nPath: " + path, exception);
+    return new PayloadException("File does not exist. \nPath: " + path, exception);
   }
 
   public static PayloadException fileReadingException(IOException exception, Path path) {

@@ -64,7 +64,7 @@ class PayloadResolverTest {
 
     // then
     assertThat(exception).isInstanceOf(PayloadException.class);
-    assertThat(exception).hasMessageContaining("File do not exists.");
+    assertThat(exception).hasMessageContaining("File does not exist.");
   }
 
   @Test
