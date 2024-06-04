@@ -44,7 +44,7 @@ class MeshDefinitionResolver {
       return new MeshDefinition(path, serviceMesh);
     } else {
       throw new ParameterException(parseResult.subcommand().commandSpec().commandLine(),
-          "Missing mesh definition. Use '-f' or "
+          "Missing mesh definition. Use '-f' to select mesh file or "
           + "make sure 'streamx-mesh.yml' exists in current directory.");
     }
   }
