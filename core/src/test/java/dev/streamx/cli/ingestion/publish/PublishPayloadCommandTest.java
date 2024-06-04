@@ -69,7 +69,7 @@ public class PublishPayloadCommandTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("File do not exists.");
+    assertThat(result.getErrorOutput()).contains("File does not exist.");
   }
 
   @Test

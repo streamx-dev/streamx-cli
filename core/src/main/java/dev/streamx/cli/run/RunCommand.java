@@ -32,10 +32,6 @@ public class RunCommand implements Runnable {
     @Option(names = {"-f", "--file"}, paramLabel = "mesh definition file",
         description = "Path to mesh definition file")
     String meshDefinitionFile;
-
-    @Option(names = {"--blueprints-mesh"},
-        description = "Use predefined blueprints-mesh")
-    boolean blueprintsMesh;
   }
 
   @Inject

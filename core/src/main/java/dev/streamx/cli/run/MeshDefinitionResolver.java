@@ -16,7 +16,6 @@ import picocli.CommandLine.ParameterException;
 class MeshDefinitionResolver {
 
   private static final String CURRENT_DIRECTORY_MESH = "./streamx-mesh.yml";
-  private static final String PREDEFINED_BLUEPRINT_MESH_DEFINITION = "streamx-mesh.yml";
 
   private final MeshConfigMapper mapper = new MeshConfigMapper();
 
@@ -27,8 +26,6 @@ class MeshDefinitionResolver {
   MeshDefinitionResolver.MeshDefinition resolve(MeshSource meshSource) throws IOException {
     if (meshSource == null) {
       return resolveCurrentDirectoryMeshDefinition();
-    } else if (meshSource.blueprintsMesh) {
-      return resolvePredefinedBlueprintMesh();
     } else if (meshSource.meshDefinitionFile != null) {
       return resolveExplicitlyGivenMeshDefinitionFile(meshSource);
     } else {
@@ -47,22 +44,8 @@ class MeshDefinitionResolver {
       return new MeshDefinition(path, serviceMesh);
     } else {
       throw new ParameterException(parseResult.subcommand().commandSpec().commandLine(),
-          "Missing mesh definition. Use '-f' or '--blueprints-mesh' option or "
+          "Missing mesh definition. Use '-f' or "
           + "make sure 'streamx-mesh.yml' exists in current directory.");
-    }
-  }
-
-  @NotNull
-  private MeshDefinitionResolver.MeshDefinition resolvePredefinedBlueprintMesh() {
-    try (InputStream resourceAsStream = getClass().getClassLoader()
-        .getResourceAsStream(PREDEFINED_BLUEPRINT_MESH_DEFINITION)) {
-
-      String meshDefinition = new String(resourceAsStream.readAllBytes());
-      ServiceMesh serviceMesh = this.mapper.read(meshDefinition);
-
-      return new MeshDefinition(null, serviceMesh);
-    } catch (Exception e) {
-      throw new IllegalStateException("Predefined blueprint mesh not found...", e);
     }
   }
 

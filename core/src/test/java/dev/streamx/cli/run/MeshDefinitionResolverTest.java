@@ -20,7 +20,7 @@ import picocli.CommandLine.ParseResult;
 
 class MeshDefinitionResolverTest {
 
-  private static final String DEFAULT_MESH_PATH = "target/classes/streamx-mesh.yml";
+  private static final String DEFAULT_MESH_PATH = "target/test-classes/streamx-mesh.yml";
   private static final String CURRENT_DIRECTORY_MESH = "./streamx-mesh.yml";
 
   MeshDefinitionResolver uut;
@@ -79,33 +79,17 @@ class MeshDefinitionResolverTest {
   }
 
   @Test
-  void shouldResolveBlueprintPredefined() throws IOException {
-    // given
-    MeshSource meshSource = new MeshSource();
-    meshSource.blueprintsMesh = true;
-
-    // when
-    MeshDefinition result = uut.resolve(meshSource);
-
-    // then
-    assertNotNull(result);
-    assertThat(result.path()).isNull();
-    assertThat(result.serviceMesh()).isNotNull();
-  }
-
-  @Test
   void shouldResolveGivenMeshDefinition() throws IOException {
     // given
     MeshSource meshSource = new MeshSource();
-    meshSource.blueprintsMesh = false;
-    meshSource.meshDefinitionFile = "target/classes/streamx-mesh.yml";
+    meshSource.meshDefinitionFile = "target/test-classes/streamx-mesh.yml";
 
     // when
     MeshDefinition result = uut.resolve(meshSource);
 
     // then
     assertNotNull(result);
-    assertThat(result.path()).isEqualTo(Path.of("target/classes/streamx-mesh.yml"));
+    assertThat(result.path()).isEqualTo(Path.of("target/test-classes/streamx-mesh.yml"));
     assertThat(result.serviceMesh()).isNotNull();
   }
 }
