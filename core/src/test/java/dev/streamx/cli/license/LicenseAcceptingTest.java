@@ -161,7 +161,7 @@ class LicenseAcceptingTest {
   }
 
   private void prepareGivenSettings(LicenseSettings givenSettings) {
-    settingsStore.updateSettings(LicenseSettingsStore.LICENSE_SETTINGS_YAML, givenSettings);
+    settingsStore.updateSettings(LicenseSettingsStore.LICENSE_YML, givenSettings);
   }
 
   private static void verifySingleApprovedLicense(LicenseSettings settings,
@@ -199,7 +199,7 @@ class LicenseAcceptingTest {
   @NotNull
   private LicenseSettings verifyExistsLicense() {
     Optional<LicenseSettings> licenseSettingsStore = settingsStore.retrieveSettings(
-        LicenseSettingsStore.LICENSE_SETTINGS_YAML,
+        LicenseSettingsStore.LICENSE_YML,
         LicenseSettings.class);
     assertThat(licenseSettingsStore).isPresent();
     LicenseSettings settings = licenseSettingsStore.get();
