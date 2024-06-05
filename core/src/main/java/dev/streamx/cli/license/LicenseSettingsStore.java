@@ -15,14 +15,13 @@ import java.util.Optional;
 @ApplicationScoped
 class LicenseSettingsStore {
 
-  static final String LICENSE_SETTINGS_YAML = "license-settings.yaml";
+  static final String LICENSE_YML = "license.yml";
 
   @Inject
   SettingsStore settingsStore;
 
   LicenseSettings retrieveSettings() {
-    return settingsStore.retrieveSettings(
-            LICENSE_SETTINGS_YAML, LicenseSettings.class)
+    return settingsStore.retrieveSettings(LICENSE_YML, LicenseSettings.class)
         .orElse(new LicenseSettings(Optional.empty(), List.of()));
   }
 
@@ -40,7 +39,7 @@ class LicenseSettingsStore {
     LicenseSettings updatedSettings =
         new LicenseSettings(Optional.of(lastLicenseFetch), licenseSettings.licenseApprovals());
 
-    settingsStore.updateSettings(LICENSE_SETTINGS_YAML, updatedSettings);
+    settingsStore.updateSettings(LICENSE_YML, updatedSettings);
 
     return updatedSettings;
   }
@@ -60,6 +59,6 @@ class LicenseSettingsStore {
         updatedLicenses
     );
 
-    settingsStore.updateSettings(LICENSE_SETTINGS_YAML, updatedSettings);
+    settingsStore.updateSettings(LICENSE_YML, updatedSettings);
   }
 }
