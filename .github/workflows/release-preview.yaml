@@ -40,7 +40,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Release prepare
-        run: ./mvnw -B clean install
+        run: ./mvnw -B clean install -P preview
 
       - name: Release perform
         env:
