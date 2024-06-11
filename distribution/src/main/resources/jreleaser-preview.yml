@@ -1,6 +1,6 @@
 project:
   name: streamx-preview
-  version: "${git.commit.id.describe}"
+  version: "${git.commit.id.describe-short}"
   versionPattern: CUSTOM
   description: CLI for StreamX - preview version
   longDescription: |
