@@ -9,7 +9,7 @@ project:
   copyright: Dynamic Solutions
   links:
     homepage: https://www.streamx.dev
-    license: https://github.com/streamx-dev/streamx-cli/blob/main/LICENSE.txt
+    license: https://raw.githubusercontent.com/streamx-dev/streamx-licenses/main/streamx-eula-v1-0-license.txt
   java:
     groupId: dev.streamx.cli
     artifactId: streamx-cli
