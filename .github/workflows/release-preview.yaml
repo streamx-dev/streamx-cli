@@ -48,4 +48,4 @@ jobs:
           JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.JRELEASER_HOMEBREW_PREVIEW_GITHUB_TOKEN }}
           JRELEASER_SCOOP_GITHUB_TOKEN: ${{ secrets.JRELEASER_SCOOP_PREVIEW_GITHUB_TOKEN }}
         run: |
-          cd distribution && ../mvnw clean jreleaser:assemble jreleaser:full-release -P preview
+          ./mvnw -pl distribution clean jreleaser:assemble jreleaser:full-release -P preview
