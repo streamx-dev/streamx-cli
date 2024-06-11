@@ -1,6 +1,6 @@
 project:
   name: streamx-preview
-  version: "${git.commit.id.describe-short}"
+  version: "${git.commit.id.describe}"
   versionPattern: CUSTOM
   description: CLI for StreamX - preview version
   longDescription: |
@@ -28,7 +28,7 @@ release:
 #    owner: streamx-dev
     owner: jgardo-ds
     name: streamx-cli-preview
-    tagName: "${git.commit.id.describe-short}"
+    tagName: "${git.commit.id.describe}"
     branch: main
     overwrite: false
     update:
