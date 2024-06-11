@@ -28,7 +28,7 @@ release:
 #    owner: streamx-dev
     owner: jgardo-ds
     name: streamx-cli-preview
-    tagName: "${git.commit.id.describe}"
+    tagName: "${git.commit.id.describe-short}"
     overwrite: false
     update:
       enabled: true
