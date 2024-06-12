@@ -3,7 +3,7 @@ name: 'Release: new CLI preview version using JReleaser'
 on:
   push:
     branches:
-      - "feature/DXP-883-streamx-preview"
+      - "main"
 
 permissions:
   id-token: write
@@ -39,10 +39,10 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Release prepare
+      - name: Preview release prepare
         run: ./mvnw -B clean install -P preview
 
-      - name: Release perform
+      - name: Preview release perform
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.JRELEASER_PREVIEW_GITHUB_TOKEN }}
           JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.JRELEASER_HOMEBREW_PREVIEW_GITHUB_TOKEN }}
