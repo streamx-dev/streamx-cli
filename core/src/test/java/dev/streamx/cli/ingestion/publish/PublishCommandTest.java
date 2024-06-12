@@ -122,7 +122,10 @@ public class PublishCommandTest {
         channel, KEY);
 
     // then
-    assertThat(result.getErrorOutput()).containsSubsequence("Channel", "not found");
+    assertThat(result.getErrorOutput()).matches(
+        "Error while running command .*PublishCommand.*: .*IngestionClientException: "
+            + "Communication error. Response status: 404. Message: Not Found; "
+            + "Valid channels are: bad-request-channel, pages");
     assertThat(result.exitCode()).isNotZero();
   }
 
@@ -132,12 +135,25 @@ public class PublishCommandTest {
   }
 
   private static void stubSchemas() {
-    String response = "{\"pages\":{\"type\":\"record\",\"name\":\"Page\","
-                      + "\"namespace\":\"dev.streamx.blueprints.data\","
-                      + "\"fields\":[{\"name\":\"content\",\"type\":[\"null\",\"bytes\"],"
-                      + "\"default\":null}]},\"bad-request-channel\":{\"type\":\"record\","
-                      + "\"name\":\"Whatever\",\"namespace\":\"dev.streamx.blueprints.data\","
-                      + "\"fields\":[]}}";
+    String response = """
+        {
+          "pages": {
+            "type": "record",
+            "name": "Page",
+            "namespace": "dev.streamx.blueprints.data",
+            "fields": [ {
+                "name": "content",
+                "type": ["null", "bytes"],
+                "default": null
+            }]
+          },
+          "bad-request-channel": {
+            "type": "record",
+            "name": "Whatever",
+            "namespace": "dev.streamx.blueprints.data",
+            "fields": []
+          }
+        }""";
 
     wm.stubFor(WireMock.get(getSchema())
         .willReturn(responseDefinition().withStatus(SC_OK).withBody(response)
