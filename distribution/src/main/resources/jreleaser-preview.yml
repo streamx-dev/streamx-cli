@@ -25,8 +25,7 @@ project:
 
 release:
   github:
-#    owner: streamx-dev
-    owner: jgardo-ds
+    owner: streamx-dev
     name: streamx-cli-preview
     tagName: "${git.commit.id.describe}"
     branch: main
@@ -59,15 +58,13 @@ packagers:
     extraProperties:
       skipJava: true
     repository:
-      owner: jgardo-ds
-#      owner: streamx-dev
+      owner: streamx-dev
       name: homebrew-preview-tap
   scoop:
     active: ALWAYS
     continueOnError: false
     repository:
-      owner: jgardo-ds
-#      owner: streamx-dev
+      owner: streamx-dev
       name: scoop-preview-streamx-dev
 
 assemble:
