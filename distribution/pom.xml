@@ -65,6 +65,74 @@
 
   <profiles>
     <profile>
+      <id>preview</id>
+      <build>
+        <resources>
+          <resource>
+            <filtering>true</filtering>
+            <directory>src/main/resources</directory>
+          </resource>
+        </resources>
+        <plugins>
+          <plugin>
+            <groupId>io.github.git-commit-id</groupId>
+            <artifactId>git-commit-id-maven-plugin</artifactId>
+            <version>8.0.2</version>
+            <configuration>
+              <generateGitPropertiesFile>true</generateGitPropertiesFile>
+              <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>revision</goal>
+                </goals>
+                <phase>initialize</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>properties-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>read-project-properties</goal>
+                </goals>
+                <phase>initialize</phase>
+                <configuration>
+                  <files>
+                    <file>${project.build.outputDirectory}/git.properties</file>
+                  </files>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jreleaser</groupId>
+            <artifactId>jreleaser-maven-plugin</artifactId>
+            <version>${jreleaser-maven-plugin.version}</version>
+            <configuration>
+              <configFile>target/classes/jreleaser-preview.yml</configFile>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>assemble</goal>
+                  <goal>full-release</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <dryrun>false</dryrun>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>release</id>
       <build>
         <plugins>
@@ -73,7 +141,7 @@
             <artifactId>jreleaser-maven-plugin</artifactId>
             <version>${jreleaser-maven-plugin.version}</version>
             <configuration>
-              <configFile>jreleaser.yml</configFile>
+              <configFile>target/classes/jreleaser.yml</configFile>
             </configuration>
             <executions>
               <execution>
