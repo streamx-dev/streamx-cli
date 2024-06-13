@@ -54,17 +54,19 @@ public class RunCommand implements Runnable {
       print("Setting up system containers...");
 
       try {
-        this.runner.startBase(new RunnerRequest(result.serviceMesh(), meshPath));
+        this.runner.initialize(new RunnerRequest(result.serviceMesh(), meshPath));
       } catch (DockerContainerNonUniqueException e) {
         throw DockerException.nonUniqueContainersException(e.getContainers());
       } catch (DockerEnvironmentException e) {
         throw DockerException.dockerEnvironmentException();
       }
 
+      this.runner.startBase();
+
       print("");
       print("Starting DX Mesh...");
 
-      this.runner.startMesh(new RunnerRequest(result.serviceMesh(), meshPath));
+      this.runner.startMesh();
 
       printSummary(this.runner, result.path());
       Quarkus.waitForExit();

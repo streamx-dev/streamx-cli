@@ -21,8 +21,7 @@ public class DockerException extends RuntimeException {
 
         Make sure that:
          * Docker is installed,
-         * Docker is running
-         """);
+         * Docker is running""");
   }
 
   public static DockerException nonUniqueContainersException(
@@ -33,7 +32,9 @@ public class DockerException extends RuntimeException {
     String template = """
         StreamX needs to start containers, but some of containers with same names already exists.
         
-        %s%s""".formatted(runningContainersFragment, nonRunningContainersToRemove);
+        %s%s"""
+        .formatted(runningContainersFragment, nonRunningContainersToRemove)
+        .trim();
 
     return new DockerException(template);
   }
