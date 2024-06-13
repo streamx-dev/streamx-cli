@@ -1,9 +1,10 @@
 name: 'Release: new CLI preview version using JReleaser'
 
 on:
-  push:
-    branches:
-      - "main"
+  workflow_run:
+    workflows: ["Test: CI build"]
+    types:
+      - completed
 
 permissions:
   id-token: write
@@ -12,6 +13,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +42,7 @@ jobs:
           distribution: 'adopt'
 
       - name: Preview release prepare
-        run: ./mvnw -B clean install -P preview
+        run: ./mvnw -B clean install -DskipTests -P preview
 
       - name: Preview release perform
         env:
