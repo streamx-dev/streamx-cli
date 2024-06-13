@@ -1,11 +1,7 @@
 package dev.streamx.cli.ingestion.publish;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import dev.streamx.cli.exception.IngestionClientException;
-import dev.streamx.cli.exception.UnknownChannelException;
-import dev.streamx.cli.ingestion.IngestionArguments;
-import dev.streamx.cli.ingestion.SchemaProvider;
-import dev.streamx.cli.ingestion.StreamxClientProvider;
+import dev.streamx.cli.ingestion.BaseCommand;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.cli.ingestion.publish.payload.source.FileSourceResolver;
 import dev.streamx.clients.ingestion.StreamxClient;
@@ -18,51 +14,30 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.Spec;
 
 @Command(name = "publish", mixinStandardHelpOptions = true)
-public class PublishCommand implements Runnable {
+public class PublishCommand extends BaseCommand {
 
   @ArgGroup(exclusive = false, multiplicity = "1")
   PublishTargetArguments ingestionTargetArguments;
 
   @ArgGroup(exclusive = false)
-  IngestionArguments ingestionArguments;
-
-  @ArgGroup(exclusive = false)
   PayloadArguments payloadArguments;
-
-  @Spec
-  CommandSpec spec;
-
-  @Inject
-  SchemaProvider schemaProvider;
-
-  @Inject
-  StreamxClientProvider streamxClientProvider;
 
   @Inject
   PayloadResolver payloadResolver;
 
   @Override
-  public void run() {
-
+  protected void performCommand(StreamxClient client) throws StreamxClientException {
     List<PayloadArgument> mergedPayloadArgumentList = prependPayloadFile();
     JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);
 
-    validateChannel();
-    try (StreamxClient client = streamxClientProvider.createStreamxClient()) {
-      var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
+    var publisher = client.newPublisher(ingestionTargetArguments.getChannel(), JsonNode.class);
 
-      Long eventTime = publisher.publish(ingestionTargetArguments.getKey(), jsonNode);
+    Long eventTime = publisher.publish(ingestionTargetArguments.getKey(), jsonNode);
 
-      System.out.printf("Registered publish event on '%s' at %d%n",
-          ingestionTargetArguments.getChannel(), eventTime);
-    } catch (StreamxClientException e) {
-      throw new IngestionClientException(e);
-    }
+    System.out.printf("Registered publish event on '%s' at %d%n",
+        ingestionTargetArguments.getChannel(), eventTime);
   }
 
   @NotNull
@@ -75,15 +50,5 @@ public class PublishCommand implements Runnable {
         .flatMap(Collection::stream);
 
     return Stream.concat(payloadFileArgument.stream(), payloadArgStream).toList();
-  }
-
-  private void validateChannel() {
-    try {
-      schemaProvider.validateChannel(ingestionTargetArguments.getChannel());
-    } catch (UnknownChannelException exception) {
-      throw new ParameterException(spec.commandLine(),
-          "Channel '" + exception.getChannel() + "' not found. "
-          + "Available channels: " + exception.getAvailableChannels());
-    }
   }
 }

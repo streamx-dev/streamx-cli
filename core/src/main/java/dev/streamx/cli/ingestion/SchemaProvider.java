@@ -6,15 +6,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.exception.UnableToConnectIngestionServiceException;
-import dev.streamx.cli.exception.UnknownChannelException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -30,24 +30,15 @@ public class SchemaProvider {
   @Inject
   IngestionClientContext ingestionClientContext;
 
-  public void validateChannel(String channel) {
+  public List<String> getValidChannels() {
     String ingestionUrl = ingestionClientContext.getIngestionUrl();
-    Map<String, JsonNode> schemas = fetchSchema(ingestionUrl);
-
-    validateChannel(channel, schemas);
+    return fetchChannels(ingestionUrl)
+        .stream()
+        .sorted()
+        .toList();
   }
 
-  private void validateChannel(String channel, Map<String, JsonNode> stringJsonNodeMap) {
-    if (!stringJsonNodeMap.containsKey(channel)) {
-      String availableChannels = stringJsonNodeMap.keySet().stream()
-          .sorted()
-          .collect(Collectors.joining(", "));
-
-      throw new UnknownChannelException(channel, availableChannels);
-    }
-  }
-
-  private Map<String, JsonNode> fetchSchema(String ingestionUrl) {
+  private Set<String> fetchChannels(String ingestionUrl) {
     try {
       URI publicationEndpointUri = buildPublicationsUri(ingestionUrl);
       HttpGet httpRequest = new HttpGet(publicationEndpointUri);
@@ -57,8 +48,9 @@ public class SchemaProvider {
       String body = EntityUtils.toString(entity, "UTF-8");
 
       ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(body, new TypeReference<>() {
+      Map<String, JsonNode> data = objectMapper.readValue(body, new TypeReference<>() {
       });
+      return data.keySet();
     } catch (ConnectException e) {
       throw new UnableToConnectIngestionServiceException(ingestionUrl);
     } catch (IOException e) {

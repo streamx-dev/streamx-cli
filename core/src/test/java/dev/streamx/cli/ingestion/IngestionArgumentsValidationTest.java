@@ -25,7 +25,9 @@ public class IngestionArgumentsValidationTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Illegal character in path at index 15");
+    assertThat(result.getErrorOutput())
+        .contains("Publication endpoint URI: hattetepe:///in valid/publications/v1 is malformed. "
+            + "Illegal character in path");
   }
 
   @Test
@@ -60,6 +62,8 @@ public class IngestionArgumentsValidationTest {
 
     // then
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("URI does not specify a valid host name");
+    assertThat(result.getErrorOutput())
+        .contains("Publication endpoint URI: hattetepe:///invalid/publications/v1 is malformed. "
+            + "URI without host is not supported");
   }
 }
