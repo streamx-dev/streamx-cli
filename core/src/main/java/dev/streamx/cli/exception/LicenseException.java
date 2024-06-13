@@ -1,7 +1,5 @@
 package dev.streamx.cli.exception;
 
-import java.net.URI;
-
 public class LicenseException extends RuntimeException {
 
   private LicenseException(String message, Exception exception) {

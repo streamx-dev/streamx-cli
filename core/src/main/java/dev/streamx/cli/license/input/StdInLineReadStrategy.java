@@ -33,7 +33,9 @@ public class StdInLineReadStrategy implements AcceptingStrategy {
     StringBuilder sb = new StringBuilder();
     char c;
     while ((c = ((char) System.in.read())) != '\n') {
-      sb.append(c);
+      if (!Character.isWhitespace(c)) {
+        sb.append(c);
+      }
     }
     return sb;
   }
