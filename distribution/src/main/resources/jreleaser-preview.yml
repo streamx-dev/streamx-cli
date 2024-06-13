@@ -1,0 +1,79 @@
+project:
+  name: streamx-preview
+  version: "${git.commit.id.describe}"
+  versionPattern: CUSTOM
+  description: CLI for StreamX - preview version
+  longDescription: |
+    Run and manage StreamX service mesh.
+  authors:
+    - StreamX Team
+  license: EULA
+  copyright: Dynamic Solutions
+  links:
+    homepage: https://www.streamx.dev
+    license: https://raw.githubusercontent.com/streamx-dev/streamx-licenses/main/streamx-eula-v1-0-license.txt
+  java:
+    groupId: dev.streamx.cli
+    artifactId: streamx-cli
+    version: 17
+  inceptionYear: 2024
+
+  tags:
+    - cli
+    - streamx
+    - java
+
+release:
+  github:
+    owner: streamx-dev
+    name: streamx-cli-preview
+    tagName: "${git.commit.id.describe}"
+    branch: main
+    overwrite: false
+    update:
+      enabled: true
+      sections:
+        - ASSETS
+    skipTag: false
+    changelog:
+      enabled: true
+    milestone:
+      close: false
+
+distributions:
+  streamx:
+    type: JAVA_BINARY
+    executable:
+      name: streamx
+      windowsExtension: bat
+    tags:
+      - streamx
+      - cli
+
+packagers:
+  brew:
+    active: ALWAYS
+    continueOnError: false
+    multiPlatform: true
+    extraProperties:
+      skipJava: true
+    repository:
+      owner: streamx-dev
+      name: homebrew-preview-tap
+  scoop:
+    active: ALWAYS
+    continueOnError: false
+    repository:
+      owner: streamx-dev
+      name: scoop-preview-streamx-dev
+
+assemble:
+  javaArchive:
+    streamx:
+      active: ALWAYS
+      formats: [ ZIP, TAR_GZ ]
+      fileSets:
+        - input: '.'
+          includes: [ 'LICENSE' ]
+      mainJar:
+        path: "distribution/target/{{distributionName}}-cli-${project.version}-runner.jar"
