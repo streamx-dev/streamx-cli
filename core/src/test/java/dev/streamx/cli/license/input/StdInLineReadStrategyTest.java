@@ -13,12 +13,16 @@ class StdInLineReadStrategyTest {
   @ParameterizedTest
   @ValueSource(strings = {
       "\n",
+      "\r\n",
       "y\n",
+      "  y   \r\n",
+      "\t y\r\n",
       "no way!\nI changed my mind...\ny\n",
+      "no way!\r\nI changed my mind...\r\ny\r\n",
   })
   void shouldAccept(String source) {
     // given
-    System.setIn(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
+    givenStdIn(source);
 
     // when
     boolean licenseAccepted = uut.isLicenseAccepted();
@@ -30,16 +34,22 @@ class StdInLineReadStrategyTest {
   @ParameterizedTest
   @ValueSource(strings = {
       "n\n",
+      "n\r\n",
+      " \t  n   \r\n",
       "yes... but No!\nn\n",
   })
   void shouldReject(String source) {
     // given
-    System.setIn(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
+    givenStdIn(source);
 
     // when
     boolean licenseAccepted = uut.isLicenseAccepted();
 
     // then
     Assertions.assertThat(licenseAccepted).isFalse();
+  }
+
+  private static void givenStdIn(String source) {
+    System.setIn(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
   }
 }
