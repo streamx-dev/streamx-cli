@@ -2,6 +2,7 @@ package dev.streamx.cli.run;
 
 import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
+import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.event.ContainerStarted;
@@ -13,7 +14,8 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "run", mixinStandardHelpOptions = true)
+@Command(name = "run", mixinStandardHelpOptions = true,
+    versionProvider = VersionProvider.class)
 public class RunCommand implements Runnable {
 
   private static final String BANNER = """
