@@ -1,6 +1,7 @@
 package dev.streamx.cli.ingestion.unpublish;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
@@ -16,7 +17,8 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
-@Command(name = "unpublish", mixinStandardHelpOptions = true)
+@Command(name = "unpublish", mixinStandardHelpOptions = true,
+    versionProvider = VersionProvider.class)
 public class UnpublishCommand implements Runnable {
 
   @ArgGroup(exclusive = false, multiplicity = "1")

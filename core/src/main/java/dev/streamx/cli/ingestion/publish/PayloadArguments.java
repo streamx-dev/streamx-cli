@@ -12,9 +12,7 @@ public class PayloadArguments {
           @|bold Payload defining arguments:|@
               Payload can be defined by specifying explicit full payload.
                 e.g. @|yellow publish -j "{}" (...)|@
-              will send @|yellow {}|@ to ingestion service.\s
-              Note that @|yellow -j|@ is required to send json data
-              (by default it would be sent as @|bold string|@)
+              will send @|yellow {}|@ to ingestion service.
     
               Payload can also be created by specifying (one or more)
               jsonPath with payload fragment
@@ -30,7 +28,8 @@ public class PayloadArguments {
               Payload fragment type:
               * if value is @|bold string|@ fragment use @|yellow -s|@ option
               * if value is @|bold json|@ fragment use @|yellow -j|@ option
-              * if value is @|bold binary|@ value fragment use @|yellow -b|@ option\s
+              * if value is @|bold binary|@ value fragment use @|yellow -b|@ option
+
           """
   )
   List<PayloadArgument> payloadArgs = new ArrayList<>();

@@ -61,8 +61,8 @@ public class LicenseProcessorEntrypoint {
         .isAcceptanceRequired(refreshedLicenseSettings);
     LicenseSettings licenseSettings = licenseSettingsStore.retrieveSettings();
 
-    licenseSettings.lastLicenseFetch().ifPresent(settings -> print(getLicenseText(settings)));
     if (acceptanceRequired) {
+      licenseSettings.lastLicenseFetch().ifPresent(settings -> print(getLicenseText(settings)));
       proceedLicenseAcceptance(licenseSettings, now);
     }
   }

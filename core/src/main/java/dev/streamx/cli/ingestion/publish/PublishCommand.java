@@ -1,6 +1,7 @@
 package dev.streamx.cli.ingestion.publish;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
@@ -22,7 +23,8 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
-@Command(name = "publish", mixinStandardHelpOptions = true)
+@Command(name = "publish", mixinStandardHelpOptions = true,
+    versionProvider = VersionProvider.class)
 public class PublishCommand implements Runnable {
 
   @ArgGroup(exclusive = false, multiplicity = "1")
