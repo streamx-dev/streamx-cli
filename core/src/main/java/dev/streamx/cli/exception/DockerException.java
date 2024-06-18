@@ -30,7 +30,7 @@ public class DockerException extends RuntimeException {
     String nonRunningContainersToRemove = generateContainersToRemoveFragment(containerStatus);
 
     String template = """
-        StreamX needs to start containers, but some of containers with same names already exists.
+        StreamX needs to start containers, but there are already containers with the same names.
         
         %s%s"""
         .formatted(runningContainersFragment, nonRunningContainersToRemove)

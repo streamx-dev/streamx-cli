@@ -6,7 +6,6 @@ import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.event.ContainerStarted;
-import dev.streamx.runner.model.RunnerRequest;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
@@ -54,7 +53,7 @@ public class RunCommand implements Runnable {
       print("Setting up system containers...");
 
       try {
-        this.runner.initialize(new RunnerRequest(result.serviceMesh(), meshPath));
+        this.runner.initialize(result.serviceMesh(), meshPath);
       } catch (DockerContainerNonUniqueException e) {
         throw DockerException.nonUniqueContainersException(e.getContainers());
       } catch (DockerEnvironmentException e) {
