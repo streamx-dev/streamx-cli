@@ -10,6 +10,7 @@ import org.eclipse.microprofile.config.spi.ConfigSource;
 
 public class ArgumentConfigSource implements ConfigSource {
 
+  public static final String CONFIG_SOURCE_NAME = ArgumentConfigSource.class.getSimpleName();
   /**
    * Value higher priority than {@link SysPropConfigSource System Properties}
    */
@@ -34,7 +35,7 @@ public class ArgumentConfigSource implements ConfigSource {
 
   @Override
   public String getName() {
-    return ArgumentConfigSource.class.getSimpleName();
+    return CONFIG_SOURCE_NAME;
   }
 
   /**

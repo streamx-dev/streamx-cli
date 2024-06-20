@@ -1,5 +1,6 @@
 package dev.streamx.cli;
 
+import dev.streamx.cli.config.ConfigSourcesValidator;
 import dev.streamx.cli.ingestion.publish.PublishCommand;
 import dev.streamx.cli.ingestion.unpublish.UnpublishCommand;
 import dev.streamx.cli.license.LicenseArguments;
@@ -10,6 +11,7 @@ import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
+import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -32,6 +34,9 @@ public class StreamxCommand implements QuarkusApplication {
   @Inject
   LicenseProcessorEntrypoint licenseProcessorEntrypoint;
 
+  @Inject
+  ConfigSourcesValidator configSourcesValidator;
+
   @ArgGroup(exclusive = false)
   LicenseArguments licenseArguments;
 
@@ -43,7 +48,23 @@ public class StreamxCommand implements QuarkusApplication {
         .setExecutionExceptionHandler(exceptionHandler)
         .setExpandAtFiles(false)
         .setExecutionStrategy(this::executionStrategy);
+
+    Integer x = validateProperties();
+    if (x != null) {
+      return x;
+    }
     return commandLine.execute(args);
+  }
+
+  @Nullable
+  private Integer validateProperties() {
+    try {
+      configSourcesValidator.validate();
+    } catch (Exception e) {
+      exceptionHandler.handleExecutionException(e, commandLine, commandLine.getParseResult());
+      return 1;
+    }
+    return null;
   }
 
   private int executionStrategy(ParseResult parseResult) {
