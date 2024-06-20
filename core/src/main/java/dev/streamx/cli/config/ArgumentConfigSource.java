@@ -17,6 +17,7 @@ public class ArgumentConfigSource implements ConfigSource {
   public static final int ARGUMENT_PRIORITY = 500;
 
   private static final Map<String, String> configuration = new HashMap<>();
+  private static boolean locked = false;
 
   @Override
   public int getOrdinal() {
@@ -45,6 +46,12 @@ public class ArgumentConfigSource implements ConfigSource {
     * (see {@link dev.streamx.cli.StreamxCommand#main(String[]) StreamxCommand})
     */
   public static void registerValue(String propertyName, String propertyValue) {
-    configuration.put(propertyName, propertyValue);
+    if (!locked) {
+      configuration.put(propertyName, propertyValue);
+    }
+  }
+
+  public static void lock() {
+    locked = true;
   }
 }

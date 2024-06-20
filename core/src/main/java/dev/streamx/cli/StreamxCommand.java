@@ -1,5 +1,6 @@
 package dev.streamx.cli;
 
+import dev.streamx.cli.config.ArgumentConfigSource;
 import dev.streamx.cli.config.ConfigSourcesValidator;
 import dev.streamx.cli.ingestion.publish.PublishCommand;
 import dev.streamx.cli.ingestion.unpublish.UnpublishCommand;
@@ -93,6 +94,8 @@ public class StreamxCommand implements QuarkusApplication {
       new CommandLine(new StreamxCommand()).parseArgs(args);
     } catch (Exception e) {
       //
+    } finally {
+      ArgumentConfigSource.lock();
     }
   }
 }
