@@ -40,7 +40,7 @@ public class LicenseProcessorEntrypoint {
   AcceptingStrategy acceptingStrategy;
 
   @Inject
-  LicenseContext licenseContext;
+  LicenseConfig licenseConfig;
 
   public void process() {
     try {
@@ -71,7 +71,7 @@ public class LicenseProcessorEntrypoint {
     print("");
     print("Do you accept the license agreement? [Y/n]");
 
-    if (licenseContext.isAcceptLicenseFlagSet()) {
+    if (licenseConfig.acceptLicense()) {
       proceedAutomaticLicenseAcceptance(licenseSettings, now);
       return;
     }

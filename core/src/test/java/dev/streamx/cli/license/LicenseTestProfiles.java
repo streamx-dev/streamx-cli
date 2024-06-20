@@ -50,4 +50,14 @@ public class LicenseTestProfiles {
       }
     }
   }
+
+  public static class AcceptProceedingTestProfile extends ProceedingTestProfile {
+
+    @Override
+    public Map<String, String> getConfigOverrides() {
+      Map<String, String> result = new HashMap<>(super.getConfigOverrides());
+      result.put("streamx.accept-license", "true");
+      return result;
+    }
+  }
 }

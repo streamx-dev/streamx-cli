@@ -10,13 +10,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 public class StreamxClientProvider {
 
   @Inject
-  IngestionClientContext ingestionClientContext;
+  IngestionClientConfig ingestionClientConfig;
 
   @Inject
   CloseableHttpClient httpClient;
 
   public StreamxClient createStreamxClient() throws StreamxClientException {
-    return StreamxClient.builder(ingestionClientContext.getIngestionUrl())
+    return StreamxClient.builder(ingestionClientConfig.ingestionUrl())
         .setApacheHttpClient(httpClient)
         .build();
   }

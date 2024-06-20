@@ -34,6 +34,7 @@ public class StreamxCommand implements QuarkusApplication {
 
   @ArgGroup(exclusive = false)
   LicenseArguments licenseArguments;
+
   private CommandLine commandLine;
 
   @Override
@@ -61,6 +62,16 @@ public class StreamxCommand implements QuarkusApplication {
   }
 
   public static void main(String... args) {
+    initializeArgumentConfigSource(args);
+
     Quarkus.run(StreamxCommand.class, args);
+  }
+
+  private static void initializeArgumentConfigSource(String[] args) {
+    try {
+      new CommandLine(new StreamxCommand()).parseArgs(args);
+    } catch (Exception e) {
+      //
+    }
   }
 }

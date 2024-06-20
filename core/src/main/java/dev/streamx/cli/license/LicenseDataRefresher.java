@@ -35,7 +35,7 @@ class LicenseDataRefresher {
   LicenseSettingsStore licenseSettingsStore;
 
   @Inject
-  LicenseContext licenseContext;
+  LicenseConfig licenseConfig;
 
   @Inject
   LicenseFetcher licenseFetcher;
@@ -52,21 +52,21 @@ class LicenseDataRefresher {
       LocalDateTime now) {
     Optional<LastLicenseFetch> lastLicenseFetch = licenseSettings.lastLicenseFetch();
     if (lastLicenseFetch.isEmpty()) {
-      return licenseContext.isAcceptLicenseFlagSet()
+      return licenseConfig.acceptLicense()
           ? PREFERRED
           : YES;
     } else {
-      return resolveFetchRequiredWhenLicenseDataPresent(now, lastLicenseFetch);
+      return resolveFetchRequiredWhenLicenseDataPresent(now, lastLicenseFetch.get());
     }
   }
 
   @NotNull
   private LicenseFetchRequired resolveFetchRequiredWhenLicenseDataPresent(LocalDateTime now,
-      Optional<LastLicenseFetch> lastLicenseFetch) {
-    LocalDateTime lastFetchDate = lastLicenseFetch.get().fetchDate();
+      LastLicenseFetch lastLicenseFetch) {
+    LocalDateTime lastFetchDate = lastLicenseFetch.fetchDate();
 
     if (isLastFetchInformationVeryOutdated(now, lastFetchDate)
-        && !licenseContext.isAcceptLicenseFlagSet()) {
+        && !licenseConfig.acceptLicense()) {
       return YES;
     } else if (isLastFetchInformationLittleOutdated(now, lastFetchDate)) {
       return PREFERRED;

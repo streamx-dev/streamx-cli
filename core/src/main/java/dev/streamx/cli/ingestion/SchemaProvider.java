@@ -28,10 +28,10 @@ public class SchemaProvider {
   CloseableHttpClient httpClient;
 
   @Inject
-  IngestionClientContext ingestionClientContext;
+  IngestionClientConfig ingestionClientConfig;
 
   public void validateChannel(String channel) {
-    String ingestionUrl = ingestionClientContext.getIngestionUrl();
+    String ingestionUrl = ingestionClientConfig.ingestionUrl();
     Map<String, JsonNode> schemas = fetchSchema(ingestionUrl);
 
     validateChannel(channel, schemas);

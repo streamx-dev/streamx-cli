@@ -1,6 +1,7 @@
 package dev.streamx.cli.license;
 
-import jakarta.enterprise.inject.spi.CDI;
+import dev.streamx.cli.config.ArgumentConfigSource;
+import org.apache.commons.lang3.BooleanUtils;
 import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Option;
 
@@ -11,8 +12,8 @@ public class LicenseArguments {
       showDefaultValue = Visibility.ALWAYS,
       defaultValue = "false")
   void propagateAcceptLicense(boolean acceptLicense) {
-    LicenseContext context = CDI.current().select(LicenseContext.class).get();
-    context.setAcceptLicenseFlag(acceptLicense);
+    ArgumentConfigSource.registerValue("streamx.accept-license",
+        BooleanUtils.toStringTrueFalse(acceptLicense));
   }
 }
 
