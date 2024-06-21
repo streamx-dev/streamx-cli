@@ -65,8 +65,8 @@ public class DockerException extends RuntimeException {
         Mesh definition:
         %s
 
-        Consider reusing the running mesh \
-        or removing containers before running the StreamX Mesh again."""
+        Stop the running mesh \
+        or remove containers of the running Mesh before starting new StreamX Mesh."""
         .formatted(commonMesh);
 
     return new DockerException(message);
