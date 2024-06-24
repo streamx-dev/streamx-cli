@@ -5,12 +5,12 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import io.quarkus.runtime.configuration.ApplicationPropertiesConfigSourceLoader.InClassPath;
 import io.quarkus.runtime.configuration.ApplicationPropertiesConfigSourceLoader.InFileSystem;
 import io.smallrye.config.PropertiesConfigSource;
-import io.smallrye.config.SysPropConfigSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class DotStreamxConfigSource extends PropertiesConfigSource {
@@ -30,19 +30,19 @@ public class DotStreamxConfigSource extends PropertiesConfigSource {
     String rootDir = System.getProperty("user.home");
     String dotStreamxConfigSourcePath = rootDir + "/.streamx/config";
 
-    Path path = Path.of(dotStreamxConfigSourcePath);
-    Path pathToFile = path.resolve("application.properties");
-    File file = createIfNotExists(pathToFile, path);
+    Path pathToDir = Path.of(dotStreamxConfigSourcePath);
+    Path pathToFile = pathToDir.resolve("application.properties");
+    File file = createIfNotExists(pathToDir, pathToFile);
 
     return file.toURI().toURL();
   }
 
   @NotNull
-  private static File createIfNotExists(Path pathToFile, Path path) throws IOException {
+  private static File createIfNotExists(Path pathToDir, Path pathToFile) throws IOException {
     File file = pathToFile.toFile();
     if (!file.exists()) {
-      Files.createDirectories(path);
-      Files.writeString(pathToFile, "", CREATE);
+      Files.createDirectories(pathToDir);
+      Files.writeString(pathToFile, StringUtils.EMPTY, CREATE);
     }
 
     return file;
