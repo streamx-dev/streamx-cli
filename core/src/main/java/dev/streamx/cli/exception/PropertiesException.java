@@ -30,7 +30,7 @@ public class PropertiesException extends RuntimeException {
         Illegal configuration detected.
         %s
         
-        Remove secured properties from forbidden sources."""
+        Remove the properties listed above from forbidden sources."""
         .formatted(propertiesMessage));
   }
 }

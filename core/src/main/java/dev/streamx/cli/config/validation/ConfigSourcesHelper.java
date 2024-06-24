@@ -32,20 +32,20 @@ class ConfigSourcesHelper {
     var nameSuffix = configSourceName.getNameSuffix();
     var ordinal = configSourceName.getExpectedOrdinal();
 
-    return startMatched(sourceName, namePrefix)
-        && endMatched(sourceName, nameSuffix)
-        && ordinalMatched(source, ordinal);
+    return isStartMatched(sourceName, namePrefix)
+        && isEndMatched(sourceName, nameSuffix)
+        && isOrdinalMatched(source, ordinal);
   }
 
-  private static boolean startMatched(String sourceName, String namePrefix) {
+  private static boolean isStartMatched(String sourceName, String namePrefix) {
     return sourceName.startsWith(namePrefix);
   }
 
-  private static boolean ordinalMatched(ConfigSource source, Integer ordinal) {
-    return ordinal == null || ordinal.equals(source.getOrdinal());
+  private static boolean isEndMatched(String sourceName, String nameSuffix) {
+    return nameSuffix == null || sourceName.endsWith(nameSuffix);
   }
 
-  private static boolean endMatched(String sourceName, String nameSuffix) {
-    return nameSuffix == null || sourceName.endsWith(nameSuffix);
+  private static boolean isOrdinalMatched(ConfigSource source, Integer ordinal) {
+    return ordinal == null || ordinal.equals(source.getOrdinal());
   }
 }
