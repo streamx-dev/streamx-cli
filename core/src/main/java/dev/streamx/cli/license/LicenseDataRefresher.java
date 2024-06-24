@@ -18,8 +18,9 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * This class is responsible for maintaining License data and keeping it
  * as up-to-date as it's possible.
- * Basing on multiple factors (last successful fetch date, "--accept-license" flag) it fetches
- * license data if it's required or preferred.
+ * Basing on multiple factors
+ * (last successful fetch date, "--accept-license" flag, "streamx.accept-license property)
+ * it fetches license data if it's required or preferred.
  * If license data update is not required or update is preferred but e.g. some IO issues occurred,
  * it skips updating license data.
  * After license data are fetched, data is cached in local user settings.

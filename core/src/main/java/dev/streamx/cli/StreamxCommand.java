@@ -1,7 +1,7 @@
 package dev.streamx.cli;
 
 import dev.streamx.cli.config.ArgumentConfigSource;
-import dev.streamx.cli.config.ConfigSourcesValidator;
+import dev.streamx.cli.config.validation.ConfigSourcesValidator;
 import dev.streamx.cli.ingestion.publish.PublishCommand;
 import dev.streamx.cli.ingestion.unpublish.UnpublishCommand;
 import dev.streamx.cli.license.LicenseArguments;
@@ -93,7 +93,8 @@ public class StreamxCommand implements QuarkusApplication {
     try {
       new CommandLine(new StreamxCommand()).parseArgs(args);
     } catch (Exception e) {
-      //
+      // Parsing args exception will be handled when Quarkus Context is up
+      // to provide uniform exception handling
     } finally {
       ArgumentConfigSource.lock();
     }

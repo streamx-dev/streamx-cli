@@ -1,7 +1,7 @@
 package dev.streamx.cli.exception;
 
-import dev.streamx.cli.config.ConfigSourcesValidator.ConfigSourceName;
-import dev.streamx.cli.config.ConfigSourcesValidator.SecuredProperty;
+import dev.streamx.cli.config.validation.ConfigSourceName;
+import dev.streamx.cli.config.validation.SecuredProperty;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,10 +27,10 @@ public class PropertiesException extends RuntimeException {
         .collect(Collectors.joining("\n"));
 
     return new PropertiesException("""
-        Illegal configuration found.
+        Illegal configuration detected.
         %s
         
-        Remove properties from forbidden sources."""
+        Remove secured properties from forbidden sources."""
         .formatted(propertiesMessage));
   }
 }

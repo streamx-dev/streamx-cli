@@ -114,7 +114,7 @@ class ConfigSourcesOrdinalTest {
   }
 
   private static void overriddenUserHome() {
-    String overriddenUserDir = Path.of("./target/.streamx").normalize()
+    String overriddenUserDir = Path.of("./target").normalize()
         .toAbsolutePath().toString();
     System.setProperty("user.home", overriddenUserDir);
   }
