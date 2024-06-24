@@ -86,7 +86,7 @@ public class LicenseProcessorEntrypoint {
   private void proceedAutomaticLicenseAcceptance(LicenseSettings licenseSettings,
       LocalDateTime now) {
     print("Y -> \"--accept-license\" was passed as command flag "
-        + "or \"streamx.accept-license\" property was set to \"true\"");
+        + "or \"" + LicenseConfig.STREAMX_ACCEPT_LICENSE + "\" property was set to \"true\"");
     if (licenseSettings.lastLicenseFetch().isPresent()) {
       licenseSettingsStore.acceptLicense(licenseSettings, now);
     } else {

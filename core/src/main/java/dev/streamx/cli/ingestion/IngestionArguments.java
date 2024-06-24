@@ -13,7 +13,7 @@ public class IngestionArguments {
       showDefaultValue = Visibility.ALWAYS,
       defaultValue = DEFAULT_INGESTION_URL)
   void propagateIngestionUrl(String ingestionUrl) {
-    ArgumentConfigSource.registerValue("streamx.ingestion-url", ingestionUrl);
+    ArgumentConfigSource.registerValue(IngestionClientConfig.STREAMX_INGESTION_URL, ingestionUrl);
   }
 }
 

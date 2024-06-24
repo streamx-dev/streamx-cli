@@ -12,7 +12,7 @@ public class LicenseArguments {
       showDefaultValue = Visibility.ALWAYS,
       defaultValue = "false")
   void propagateAcceptLicense(boolean acceptLicense) {
-    ArgumentConfigSource.registerValue("streamx.accept-license",
+    ArgumentConfigSource.registerValue(LicenseConfig.STREAMX_ACCEPT_LICENSE,
         BooleanUtils.toStringTrueFalse(acceptLicense));
   }
 }
