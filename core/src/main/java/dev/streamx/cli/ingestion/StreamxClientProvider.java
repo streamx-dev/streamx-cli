@@ -17,8 +17,7 @@ public class StreamxClientProvider {
   CloseableHttpClient httpClient;
 
   public StreamxClient createStreamxClient() throws StreamxClientException {
-    StreamxClientBuilder builder = StreamxClient.builder(
-            ingestionClientConfig.ingestionUrl())
+    StreamxClientBuilder builder = StreamxClient.builder(ingestionClientConfig.url())
         .setApacheHttpClient(httpClient);
 
     ingestionClientConfig.authToken()

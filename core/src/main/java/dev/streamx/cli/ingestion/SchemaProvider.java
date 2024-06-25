@@ -31,7 +31,7 @@ public class SchemaProvider {
   IngestionClientConfig ingestionClientConfig;
 
   public void validateChannel(String channel) {
-    String ingestionUrl = ingestionClientConfig.ingestionUrl();
+    String ingestionUrl = ingestionClientConfig.url();
     Map<String, JsonNode> schemas = fetchSchema(ingestionUrl);
 
     validateChannel(channel, schemas);
