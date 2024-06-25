@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
 import dev.streamx.cli.exception.LicenseException;
+import dev.streamx.cli.license.LicenseTestProfiles.AcceptProceedingTestProfile;
 import dev.streamx.cli.license.LicenseTestProfiles.ProceedingTestProfile;
 import dev.streamx.cli.license.input.AcceptingStrategy;
 import dev.streamx.cli.license.model.LastLicenseFetch;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -67,19 +69,24 @@ class LicenseAcceptingTest {
     verifySingleApprovedLicense(settings, LICENSE_NAME, LICENSE_URL);
   }
 
-  @Test
-  void shouldAutomaticallyAcceptLicenseIfFlagAcceptLicenseWasGiven() {
-    // given
-    userShouldNotBeAskedForAcceptation();
-    licenseArguments.propagateAcceptLicense(true);
+  @Nested
+  @QuarkusTest
+  @TestProfile(AcceptProceedingTestProfile.class)
+  class AcceptingByConfig {
 
-    // when
-    entrypoint.process();
+    @Test
+    void shouldAutomaticallyAcceptLicenseIfFlagAcceptLicenseWasGiven() {
+      // given
+      userShouldNotBeAskedForAcceptation();
 
-    // then
-    LicenseSettings settings = verifyExistsLicense();
-    verifyLastFetchedLicense(settings, LICENSE_NAME, LICENSE_URL);
-    verifySingleApprovedLicense(settings, LICENSE_NAME, LICENSE_URL);
+      // when
+      entrypoint.process();
+
+      // then
+      LicenseSettings settings = verifyExistsLicense();
+      verifyLastFetchedLicense(settings, LICENSE_NAME, LICENSE_URL);
+      verifySingleApprovedLicense(settings, LICENSE_NAME, LICENSE_URL);
+    }
   }
 
   @Test

@@ -1,5 +1,7 @@
 package dev.streamx.cli.license;
 
+import static dev.streamx.cli.license.LicenseConfig.STREAMX_ACCEPT_LICENSE;
+
 import dev.streamx.cli.license.LicenseWiremockConfigs.StandardWiremockLicense;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import io.quarkus.test.junit.QuarkusTestProfile;
@@ -48,6 +50,16 @@ public class LicenseTestProfiles {
       public void stop() {
 
       }
+    }
+  }
+
+  public static class AcceptProceedingTestProfile extends ProceedingTestProfile {
+
+    @Override
+    public Map<String, String> getConfigOverrides() {
+      Map<String, String> result = new HashMap<>(super.getConfigOverrides());
+      result.put(STREAMX_ACCEPT_LICENSE, "true");
+      return result;
     }
   }
 }

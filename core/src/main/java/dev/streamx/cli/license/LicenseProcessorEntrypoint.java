@@ -40,7 +40,7 @@ public class LicenseProcessorEntrypoint {
   AcceptingStrategy acceptingStrategy;
 
   @Inject
-  LicenseContext licenseContext;
+  LicenseConfig licenseConfig;
 
   public void process() {
     try {
@@ -71,7 +71,7 @@ public class LicenseProcessorEntrypoint {
     print("");
     print("Do you accept the license agreement? [Y/n]");
 
-    if (licenseContext.isAcceptLicenseFlagSet()) {
+    if (licenseConfig.acceptLicense()) {
       proceedAutomaticLicenseAcceptance(licenseSettings, now);
       return;
     }
@@ -85,7 +85,8 @@ public class LicenseProcessorEntrypoint {
 
   private void proceedAutomaticLicenseAcceptance(LicenseSettings licenseSettings,
       LocalDateTime now) {
-    print("Y -> \"--accept-license\" was passed as command flag");
+    print("Y -> \"--accept-license\" was passed as command flag "
+        + "or \"" + LicenseConfig.STREAMX_ACCEPT_LICENSE + "\" property was set to \"true\"");
     if (licenseSettings.lastLicenseFetch().isPresent()) {
       licenseSettingsStore.acceptLicense(licenseSettings, now);
     } else {
