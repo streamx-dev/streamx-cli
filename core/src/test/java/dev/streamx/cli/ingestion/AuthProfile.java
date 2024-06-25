@@ -9,6 +9,6 @@ public class AuthProfile implements QuarkusTestProfile {
 
   @Override
   public Map<String, String> getConfigOverrides() {
-    return Map.of("streamx.auth-token", JWT_TOKEN);
+    return Map.of("streamx.ingestion.auth-token", JWT_TOKEN);
   }
 }

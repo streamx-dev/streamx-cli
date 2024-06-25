@@ -10,13 +10,13 @@ import java.util.Optional;
 @ConfigMapping
 public interface IngestionClientConfig {
 
-  String STREAMX_INGESTION_URL = "streamx.ingestion-url";
-  String STREAMX_AUTH_TOKEN = "streamx.auth-token";
+  String STREAMX_INGESTION_URL = "streamx.ingestion.url";
+  String STREAMX_INGESTION_AUTH_TOKEN = "streamx.ingestion.auth-token";
 
   @WithName(STREAMX_INGESTION_URL)
   @WithDefault(DEFAULT_INGESTION_URL)
   String ingestionUrl();
 
-  @WithName(STREAMX_AUTH_TOKEN)
+  @WithName(STREAMX_INGESTION_AUTH_TOKEN)
   Optional<String> authToken();
 }

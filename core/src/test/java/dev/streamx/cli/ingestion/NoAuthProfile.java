@@ -7,6 +7,6 @@ public class NoAuthProfile implements QuarkusTestProfile {
 
   @Override
   public Map<String, String> getConfigOverrides() {
-    return Map.of("streamx.auth-token", "");
+    return Map.of("streamx.ingestion.auth-token", "");
   }
 }
