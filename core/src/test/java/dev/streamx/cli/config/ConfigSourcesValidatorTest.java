@@ -3,6 +3,7 @@ package dev.streamx.cli.config;
 import static dev.streamx.cli.config.ConfigUtils.clearConfigCache;
 import static dev.streamx.cli.config.ConfigUtils.clearConfigFile;
 import static dev.streamx.cli.config.ConfigUtils.installFile;
+import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_AUTH_TOKEN;
 import static dev.streamx.cli.license.LicenseConfig.STREAMX_ACCEPT_LICENSE;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -57,7 +58,7 @@ class ConfigSourcesValidatorTest {
   static Stream<Arguments> securedPropertyParams() {
     return Stream.of(
         arguments("./config/application.properties", STREAMX_ACCEPT_LICENSE + "=true"),
-        arguments("./.env", "STREAMX_ACCEPT-LICENSE=true")
+        arguments("./config/application.properties", STREAMX_AUTH_TOKEN + "=auth_token")
     );
   }
 }

@@ -1,6 +1,8 @@
 package dev.streamx.cli.ingestion.publish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -13,17 +15,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.matching.ContainsPattern;
+import dev.streamx.cli.ingestion.AuthProfile;
+import dev.streamx.cli.ingestion.NoAuthProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
 import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusMainTest
+@TestProfile(NoAuthProfile.class)
 public class PublishCommandTest {
 
   private static final String CHANNEL = "pages";
@@ -76,7 +84,7 @@ public class PublishCommandTest {
   }
 
   @Test
-  public void shouldPublishUsing(QuarkusMainLauncher launcher) {
+  public void shouldPublishUsingIngestionClient(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
         "--ingestion-url=" + getIngestionUrl(),
@@ -85,6 +93,20 @@ public class PublishCommandTest {
 
     // then
     assertThat(result.exitCode()).isZero();
+  }
+
+  @Test
+  public void shouldPublishUnauthorizedData(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "--json-content=" + DATA,
+        CHANNEL, KEY);
+
+    // then
+    assertThat(result.exitCode()).isZero();
+    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
+        .withoutHeader("Authorization"));
   }
 
   @Test
@@ -124,6 +146,26 @@ public class PublishCommandTest {
     // then
     assertThat(result.getErrorOutput()).containsSubsequence("Channel", "not found");
     assertThat(result.exitCode()).isNotZero();
+  }
+
+  @Nested
+  @QuarkusMainTest
+  @TestProfile(AuthProfile.class)
+  class AuthorizedTest {
+
+    @Test
+    public void shouldPublishAuthorizedUsing(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          "--json-content=" + DATA,
+          CHANNEL, KEY);
+
+      // then
+      assertThat(result.exitCode()).isZero();
+      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
+          .withHeader("Authorization", new ContainsPattern(AuthProfile.JWT_TOKEN)));
+    }
   }
 
   private static void initializeWiremock() {
