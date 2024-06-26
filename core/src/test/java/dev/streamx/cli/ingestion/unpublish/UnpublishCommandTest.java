@@ -107,9 +107,9 @@ public class UnpublishCommandTest {
       assertThat(result.exitCode()).isZero();
 
       wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
       wm.verify(deleteRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
-          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }
 

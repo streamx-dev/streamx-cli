@@ -31,8 +31,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-@QuarkusMainTest
-@TestProfile(UnauthorizedProfile.class)
 public class PublishCommandTest {
 
   private static final String CHANNEL = "pages";
@@ -172,9 +170,9 @@ public class PublishCommandTest {
       // then
       assertThat(result.exitCode()).isZero();
       wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
-          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }
 
