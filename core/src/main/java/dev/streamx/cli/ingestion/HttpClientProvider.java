@@ -36,8 +36,6 @@ public class HttpClientProvider {
 
     if (isInsecureHttpsIngestion()) {
       acceptAllCertificates(builder);
-    } else if (isHttpIngestion()) {
-      //acceptHttpOnly(builder);
     }
 
     return builder.build();
@@ -61,22 +59,6 @@ public class HttpClientProvider {
         RegistryBuilder.<ConnectionSocketFactory>create()
             .register(HTTP, new PlainConnectionSocketFactory())
             .register(HTTPS, sslsf)
-            .build();
-
-    final BasicHttpClientConnectionManager connectionManager =
-        new BasicHttpClientConnectionManager(socketFactoryRegistry);
-
-    builder.setConnectionManager(connectionManager);
-  }
-
-  private boolean isHttpIngestion() {
-    return ingestionClientConfig.url().startsWith("http://");
-  }
-
-  private static void acceptHttpOnly(HttpClientBuilder builder) {
-    final Registry<ConnectionSocketFactory> socketFactoryRegistry =
-        RegistryBuilder.<ConnectionSocketFactory>create()
-            .register(HTTP, new PlainConnectionSocketFactory())
             .build();
 
     final BasicHttpClientConnectionManager connectionManager =

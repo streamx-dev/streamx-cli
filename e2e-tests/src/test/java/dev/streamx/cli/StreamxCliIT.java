@@ -26,7 +26,7 @@ public class StreamxCliIT {
   @ConfigProperty(name = "streamx.cli.e2e.web.delivery.port.url", defaultValue = "http://localhost:8081/")
   String webDeliveryPortUrl;
 
-  @ConfigProperty(name = "streamx.cli.e2e.setup.timeoutInSec", defaultValue = "120")
+  @ConfigProperty(name = "streamx.cli.e2e.setup.timeoutInSec", defaultValue = "60")
   int setupTimeoutInSec;
 
   @Inject
