@@ -37,7 +37,7 @@ public class HttpClientProvider {
     if (isInsecureHttpsIngestion()) {
       acceptAllCertificates(builder);
     } else if (isHttpIngestion()) {
-//      acceptHttpOnly(builder);
+      //acceptHttpOnly(builder);
     }
 
     return builder.build();
