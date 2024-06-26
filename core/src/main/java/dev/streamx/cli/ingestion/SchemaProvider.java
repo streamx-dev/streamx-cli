@@ -83,7 +83,9 @@ public class SchemaProvider {
   private static void verifyStatusCode(HttpResponse execute) throws StreamxClientException {
     if (execute.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
       throw new StreamxClientException(
-          "Authentication failed. Make sure that the given token is valid.");
+          // this message is copy-pasted from StreamxIngestionClient
+          "Authentication failed. Make sure that the given token is valid."
+      );
     }
   }
 

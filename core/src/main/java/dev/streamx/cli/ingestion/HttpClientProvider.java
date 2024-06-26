@@ -23,8 +23,9 @@ import org.apache.http.ssl.TrustStrategy;
 @Dependent
 public class HttpClientProvider {
 
-  public static final String HTTPS = "https";
-  public static final String HTTP = "http";
+  private static final String HTTPS = "https";
+  private static final String HTTP = "http";
+  private static final String HTTPS_PROTOCOL = "https://";
 
   @Inject
   IngestionClientConfig ingestionClientConfig;
@@ -42,7 +43,7 @@ public class HttpClientProvider {
   }
 
   private boolean isInsecureHttpsIngestion() {
-    return ingestionClientConfig.url().startsWith("https://")
+    return ingestionClientConfig.url().startsWith(HTTPS_PROTOCOL)
         && ingestionClientConfig.insecure();
   }
 
