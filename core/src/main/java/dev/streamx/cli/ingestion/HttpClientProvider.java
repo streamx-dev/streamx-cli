@@ -34,15 +34,18 @@ public class HttpClientProvider {
       throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
     HttpClientBuilder builder = HttpClients.custom();
 
-    if (ingestionClientConfig.url().startsWith(HTTPS)) {
-      if (ingestionClientConfig.insecure()) {
-        acceptAllCertificates(builder);
-      }
-    } else if (ingestionClientConfig.url().startsWith(HTTP)) {
+    if (isInsecureHttpsIngestion()) {
+      acceptAllCertificates(builder);
+    } else if (isHttpIngestion()) {
       acceptHttpOnly(builder);
     }
 
     return builder.build();
+  }
+
+  private boolean isInsecureHttpsIngestion() {
+    return ingestionClientConfig.url().startsWith(HTTPS)
+        && ingestionClientConfig.insecure();
   }
 
   private static void acceptAllCertificates(HttpClientBuilder builder)
@@ -64,6 +67,10 @@ public class HttpClientProvider {
         new BasicHttpClientConnectionManager(socketFactoryRegistry);
 
     builder.setConnectionManager(connectionManager);
+  }
+
+  private boolean isHttpIngestion() {
+    return ingestionClientConfig.url().startsWith(HTTP);
   }
 
   private static void acceptHttpOnly(HttpClientBuilder builder) {

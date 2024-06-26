@@ -17,8 +17,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
-import dev.streamx.cli.ingestion.AuthProfile;
-import dev.streamx.cli.ingestion.NoAuthProfile;
+import dev.streamx.cli.ingestion.AuthorizedProfile;
+import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
 import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
 import io.quarkus.test.junit.TestProfile;
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusMainTest
-@TestProfile(NoAuthProfile.class)
+@TestProfile(UnauthorizedProfile.class)
 public class PublishCommandTest {
 
   private static final String CHANNEL = "pages";
@@ -52,108 +52,113 @@ public class PublishCommandTest {
     initializeWiremock();
   }
 
-  @Test
-  public void shouldHandleBadRequestFromRestIngestionApi(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "--json-content=" + DATA,
-        BAD_REQUEST_CHANNEL, KEY);
+  @Nested
+  @QuarkusMainTest
+  @TestProfile(UnauthorizedProfile.class)
+  class UnauthorizedTest {
+    @Test
+    public void shouldHandleBadRequestFromRestIngestionApi(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          "--json-content=" + DATA,
+          BAD_REQUEST_CHANNEL, KEY);
 
-    // then
-    assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains(
-        "Publication Ingestion REST endpoint known error. "
-        + "Code: INVALID_PUBLICATION_PAYLOAD. "
-        + "Message: Error message");
-  }
+      // then
+      assertThat(result.exitCode()).isNotZero();
+      assertThat(result.getErrorOutput()).contains(
+          "Publication Ingestion REST endpoint known error. "
+              + "Code: INVALID_PUBLICATION_PAYLOAD. "
+              + "Message: Error message");
+    }
 
-  @Test
-  public void shouldRejectInvalidDataJson(QuarkusMainLauncher launcher) {
-    // given
-    String invalidJson = "asdf{][";
+    @Test
+    public void shouldRejectInvalidDataJson(QuarkusMainLauncher launcher) {
+      // given
+      String invalidJson = "asdf{][";
 
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "--json-content=" + invalidJson,
-        BAD_REQUEST_CHANNEL, KEY);
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          "--json-content=" + invalidJson,
+          BAD_REQUEST_CHANNEL, KEY);
 
-    // then
-    assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).contains("Payload could not be parsed.");
-  }
+      // then
+      assertThat(result.exitCode()).isNotZero();
+      assertThat(result.getErrorOutput()).contains("Payload could not be parsed.");
+    }
 
-  @Test
-  public void shouldPublishUsingIngestionClient(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "--json-content=" + DATA,
-        CHANNEL, KEY);
+    @Test
+    public void shouldPublishUsingIngestionClient(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          "--json-content=" + DATA,
+          CHANNEL, KEY);
 
-    // then
-    assertThat(result.exitCode()).isZero();
-  }
+      // then
+      assertThat(result.exitCode()).isZero();
+    }
 
-  @Test
-  public void shouldPublishUnauthorizedData(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "--json-content=" + DATA,
-        CHANNEL, KEY);
+    @Test
+    public void shouldPublishUnauthorizedData(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          "--json-content=" + DATA,
+          CHANNEL, KEY);
 
-    // then
-    assertThat(result.exitCode()).isZero();
-    wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-        .withoutHeader("Authorization"));
-    wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
-        .withoutHeader("Authorization"));
-  }
+      // then
+      assertThat(result.exitCode()).isZero();
+      wm.verify(getRequestedFor(urlEqualTo(getSchema()))
+          .withoutHeader("Authorization"));
+      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
+          .withoutHeader("Authorization"));
+    }
 
-  @Test
-  public void shouldPublishBinaryData(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "-b=content='<h1>Hello World!</h1>'",
-        CHANNEL, KEY);
+    @Test
+    public void shouldPublishBinaryData(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          "-b=content='<h1>Hello World!</h1>'",
+          CHANNEL, KEY);
 
-    // then
-    assertThat(result.exitCode()).isZero();
-  }
+      // then
+      assertThat(result.exitCode()).isZero();
+    }
 
-  @Test
-  public void shouldPublishUsingPayloadFromPayloadArg(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        CHANNEL, KEY, PAYLOAD_PATH);
+    @Test
+    public void shouldPublishUsingPayloadFromPayloadArg(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          CHANNEL, KEY, PAYLOAD_PATH);
 
-    // then
-    assertThat(result.exitCode()).isZero();
-  }
+      // then
+      assertThat(result.exitCode()).isZero();
+    }
 
-  @Test
-  public void shouldRejectUnknownChannel(QuarkusMainLauncher launcher) {
-    // given
-    String channel = "channel";
+    @Test
+    public void shouldRejectUnknownChannel(QuarkusMainLauncher launcher) {
+      // given
+      String channel = "channel";
 
-    // when
-    LaunchResult result = launcher.launch("publish",
-        "--ingestion-url=" + getIngestionUrl(),
-        "--json-content=" + DATA,
-        channel, KEY);
+      // when
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + getIngestionUrl(),
+          "--json-content=" + DATA,
+          channel, KEY);
 
-    // then
-    assertThat(result.getErrorOutput()).containsSubsequence("Channel", "not found");
-    assertThat(result.exitCode()).isNotZero();
+      // then
+      assertThat(result.getErrorOutput()).containsSubsequence("Channel", "not found");
+      assertThat(result.exitCode()).isNotZero();
+    }
   }
 
   @Nested
   @QuarkusMainTest
-  @TestProfile(AuthProfile.class)
+  @TestProfile(AuthorizedProfile.class)
   class AuthorizedTest {
 
     @Test
@@ -167,9 +172,9 @@ public class PublishCommandTest {
       // then
       assertThat(result.exitCode()).isZero();
       wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-          .withHeader("Authorization", new ContainsPattern(AuthProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
-          .withHeader("Authorization", new ContainsPattern(AuthProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
     }
   }
 

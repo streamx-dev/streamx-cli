@@ -16,8 +16,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
-import dev.streamx.cli.ingestion.AuthProfile;
-import dev.streamx.cli.ingestion.NoAuthProfile;
+import dev.streamx.cli.ingestion.AuthorizedProfile;
+import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
@@ -29,8 +29,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-@QuarkusMainTest
-@TestProfile(NoAuthProfile.class)
 public class UnpublishCommandTest {
 
   private static final String CHANNEL = "pages";
@@ -45,36 +43,57 @@ public class UnpublishCommandTest {
     initializeWiremock();
   }
 
-  @Test
-  public void shouldUnpublishUsingIngestionClient(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("unpublish",
-        "--ingestion-url=" + getIngestionUrl(),
-        CHANNEL, KEY);
+  @Nested
+  @QuarkusMainTest
+  @TestProfile(UnauthorizedProfile.class)
+  class UnauthorizedTest {
 
-    // then
-    assertThat(result.exitCode()).isZero();
-  }
+    @Test
+    public void shouldUnpublishUsingIngestionClient(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("unpublish",
+          "--ingestion-url=" + getIngestionUrl(),
+          CHANNEL, KEY);
 
-  @Test
-  public void shouldUnpublishUsingUnauthorizedIngestionClient(QuarkusMainLauncher launcher) {
-    // when
-    LaunchResult result = launcher.launch("unpublish",
-        "--ingestion-url=" + getIngestionUrl(),
-        CHANNEL, KEY);
+      // then
+      assertThat(result.exitCode()).isZero();
+    }
 
-    // then
-    assertThat(result.exitCode()).isZero();
+    @Test
+    public void shouldUnpublishUsingUnauthorizedIngestionClient(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch("unpublish",
+          "--ingestion-url=" + getIngestionUrl(),
+          CHANNEL, KEY);
 
-    wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-        .withoutHeader("Authorization"));
-    wm.verify(deleteRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
-        .withoutHeader("Authorization"));
+      // then
+      assertThat(result.exitCode()).isZero();
+
+      wm.verify(getRequestedFor(urlEqualTo(getSchema()))
+          .withoutHeader("Authorization"));
+      wm.verify(deleteRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
+          .withoutHeader("Authorization"));
+    }
+
+    @Test
+    public void shouldRejectUnknownChannel(QuarkusMainLauncher launcher) {
+      // given
+      String channel = "channel";
+
+      // when
+      LaunchResult result = launcher.launch("unpublish",
+          "--ingestion-url=" + getIngestionUrl(),
+          channel, KEY);
+
+      // then
+      assertThat(result.getErrorOutput()).containsSubsequence("Channel", "not found");
+      assertThat(result.exitCode()).isNotZero();
+    }
   }
 
   @Nested
   @QuarkusMainTest
-  @TestProfile(AuthProfile.class)
+  @TestProfile(AuthorizedProfile.class)
   class AuthorizedTest {
 
     @Test
@@ -88,25 +107,10 @@ public class UnpublishCommandTest {
       assertThat(result.exitCode()).isZero();
 
       wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-          .withHeader("Authorization", new ContainsPattern(AuthProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
       wm.verify(deleteRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
-          .withHeader("Authorization", new ContainsPattern(AuthProfile.JWT_TOKEN)));
+          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.JWT_TOKEN)));
     }
-  }
-
-  @Test
-  public void shouldRejectUnknownChannel(QuarkusMainLauncher launcher) {
-    // given
-    String channel = "channel";
-
-    // when
-    LaunchResult result = launcher.launch("unpublish",
-        "--ingestion-url=" + getIngestionUrl(),
-        channel, KEY);
-
-    // then
-    assertThat(result.getErrorOutput()).containsSubsequence("Channel", "not found");
-    assertThat(result.exitCode()).isNotZero();
   }
 
   private static void initializeWiremock() {

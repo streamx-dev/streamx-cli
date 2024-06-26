@@ -3,7 +3,7 @@ package dev.streamx.cli.ingestion;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import java.util.Map;
 
-public class AuthProfile implements QuarkusTestProfile {
+public class AuthorizedProfile implements QuarkusTestProfile {
 
   public static final String JWT_TOKEN = "JWT_TOKEN";
 
