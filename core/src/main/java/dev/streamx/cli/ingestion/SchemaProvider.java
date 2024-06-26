@@ -15,7 +15,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -51,6 +53,10 @@ public class SchemaProvider {
     try {
       URI publicationEndpointUri = buildPublicationsUri(ingestionUrl);
       HttpGet httpRequest = new HttpGet(publicationEndpointUri);
+
+      ingestionClientConfig.authToken()
+          .ifPresent(authToken -> addAuthorizationHeader(httpRequest, authToken));
+
       HttpResponse execute = httpClient.execute(httpRequest);
       HttpEntity entity = execute.getEntity();
 
@@ -72,6 +78,12 @@ public class SchemaProvider {
       return new URI(uriString);
     } catch (URISyntaxException e) {
       throw sneakyThrow(e);
+    }
+  }
+
+  private void addAuthorizationHeader(HttpGet httpRequest, String authToken) {
+    if (StringUtils.isNotBlank(authToken)) {
+      httpRequest.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken);
     }
   }
 }

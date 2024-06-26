@@ -1,6 +1,7 @@
 package dev.streamx.cli.ingestion.publish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
@@ -105,6 +106,8 @@ public class PublishCommandTest {
 
     // then
     assertThat(result.exitCode()).isZero();
+    wm.verify(getRequestedFor(urlEqualTo(getSchema()))
+        .withoutHeader("Authorization"));
     wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
         .withoutHeader("Authorization"));
   }
@@ -163,6 +166,8 @@ public class PublishCommandTest {
 
       // then
       assertThat(result.exitCode()).isZero();
+      wm.verify(getRequestedFor(urlEqualTo(getSchema()))
+          .withHeader("Authorization", new ContainsPattern(AuthProfile.JWT_TOKEN)));
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
           .withHeader("Authorization", new ContainsPattern(AuthProfile.JWT_TOKEN)));
     }
