@@ -44,7 +44,7 @@ public class HttpClientProvider {
   }
 
   private boolean isInsecureHttpsIngestion() {
-    return ingestionClientConfig.url().startsWith(HTTPS)
+    return ingestionClientConfig.url().startsWith("https://")
         && ingestionClientConfig.insecure();
   }
 
@@ -70,7 +70,7 @@ public class HttpClientProvider {
   }
 
   private boolean isHttpIngestion() {
-    return ingestionClientConfig.url().startsWith(HTTP);
+    return ingestionClientConfig.url().startsWith("http://");
   }
 
   private static void acceptHttpOnly(HttpClientBuilder builder) {
