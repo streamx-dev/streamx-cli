@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
+import dev.streamx.cli.ingestion.IngestionClientConfig;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.cli.ingestion.publish.payload.source.FileSourceResolver;
+import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
@@ -15,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.net.ssl.SSLHandshakeException;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -46,6 +49,9 @@ public class PublishCommand implements Runnable {
   @Inject
   PayloadResolver payloadResolver;
 
+  @Inject
+  IngestionClientConfig ingestionClientConfig;
+
   @Override
   public void run() {
 
@@ -61,7 +67,10 @@ public class PublishCommand implements Runnable {
       System.out.printf("Registered publish event on '%s' at %d%n",
           ingestionTargetArguments.getChannel(), eventTime);
     } catch (StreamxClientException e) {
-      throw new IngestionClientException(e);
+      if (e.getCause() instanceof SSLHandshakeException) {
+        throw IngestionClientException.sslException(ingestionClientConfig.url());
+      }
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 

@@ -1,15 +1,25 @@
 package dev.streamx.cli.exception;
 
-import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
+import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_INGESTION_INSECURE;
 
 public class IngestionClientException extends RuntimeException {
 
-  public IngestionClientException(StreamxClientException cause) {
-    super(cause);
+  private IngestionClientException(String message, Exception exception) {
+    super(message, exception);
   }
 
-  @Override
-  public String getMessage() {
-    return getCause().getMessage();
+  private IngestionClientException(String message) {
+    super(message);
+  }
+
+  public static IngestionClientException sslException(String url) {
+    return new IngestionClientException("""
+        Certificate validation failed for URL '%s'.
+
+        Make sure that:
+         * the ingestion endpoint is secured with valid certificate.
+         
+        If you want to skip certificate validation, set the '%s' property to 'true'."""
+        .formatted(url, STREAMX_INGESTION_INSECURE));
   }
 }

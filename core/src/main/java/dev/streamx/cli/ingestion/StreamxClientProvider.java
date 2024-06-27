@@ -1,6 +1,7 @@
 package dev.streamx.cli.ingestion;
 
 import dev.streamx.clients.ingestion.StreamxClient;
+import dev.streamx.clients.ingestion.StreamxClientBuilder;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,8 +17,12 @@ public class StreamxClientProvider {
   CloseableHttpClient httpClient;
 
   public StreamxClient createStreamxClient() throws StreamxClientException {
-    return StreamxClient.builder(ingestionClientConfig.ingestionUrl())
-        .setApacheHttpClient(httpClient)
-        .build();
+    StreamxClientBuilder builder = StreamxClient.builder(ingestionClientConfig.url())
+        .setApacheHttpClient(httpClient);
+
+    ingestionClientConfig.authToken()
+        .ifPresent(builder::setAuthToken);
+
+    return builder.build();
   }
 }
