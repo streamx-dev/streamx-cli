@@ -5,12 +5,15 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
+import dev.streamx.cli.ingestion.IngestionClientConfig;
 import dev.streamx.cli.ingestion.IngestionTargetArguments;
 import dev.streamx.cli.ingestion.SchemaProvider;
 import dev.streamx.cli.ingestion.StreamxClientProvider;
+import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.inject.Inject;
+import javax.net.ssl.SSLHandshakeException;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -36,6 +39,9 @@ public class UnpublishCommand implements Runnable {
   @Inject
   StreamxClientProvider streamxClientProvider;
 
+  @Inject
+  IngestionClientConfig ingestionClientConfig;
+
   @Override
   public void run() {
     validateChannel();
@@ -48,7 +54,10 @@ public class UnpublishCommand implements Runnable {
       System.out.printf("Registered unpublish event on '%s' at %d%n",
           ingestionTargetArguments.getChannel(), eventTime);
     } catch (StreamxClientException e) {
-      throw new IngestionClientException(e);
+      if (e.getCause() instanceof SSLHandshakeException) {
+        throw IngestionClientException.sslException(ingestionClientConfig.url());
+      }
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 

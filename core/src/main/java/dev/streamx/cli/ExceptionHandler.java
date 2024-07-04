@@ -16,12 +16,19 @@ public class ExceptionHandler implements IExecutionExceptionHandler {
   @Override
   public int handleExecutionException(Exception ex, CommandLine cmd,
       ParseResult parseResult) {
-
-    cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+    printErrorMessage(ex, cmd);
     log.error("Execution exception occurred.", ex);
 
     return cmd.getExitCodeExceptionMapper() == null
         ? cmd.getCommandSpec().exitCodeOnExecutionException()
         : cmd.getExitCodeExceptionMapper().getExitCode(ex);
+  }
+
+  private static void printErrorMessage(Exception ex, CommandLine cmd) {
+    Throwable exceptionCause = ex;
+    if (ex instanceof CommandLine.ExecutionException e && e.getCause() != null) {
+      exceptionCause = e.getCause();
+    }
+    cmd.getErr().println(cmd.getColorScheme().errorText(exceptionCause.getMessage()));
   }
 }

@@ -14,6 +14,10 @@ public class TestContainerLogFilter implements Filter {
   public boolean isLoggable(LogRecord record) {
     Level level = record.getLevel();
 
+    return isImagePullLog(record, level);
+  }
+
+  private static boolean isImagePullLog(LogRecord record, Level level) {
     return level.intValue() >= Level.WARNING.intValue() || Stream.of(
             "Pulling image",
             "Pull complete.",

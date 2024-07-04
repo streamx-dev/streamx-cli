@@ -1,6 +1,6 @@
 package dev.streamx.cli.ingestion;
 
-import jakarta.enterprise.inject.spi.CDI;
+import dev.streamx.cli.config.ArgumentConfigSource;
 import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Option;
 
@@ -13,8 +13,7 @@ public class IngestionArguments {
       showDefaultValue = Visibility.ALWAYS,
       defaultValue = DEFAULT_INGESTION_URL)
   void propagateIngestionUrl(String ingestionUrl) {
-    IngestionClientContext context = CDI.current().select(IngestionClientContext.class).get();
-    context.setIngestionUrl(ingestionUrl);
+    ArgumentConfigSource.registerValue(IngestionClientConfig.STREAMX_INGESTION_URL, ingestionUrl);
   }
 }
 

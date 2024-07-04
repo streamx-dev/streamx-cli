@@ -18,8 +18,9 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * This class is responsible for maintaining License data and keeping it
  * as up-to-date as it's possible.
- * Basing on multiple factors (last successful fetch date, "--accept-license" flag) it fetches
- * license data if it's required or preferred.
+ * Basing on multiple factors
+ * (last successful fetch date, "--accept-license" flag, "streamx.accept-license property)
+ * it fetches license data if it's required or preferred.
  * If license data update is not required or update is preferred but e.g. some IO issues occurred,
  * it skips updating license data.
  * After license data are fetched, data is cached in local user settings.
@@ -35,7 +36,7 @@ class LicenseDataRefresher {
   LicenseSettingsStore licenseSettingsStore;
 
   @Inject
-  LicenseContext licenseContext;
+  LicenseConfig licenseConfig;
 
   @Inject
   LicenseFetcher licenseFetcher;
@@ -52,21 +53,21 @@ class LicenseDataRefresher {
       LocalDateTime now) {
     Optional<LastLicenseFetch> lastLicenseFetch = licenseSettings.lastLicenseFetch();
     if (lastLicenseFetch.isEmpty()) {
-      return licenseContext.isAcceptLicenseFlagSet()
+      return licenseConfig.acceptLicense()
           ? PREFERRED
           : YES;
     } else {
-      return resolveFetchRequiredWhenLicenseDataPresent(now, lastLicenseFetch);
+      return resolveFetchRequiredWhenLicenseDataPresent(now, lastLicenseFetch.get());
     }
   }
 
   @NotNull
   private LicenseFetchRequired resolveFetchRequiredWhenLicenseDataPresent(LocalDateTime now,
-      Optional<LastLicenseFetch> lastLicenseFetch) {
-    LocalDateTime lastFetchDate = lastLicenseFetch.get().fetchDate();
+      LastLicenseFetch lastLicenseFetch) {
+    LocalDateTime lastFetchDate = lastLicenseFetch.fetchDate();
 
     if (isLastFetchInformationVeryOutdated(now, lastFetchDate)
-        && !licenseContext.isAcceptLicenseFlagSet()) {
+        && !licenseConfig.acceptLicense()) {
       return YES;
     } else if (isLastFetchInformationLittleOutdated(now, lastFetchDate)) {
       return PREFERRED;
