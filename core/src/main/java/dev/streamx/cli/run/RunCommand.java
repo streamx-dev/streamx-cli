@@ -17,8 +17,10 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "run", mixinStandardHelpOptions = true,
-    versionProvider = VersionProvider.class)
+@Command(name = "run",
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionProvider.class,
+    description = "Run a StreamX Mesh locally")
 public class RunCommand implements Runnable {
 
   private static final String BANNER = """

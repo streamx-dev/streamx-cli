@@ -20,8 +20,11 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
-@Command(name = "unpublish", mixinStandardHelpOptions = true,
-    versionProvider = VersionProvider.class)
+@Command(name = "unpublish",
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionProvider.class,
+    description = "Send unpublication trigger"
+)
 public class UnpublishCommand implements Runnable {
 
   @ArgGroup(exclusive = false, multiplicity = "1")
@@ -51,7 +54,7 @@ public class UnpublishCommand implements Runnable {
 
       Long eventTime = publisher.unpublish(ingestionTargetArguments.getKey());
 
-      System.out.printf("Registered unpublish event on '%s' at %d%n",
+      System.out.printf("Registered unpublish trigger on '%s' at %d%n",
           ingestionTargetArguments.getChannel(), eventTime);
     } catch (StreamxClientException e) {
       if (e.getCause() instanceof SSLHandshakeException) {

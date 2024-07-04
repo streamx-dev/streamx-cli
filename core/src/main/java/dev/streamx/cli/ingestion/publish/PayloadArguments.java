@@ -9,7 +9,7 @@ public class PayloadArguments {
   @ArgGroup(exclusive = false, multiplicity = "0..*",
       heading = """
 
-          @|bold Payload defining arguments:|@
+          @|bold Payload defining options:|@
               Payload can be defined by specifying explicit full payload.
                 e.g. @|yellow publish -j "{}" (...)|@
               will send @|yellow {}|@ to ingestion service.

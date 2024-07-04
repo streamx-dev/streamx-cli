@@ -63,14 +63,14 @@ public class StreamxCliIT {
 
     runStreamxCommand(
         "--accept-license publish pages " + pageName + " " +  commandContentPart,
-        "Registered publish event on",
+        "Registered data publication on",
         CLI_SHORT_TIMEOUT_IN_SEC);
 
     validateStreamxPage(pageName, 200, expectedPageContent);
 
     runStreamxCommand(
         "--accept-license unpublish pages " + pageName,
-        "Registered unpublish event on",
+        "Registered unpublish trigger on",
         CLI_SHORT_TIMEOUT_IN_SEC);
 
     validateStreamxPage(pageName, 404, "");
