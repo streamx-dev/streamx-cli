@@ -55,7 +55,7 @@ public class PublishCommandTest {
   @TestProfile(UnauthorizedProfile.class)
   class UnauthorizedTest {
     @Test
-    public void shouldHandleBadRequestFromRestIngestionApi(QuarkusMainLauncher launcher) {
+    public void shouldHandleBadRequestFromIngestionRestApi(QuarkusMainLauncher launcher) {
       // when
       LaunchResult result = launcher.launch("publish",
           "--ingestion-url=" + getIngestionUrl(),
