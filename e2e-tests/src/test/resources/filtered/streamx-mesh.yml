@@ -13,7 +13,7 @@ processing:
         topic: outboxes/pages
 
 delivery:
-  web-delivery-service:
+  web:
     image: reference-web-delivery-service
     incoming:
       pages:
