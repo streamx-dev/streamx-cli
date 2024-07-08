@@ -1,6 +1,7 @@
 package dev.streamx.cli.ingestion.publish;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.IngestionClientException;
 import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.IngestionArguments;
@@ -25,7 +26,10 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
-@Command(name = "publish", mixinStandardHelpOptions = true)
+@Command(name = "publish",
+    mixinStandardHelpOptions = true,
+    versionProvider = VersionProvider.class,
+    description = "Send publication data")
 public class PublishCommand implements Runnable {
 
   @ArgGroup(exclusive = false, multiplicity = "1")
@@ -64,7 +68,7 @@ public class PublishCommand implements Runnable {
 
       Long eventTime = publisher.publish(ingestionTargetArguments.getKey(), jsonNode);
 
-      System.out.printf("Registered publish event on '%s' at %d%n",
+      System.out.printf("Registered data publication on '%s' at %d%n",
           ingestionTargetArguments.getChannel(), eventTime);
     } catch (StreamxClientException e) {
       if (e.getCause() instanceof SSLHandshakeException) {
