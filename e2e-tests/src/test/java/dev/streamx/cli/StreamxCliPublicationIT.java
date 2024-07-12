@@ -5,8 +5,9 @@ import static dev.streamx.cli.test.tools.ResourcePathResolver.absolutePath;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import dev.streamx.cli.test.tools.terminal.TerminalCommandRunner;
+import dev.streamx.cli.test.tools.terminal.process.ShellProcess;
 import dev.streamx.cli.test.tools.validators.HttpValidator;
-import dev.streamx.cli.test.tools.validators.ProcessValidator;
+import dev.streamx.cli.test.tools.validators.ProcessOutputValidator;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -20,7 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @QuarkusTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class StreamxCliIT {
+public class StreamxCliPublicationIT {
 
   private static final int CLI_SHORT_TIMEOUT_IN_SEC = 2;
   @ConfigProperty(name = "streamx.cli.e2e.web.delivery.port.url", defaultValue = "http://localhost:8081/")
@@ -34,7 +35,7 @@ public class StreamxCliIT {
   TerminalCommandRunner terminalCommandRunner;
 
   @Inject
-  ProcessValidator processValidator;
+  ProcessOutputValidator processOutputValidator;
 
   @Inject
   HttpValidator httpValidator;
@@ -48,8 +49,8 @@ public class StreamxCliIT {
   }
 
   private void runStreamxCommand(String command, String expectedOutput, long timeoutInS) {
-    Process p = terminalCommandRunner.run(command);
-    processValidator.validateOutput(p, expectedOutput, timeoutInS * 1000);
+    ShellProcess p = terminalCommandRunner.run(command);
+    processOutputValidator.validate(p.getCurrentOutputLines(), expectedOutput, timeoutInS);
   }
 
 

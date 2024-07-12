@@ -26,6 +26,7 @@ public class HttpValidator {
     await()
         .atMost(timeout, SECONDS)
         .pollInterval(100, MILLISECONDS)
+        .alias("Checking if url return valid http code and content")
         .until(() ->
             validate(url, expectedStatusCode, expectedBody)
         );

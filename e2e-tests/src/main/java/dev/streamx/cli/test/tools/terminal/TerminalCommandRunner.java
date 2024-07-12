@@ -1,6 +1,8 @@
 package dev.streamx.cli.test.tools.terminal;
 
+import dev.streamx.cli.test.tools.terminal.process.ShellProcess;
+
 public interface TerminalCommandRunner {
 
-  Process run(String command);
+  ShellProcess run(String command);
 }
