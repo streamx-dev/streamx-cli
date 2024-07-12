@@ -1,6 +1,7 @@
 package dev.streamx.cli.test.tools.terminal;
 
 import dev.streamx.cli.test.tools.terminal.command.OsCommandStrategy;
+import dev.streamx.cli.test.tools.terminal.process.ShellProcess;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,7 +16,7 @@ import org.jboss.logging.Logger;
 public class OsTerminalCommandRunner implements TerminalCommandRunner {
 
   private final Logger logger = Logger.getLogger(OsTerminalCommandRunner.class);
-  private final List<Process> processes;
+  private final List<ShellProcess> processes;
   @Inject
   OsCommandStrategy osCommand;
 
@@ -23,14 +24,14 @@ public class OsTerminalCommandRunner implements TerminalCommandRunner {
     processes = new LinkedList<>();
   }
 
-  public Process run(String command) {
+  public ShellProcess run(String command) {
     logger.info("Running terminal command: " + command);
     ProcessBuilder processBuilder = osCommand.create(command);
     try {
-      Process process = processBuilder.start();
+      ShellProcess shellProcess = ShellProcess.run(processBuilder);
       logger.info("Terminal command: '" + command + "' started");
-      processes.add(process);
-      return process;
+      processes.add(shellProcess);
+      return shellProcess;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -38,7 +39,7 @@ public class OsTerminalCommandRunner implements TerminalCommandRunner {
 
   @PreDestroy
   public void cleanUp() {
-    for (Process process : processes) {
+    for (ShellProcess process : processes) {
       process.destroy();
       logger.info("Process destroyed PID: " + process.pid());
     }
