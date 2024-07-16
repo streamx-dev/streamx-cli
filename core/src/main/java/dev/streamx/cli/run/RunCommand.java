@@ -20,7 +20,7 @@ import picocli.CommandLine.Option;
 @Command(name = "run",
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    description = "Run a StreamX Mesh locally")
+    description = "Run a StreamX Mesh locally.")
 public class RunCommand implements Runnable {
 
   private static final String BANNER = """
@@ -37,7 +37,7 @@ public class RunCommand implements Runnable {
   static class MeshSource {
 
     @Option(names = {"-f", "--file"}, paramLabel = "mesh definition file",
-        description = "Path to mesh definition file")
+        description = "Path to mesh definition file.")
     String meshDefinitionFile;
   }
 

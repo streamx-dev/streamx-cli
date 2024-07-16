@@ -19,7 +19,7 @@ class JsonPathExtractor {
 
         return Optional.of(Pair.of(jsonPath, replacement));
       } catch (InvalidPathException | IllegalArgumentException e) {
-        // this probably means that '=' was part of jsonPath
+        // this probably means that '=' was part of JSONPath expression
         continue;
       }
     }

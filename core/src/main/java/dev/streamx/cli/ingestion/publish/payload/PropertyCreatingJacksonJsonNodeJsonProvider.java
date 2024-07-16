@@ -6,7 +6,7 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 
 /**
  * This implementation of JsonProvider creating new json objects if
- * json properties on json path are not available.
+ * json properties on JSONPath expressions are not available.
  * <p>
  *
  * Solution inspired by:

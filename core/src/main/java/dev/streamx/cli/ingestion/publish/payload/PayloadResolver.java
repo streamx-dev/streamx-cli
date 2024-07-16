@@ -45,10 +45,10 @@ public class PayloadResolver {
    * into single Json. The creation of payload fragment from each payload argument is done
    * in three steps:
    * <ol>
-   *   <li>Finding and filter out jsonPath to replace with value e.g.
+   *   <li>Finding and filter out JSONPath expression to replace with value e.g.
    *   {@code content.bytes=file:///text.txt }</li>
    *   <li>Resolving content of json node e.g. resolving {@code file:///text.txt }</li>
-   *   <li>Recreating full payload fragment from json path (if json path was passed)
+   *   <li>Recreating full payload fragment from JSONPath expression (if passed)
    *   or creating json from resolved content</li>
    * </ol>
    * </p>

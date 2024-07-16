@@ -15,7 +15,7 @@ public class LicenseException extends RuntimeException {
         License could not be verified.
 
         Make sure that:
-         * there is internet connection,
+         * there is an internet connection,
          * there are no proxy/firewall issues
          """);
   }

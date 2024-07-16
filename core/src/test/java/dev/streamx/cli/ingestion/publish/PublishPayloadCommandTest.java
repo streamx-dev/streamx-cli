@@ -56,7 +56,7 @@ public class PublishPayloadCommandTest {
     // then
     assertThat(result.exitCode()).isNotZero();
     assertThat(result.getErrorOutput()).contains(
-        "Could not find valid jsonPath in given option.");
+        "Could not find valid JSONPath expression in given option.");
   }
 
   @Test
