@@ -22,8 +22,7 @@ public class PayloadException extends RuntimeException {
 
         Make sure that:
          * there is an optional third parameter that points to the file containing the payload,
-         * or there is at least one @|bold,italic Payload Defining Option|@ (-s/-b/-j)
-         """);
+         * or there is at least one @|bold,italic Payload Defining Option|@ (-s/-b/-j)""");
   }
 
   public static PayloadException jsonParseException(JsonParseException exception, String payload) {
