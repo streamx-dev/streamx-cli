@@ -26,11 +26,12 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
-@Command(name = "publish",
+@Command(name = PublishCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
     description = "Send publication data")
 public class PublishCommand implements Runnable {
+  public static final String COMMAND_NAME = "publish";
 
   @ArgGroup(exclusive = false, multiplicity = "1")
   PublishTargetArguments ingestionTargetArguments;

@@ -20,12 +20,13 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
-@Command(name = "unpublish",
+@Command(name = UnpublishCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
     description = "Send unpublication trigger"
 )
 public class UnpublishCommand implements Runnable {
+  public static final String COMMAND_NAME = "unpublish";
 
   @ArgGroup(exclusive = false, multiplicity = "1")
   IngestionTargetArguments ingestionTargetArguments;

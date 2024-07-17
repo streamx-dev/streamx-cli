@@ -16,13 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.HelpCommand;
 import picocli.CommandLine.ParseResult;
 
 @QuarkusMain(name = "StreamX CLI Main")
 @TopCommand
 @Command(mixinStandardHelpOptions = true,
     name = "streamx",
-    subcommands = {RunCommand.class, PublishCommand.class, UnpublishCommand.class},
+    subcommands = {RunCommand.class, PublishCommand.class, UnpublishCommand.class,
+        HelpCommand.class},
     versionProvider = VersionProvider.class)
 public class StreamxCommand implements QuarkusApplication {
 
@@ -38,13 +40,19 @@ public class StreamxCommand implements QuarkusApplication {
   @Inject
   ConfigSourcesValidator configSourcesValidator;
 
+  @Inject
+  BannerPrinter bannerPrinter;
+
   @ArgGroup(exclusive = false)
   LicenseArguments licenseArguments;
 
   private CommandLine commandLine;
+  private String[] args;
 
   @Override
   public int run(String... args) throws Exception {
+    this.args = args;
+
     commandLine = new CommandLine(this, factory)
         .setExecutionExceptionHandler(exceptionHandler)
         .setExpandAtFiles(false)
@@ -80,6 +88,8 @@ public class StreamxCommand implements QuarkusApplication {
   }
 
   private void init() {
+    bannerPrinter.printBanner(commandLine, args);
+
     licenseProcessorEntrypoint.process();
   }
 

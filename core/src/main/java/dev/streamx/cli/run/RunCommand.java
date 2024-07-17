@@ -17,19 +17,12 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "run",
+@Command(name = RunCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
     description = "Run a StreamX Mesh locally")
 public class RunCommand implements Runnable {
-
-  private static final String BANNER = """
-       ____  _                           __  __
-      / ___|| |_ _ __ ___  __ _ _ __ ___ \\ \\/ /
-      \\___ \\| __| '__/ _ \\/ _` | '_ ` _ \\ \\  /\s
-       ___) | |_| | |  __/ (_| | | | | | |/  \\\s
-      |____/ \\__|_|  \\___|\\__,_|_| |_| |_/_/\\_\\.dev
-                                               \s""";
+  public static final String COMMAND_NAME = "run";
 
   @ArgGroup
   MeshSource meshSource;
@@ -50,7 +43,6 @@ public class RunCommand implements Runnable {
   @Override
   public void run() {
     try {
-      print(BANNER);
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
       String meshPath = result.path().normalize().toAbsolutePath().toString();
 
