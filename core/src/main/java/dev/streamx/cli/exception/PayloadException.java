@@ -21,9 +21,8 @@ public class PayloadException extends RuntimeException {
         Payload definition not found.
 
         Make sure that:
-         * there is optional third parameter pointing path to file with payload,
-         * or there is at least one payload defining option (-s/-b/-j)
-         """);
+         * there is an optional third parameter that points to the file containing the payload,
+         * or there is at least one @|bold,italic Payload Defining Option|@ (-s/-b/-j)""");
   }
 
   public static PayloadException jsonParseException(JsonParseException exception, String payload) {

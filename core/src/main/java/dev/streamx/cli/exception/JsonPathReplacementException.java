@@ -11,12 +11,13 @@ public class JsonPathReplacementException extends RuntimeException {
 
   public static JsonPathReplacementException noJsonPathFoundException(String valueArg) {
     return new JsonPathReplacementException("""
-        Could not find valid jsonPath in given option.
+        Could not find valid JSONPath expression in given option.
 
         Option: %s
 
         Verify:
-         * if given jsonPath is valid (according to https://github.com/json-path/JsonPath docs),
+         * if given JSONPath expression is valid \
+        (according to https://github.com/json-path/JsonPath docs),
          * if '=' is present in option"""
         .formatted(valueArg), null);
   }
@@ -26,13 +27,13 @@ public class JsonPathReplacementException extends RuntimeException {
     return new JsonPathReplacementException("""
         Replacement is not recognised as valid JSON.
 
-        Supplied JsonPath:
+        Supplied JSONPath expression:
         %s
         Supplied replacement:
         %s
 
         Make sure that:
-         * you need JSON node as replacement
+         * you need a JSON node as replacement
             (alternatively use '-s' to specify raw text replacement
             or use '-b' to specify is binary replacement),
          * it's valid JSON,
@@ -48,7 +49,7 @@ public class JsonPathReplacementException extends RuntimeException {
     return new JsonPathReplacementException("""
         Replacement could not be parsed.
 
-        Supplied JsonPath:
+        Supplied JSONPath expression:
         %s
         Supplied replacement:
         %s
@@ -59,9 +60,9 @@ public class JsonPathReplacementException extends RuntimeException {
 
   public static JsonPathReplacementException pathNotFoundException(JsonPath jsonPath) {
     return new JsonPathReplacementException("""
-        JsonPath could not be found.
+        JSONPath expression could not be found.
 
-        Supplied JsonPath:
+        Supplied JSONPath expression:
         %s"""
         .formatted(jsonPath.getPath()), null);
   }

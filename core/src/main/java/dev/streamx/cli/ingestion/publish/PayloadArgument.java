@@ -36,17 +36,17 @@ public class PayloadArgument {
 
   static class Payload {
     @Option(names = {"-s", "--string-fragment"},
-        description = "Defines payload fragment of string type"
+        description = "Defines a payload fragment of string type"
     )
     String string;
 
     @Option(names = { "-b", "--binary-fragment"},
-        description = "Defines payload fragment of binary type"
+        description = "Defines a payload fragment of binary type"
     )
     String binary;
 
     @Option(names = { "-j", "--json-fragment"},
-        description = "Defines payload fragment of json node type"
+        description = "Defines a payload fragment of JSON node type"
     )
     String json;
 

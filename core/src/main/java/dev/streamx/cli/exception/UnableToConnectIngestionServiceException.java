@@ -3,15 +3,14 @@ package dev.streamx.cli.exception;
 public class UnableToConnectIngestionServiceException extends RuntimeException {
 
   private static final String MESSAGE = """
-                                            Unable to connect ingestion service.
-                                                    
-                                            IngestionUrl: %s
-                                                    
-                                            Verify:
-                                            """
-                                        + "* if mesh is up and running,\n"
-                                        + "* provided ingestionUrl is set properly"
-                                        + " (if it's not - add proper '--ingestionUrl' option)";
+        Unable to connect to the ingestion service.
+                
+        The ingestion service URL: %s
+                
+        Verify:
+         * if the mesh is up and running,
+         * if the ingestion service URL is set correctly \
+         (if it's not - set proper '--ingestionUrl' option)""";
 
   private final String ingestionUrl;
 

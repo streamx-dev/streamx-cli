@@ -15,9 +15,8 @@ public class LicenseException extends RuntimeException {
         License could not be verified.
 
         Make sure that:
-         * there is internet connection,
-         * there are no proxy/firewall issues
-         """);
+         * there is an internet connection,
+         * there are no proxy/firewall issues""");
   }
 
   public static LicenseException malformedLicenseException() {
@@ -25,8 +24,7 @@ public class LicenseException extends RuntimeException {
         License could not be verified.
 
         Make sure that:
-         * your 'streamx' version is up to date.
-         """);
+         * your 'streamx' version is up to date.""");
   }
 
   public static LicenseException licenseAcceptanceRejectedException() {
