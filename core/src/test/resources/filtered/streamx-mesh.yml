@@ -4,7 +4,7 @@ tenant: "streamx"
 
 processing:
   relay:
-    image: reference-relay-processing-service
+    image: sample-relay-processing-service
     incoming:
       incoming-pages:
         topic: inboxes/pages
@@ -14,7 +14,7 @@ processing:
 
 delivery:
   web-delivery-service:
-    image: reference-web-delivery-service
+    image: sample-web-delivery-service
     incoming:
       pages:
         topic: outboxes/pages
