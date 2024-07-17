@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 import picocli.CommandLine.IExecutionExceptionHandler;
+import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
 @ApplicationScoped
@@ -30,5 +31,9 @@ public class ExceptionHandler implements IExecutionExceptionHandler {
       exceptionCause = e.getCause();
     }
     cmd.getErr().println(cmd.getColorScheme().errorText(exceptionCause.getMessage()));
+
+    if (ex instanceof ParameterException && "Missing required subcommand".equals(ex.getMessage())) {
+      cmd.usage(cmd.getErr());
+    }
   }
 }
