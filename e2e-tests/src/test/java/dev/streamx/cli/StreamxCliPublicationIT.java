@@ -11,6 +11,7 @@ import dev.streamx.cli.test.tools.validators.ProcessOutputValidator;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.List;
 import java.util.stream.Stream;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,8 +25,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class StreamxCliPublicationIT {
 
   private static final int CLI_SHORT_TIMEOUT_IN_SEC = 2;
-  @ConfigProperty(name = "streamx.cli.e2e.web.delivery.port.url", defaultValue = "http://localhost:8081/")
+  @ConfigProperty(name = "streamx.cli.e2e.web.delivery.port.url", defaultValue = "http://localhost:8087/")
   String webDeliveryPortUrl;
+  @ConfigProperty(name = "streamx.cli.e2e.web.delivery.composite.port.url", defaultValue = "http://localhost:8089/")
+  String compositeWebDeliveryPortUrl;
 
   @ConfigProperty(name = "streamx.cli.e2e.setup.timeoutInSec", defaultValue = "60")
   int setupTimeoutInSec;
@@ -109,7 +112,9 @@ public class StreamxCliPublicationIT {
 
   private void validateStreamxPage(String resourcePath, int expectedStatusCode,
       String expectedBody) {
-    httpValidator.validate(webDeliveryPortUrl + resourcePath, expectedStatusCode, expectedBody,
-        CLI_SHORT_TIMEOUT_IN_SEC);
+    List.of(webDeliveryPortUrl, compositeWebDeliveryPortUrl).forEach(
+        url -> httpValidator.validate(url + resourcePath, expectedStatusCode, expectedBody,
+              CLI_SHORT_TIMEOUT_IN_SEC)
+    );
   }
 }
