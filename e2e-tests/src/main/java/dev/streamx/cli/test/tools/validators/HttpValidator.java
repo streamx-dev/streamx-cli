@@ -25,8 +25,11 @@ public class HttpValidator {
   public void validate(String url, int expectedStatusCode, String expectedBody, int timeout) {
     await()
         .atMost(timeout, SECONDS)
+        .alias("Assertion of response from url: " + url
+            + " with expecting status:" + expectedStatusCode
+            + " body:" + expectedBody
+            + " timeout:" + timeout)
         .pollInterval(100, MILLISECONDS)
-        .alias("Checking if url return valid http code and content")
         .until(() ->
             validate(url, expectedStatusCode, expectedBody)
         );
@@ -37,8 +40,12 @@ public class HttpValidator {
     try (CloseableHttpResponse response = httpClient.execute(request)) {
       int actualStatusCode = response.getStatusLine().getStatusCode();
       String responseBody = EntityUtils.toString(response.getEntity());
+      logger.info("Request to " + url
+          + " return statusCode " + actualStatusCode
+          + " and body " + responseBody);
       return actualStatusCode == expectedStatusCode && responseBody.contains(expectedBody);
     } catch (IOException e) {
+      logger.error("Request to " + url + "failed: " + e.getMessage(), e);
       throw new RuntimeException("Can not make request:" + url, e);
     }
   }

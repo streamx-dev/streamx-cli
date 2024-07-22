@@ -13,9 +13,27 @@ processing:
         topic: outboxes/pages
 
 delivery:
-  web-delivery-service:
+  web-delivery:
     image: sample-web-delivery-service
     incoming:
       pages:
         topic: outboxes/pages
-    port: 8081
+    port: 8087
+  composite-web-delivery:
+    image: sample-web-delivery-service
+    incoming:
+      pages:
+        topic: outboxes/pages
+    port: 8088
+    environment:
+      REPOSITORY_RESOURCE_ROOT_DIRECTORY: "/home/runner/work/streamx-cli/streamx-cli/srv/www"
+    repositoryVolume: "/home/runner/work/streamx-cli/streamx-cli/srv/www"
+    components:
+      webserver:
+        image: "docker.io/library/nginx:1.26.0"
+        ports:
+          - 8089:80
+        repositoryVolume: "/usr/share/nginx/html"
+        volumes:
+          - "${project.basedir}/target/test-classes/overridden-nginx-conf:/etc/nginx/conf.d/default.conf"
+
