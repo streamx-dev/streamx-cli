@@ -27,8 +27,8 @@ public class StreamxCliPublicationIT {
   private static final int CLI_SHORT_TIMEOUT_IN_SEC = 2;
   @ConfigProperty(name = "streamx.cli.e2e.web.delivery.port.url", defaultValue = "http://localhost:8087/")
   String webDeliveryPortUrl;
-  @ConfigProperty(name = "streamx.cli.e2e.web.delivery.composite.port.url", defaultValue = "http://localhost:8089/")
-  String compositeWebDeliveryPortUrl;
+  @ConfigProperty(name = "streamx.cli.e2e.nginx.port.url", defaultValue = "http://localhost:8089/")
+  String nginxPortUrl;
 
   @ConfigProperty(name = "streamx.cli.e2e.setup.timeoutInSec", defaultValue = "60")
   int setupTimeoutInSec;
@@ -112,7 +112,7 @@ public class StreamxCliPublicationIT {
 
   private void validateStreamxPage(String resourcePath, int expectedStatusCode,
       String expectedBody) {
-    List.of(webDeliveryPortUrl, compositeWebDeliveryPortUrl).forEach(
+    List.of(webDeliveryPortUrl, nginxPortUrl).forEach(
         url -> httpValidator.validate(url + resourcePath, expectedStatusCode, expectedBody,
               CLI_SHORT_TIMEOUT_IN_SEC)
     );
