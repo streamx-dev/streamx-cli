@@ -1,7 +1,6 @@
 package dev.streamx.cli.ingestion.publish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
@@ -10,9 +9,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static dev.streamx.clients.ingestion.StreamxClient.PUBLICATIONS_ENDPOINT_PATH_V1;
 import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
-import static org.apache.hc.core5.http.HttpStatus.SC_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
@@ -34,7 +33,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class PublishCommandTest {
 
   private static final String CHANNEL = "pages";
-  private static final String BAD_REQUEST_CHANNEL = "bad-request-channel";
+  private static final String INVALID_PAYLOAD_REQUEST_CHANNEL = "bad-request-channel";
+  private static final String UNSUPPORTED_CHANNEL = "images";
   private static final String KEY = "index.html";
   private static final String DATA = """
       {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
@@ -54,13 +54,14 @@ public class PublishCommandTest {
   @QuarkusMainTest
   @TestProfile(UnauthorizedProfile.class)
   class UnauthorizedTest {
+
     @Test
-    public void shouldHandleBadRequestFromRestIngestionApi(QuarkusMainLauncher launcher) {
+    public void shouldHandleInvalidPayloadFromRestIngestionApi(QuarkusMainLauncher launcher) {
       // when
       LaunchResult result = launcher.launch("publish",
           "--ingestion-url=" + getIngestionUrl(),
           "-j=" + DATA,
-          BAD_REQUEST_CHANNEL, KEY);
+          INVALID_PAYLOAD_REQUEST_CHANNEL, KEY);
 
       // then
       assertThat(result.exitCode()).isNotZero();
@@ -79,7 +80,7 @@ public class PublishCommandTest {
       LaunchResult result = launcher.launch("publish",
           "--ingestion-url=" + getIngestionUrl(),
           "-j=" + invalidJson,
-          BAD_REQUEST_CHANNEL, KEY);
+          CHANNEL, KEY);
 
       // then
       assertThat(result.exitCode()).isNotZero();
@@ -108,8 +109,6 @@ public class PublishCommandTest {
 
       // then
       assertThat(result.exitCode()).isZero();
-      wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-          .withoutHeader("Authorization"));
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
           .withoutHeader("Authorization"));
     }
@@ -139,17 +138,34 @@ public class PublishCommandTest {
 
     @Test
     public void shouldRejectUnknownChannel(QuarkusMainLauncher launcher) {
-      // given
-      String channel = "channel";
-
       // when
       LaunchResult result = launcher.launch("publish",
           "--ingestion-url=" + getIngestionUrl(),
           "-j=" + DATA,
-          channel, KEY);
+          UNSUPPORTED_CHANNEL, KEY);
 
       // then
-      assertThat(result.getErrorOutput()).containsSubsequence("Channel", "not found");
+      assertThat(result.getErrorOutput()).isEqualTo(
+          "Publication Ingestion REST endpoint known error. Code: UNSUPPORTED_CHANNEL. "
+          + "Message: Channel images is unsupported. Supported channels: pages");
+      assertThat(result.exitCode()).isNotZero();
+    }
+
+    @Test
+    public void shouldRejectWrongIngestionUrl(QuarkusMainLauncher launcher) {
+      // when
+      String ingestionServiceUrl = "http://aaa.bbb.ccc";
+      LaunchResult result = launcher.launch("publish",
+          "--ingestion-url=" + ingestionServiceUrl,
+          "-j=" + DATA,
+          CHANNEL, KEY);
+
+      // then
+      assertThat(result.getErrorOutput().lines()).contains(
+          "Unable to connect to the ingestion service.",
+          "The ingestion service URL: " + ingestionServiceUrl,
+          "Verify:"
+      );
       assertThat(result.exitCode()).isNotZero();
     }
   }
@@ -169,54 +185,50 @@ public class PublishCommandTest {
 
       // then
       assertThat(result.exitCode()).isZero();
-      wm.verify(getRequestedFor(urlEqualTo(getSchema()))
-          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
           .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }
 
   private static void initializeWiremock() {
-    stubSchemas();
     stubPublication();
   }
 
-  private static void stubSchemas() {
-    String response = "{\"pages\":{\"type\":\"record\",\"name\":\"Page\","
-                      + "\"namespace\":\"dev.streamx.blueprints.data\","
-                      + "\"fields\":[{\"name\":\"content\",\"type\":[\"null\",\"bytes\"],"
-                      + "\"default\":null}]},\"bad-request-channel\":{\"type\":\"record\","
-                      + "\"name\":\"Whatever\",\"namespace\":\"dev.streamx.blueprints.data\","
-                      + "\"fields\":[]}}";
+  private static void stubPublication() {
+    setupMockResponse(
+        CHANNEL,
+        SC_ACCEPTED,
+        new PublisherSuccessResult(123456L)
+    );
 
-    wm.stubFor(WireMock.get(getSchema())
-        .willReturn(responseDefinition().withStatus(SC_OK).withBody(response)
-            .withHeader(CONTENT_TYPE, APPLICATION_JSON)
+    setupMockResponse(
+        INVALID_PAYLOAD_REQUEST_CHANNEL,
+        SC_BAD_REQUEST,
+        new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message")
+    );
+
+    setupMockResponse(
+        UNSUPPORTED_CHANNEL,
+        SC_BAD_REQUEST,
+        new FailureResponse("UNSUPPORTED_CHANNEL",
+            "Channel " + UNSUPPORTED_CHANNEL + " is unsupported. Supported channels: " + CHANNEL
         )
     );
   }
 
-  private static void stubPublication() {
-    PublisherSuccessResult result = new PublisherSuccessResult(123456L);
-    wm.stubFor(WireMock.put(getPublicationPath(PublishCommandTest.CHANNEL, PublishCommandTest.KEY))
-        .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
-            .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+  private static void setupMockResponse(String channel, int httpStatus, Object response) {
+    ResponseDefinitionBuilder mockResponse = responseDefinition()
+        .withStatus(httpStatus)
+        .withBody(response == null ? null : Json.write(response))
+        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-    FailureResponse badRequest = new FailureResponse("INVALID_PUBLICATION_PAYLOAD",
-        "Error message");
-    wm.stubFor(WireMock.put(
-            getPublicationPath(PublishCommandTest.BAD_REQUEST_CHANNEL, PublishCommandTest.KEY))
-        .willReturn(responseDefinition().withStatus(SC_BAD_REQUEST).withBody(Json.write(badRequest))
-            .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+    wm.stubFor(WireMock.put(getPublicationPath(channel, KEY))
+        .willReturn(mockResponse));
   }
 
   @NotNull
   private static String getIngestionUrl() {
     return "http://localhost:" + wm.getPort();
-  }
-
-  private static String getSchema() {
-    return PUBLICATIONS_ENDPOINT_PATH_V1 + "/schema";
   }
 
   private static String getPublicationPath(String channel, String key) {

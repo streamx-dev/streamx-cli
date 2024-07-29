@@ -11,12 +11,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 public class StreamxClientProvider {
 
   @Inject
-  IngestionClientConfig ingestionClientConfig;
-
-  @Inject
   CloseableHttpClient httpClient;
 
-  public StreamxClient createStreamxClient() throws StreamxClientException {
+  public StreamxClient createStreamxClient(IngestionClientConfig ingestionClientConfig)
+      throws StreamxClientException {
     StreamxClientBuilder builder = StreamxClient.builder(ingestionClientConfig.url())
         .setApacheHttpClient(httpClient);
 
