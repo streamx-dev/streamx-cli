@@ -8,7 +8,7 @@ import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.StreamxRunnerParams;
 import dev.streamx.runner.event.ContainerStarted;
-import dev.streamx.runner.exception.DockerStartupTimeoutException;
+import dev.streamx.runner.exception.ContainerStartupTimeoutException;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
@@ -77,7 +77,7 @@ public class RunCommand implements Runnable {
       Quarkus.waitForExit();
     } catch (IOException e) {
       throw new RuntimeException("Cannot run StreamX", e);
-    } catch (DockerStartupTimeoutException e) {
+    } catch (ContainerStartupTimeoutException e) {
       throw DockerException.containerStartupFailed(
           e.getContainerName(), containerStartupTimeoutSeconds);
     }
