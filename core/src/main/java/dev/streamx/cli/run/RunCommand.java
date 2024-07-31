@@ -14,6 +14,7 @@ import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import org.testcontainers.containers.ContainerLaunchException;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -76,6 +77,8 @@ public class RunCommand implements Runnable {
       Quarkus.waitForExit();
     } catch (IOException e) {
       throw new RuntimeException("Cannot run StreamX", e);
+    } catch (ContainerLaunchException e) {
+      throw DockerException.containerStartupFailed(e.getMessage());
     }
   }
 

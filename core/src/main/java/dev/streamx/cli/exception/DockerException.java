@@ -1,5 +1,7 @@
 package dev.streamx.cli.exception;
 
+import static dev.streamx.cli.run.RunConfig.STREAMX_CONTAINER_STARTUP_TIMEOUT_SECONDS;
+
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException.ContainerStatus;
 import java.util.List;
 import java.util.Objects;
@@ -17,6 +19,18 @@ public class DockerException extends RuntimeException {
 
   private DockerException(String message) {
     super(message);
+  }
+
+  public static DockerException containerStartupFailed(String message) {
+    return new DockerException("""
+        %s
+
+        Make sure that:
+         * container was able to startup below timeout set by the '%s' property (by default 60s). \
+        See \
+        https://www.streamx.dev/guides/main/streamx-command-line-interface-reference.html\
+        #_configuration for details."""
+        .formatted(message, STREAMX_CONTAINER_STARTUP_TIMEOUT_SECONDS));
   }
 
   public static DockerException dockerEnvironmentException() {
