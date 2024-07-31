@@ -8,13 +8,13 @@ import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.StreamxRunnerParams;
 import dev.streamx.runner.event.ContainerStarted;
+import dev.streamx.runner.exception.DockerStartupTimeoutException;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import org.testcontainers.containers.ContainerLaunchException;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -47,6 +47,8 @@ public class RunCommand implements Runnable {
 
   @Override
   public void run() {
+    Long containerStartupTimeoutSeconds = runConfig.containerStartupTimeoutSeconds()
+        .orElse(null);
     try {
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
       String meshPath = result.path().normalize().toAbsolutePath().toString();
@@ -54,8 +56,6 @@ public class RunCommand implements Runnable {
       print("Setting up system containers...");
 
       try {
-        Long containerStartupTimeoutSeconds = runConfig.containerStartupTimeoutSeconds()
-            .orElse(null);
         StreamxRunnerParams params = new StreamxRunnerParams(meshPath,
             containerStartupTimeoutSeconds);
 
@@ -77,8 +77,9 @@ public class RunCommand implements Runnable {
       Quarkus.waitForExit();
     } catch (IOException e) {
       throw new RuntimeException("Cannot run StreamX", e);
-    } catch (ContainerLaunchException e) {
-      throw DockerException.containerStartupFailed(e.getMessage());
+    } catch (DockerStartupTimeoutException e) {
+      throw DockerException.containerStartupFailed(
+          e.getContainerName(), containerStartupTimeoutSeconds);
     }
   }
 
