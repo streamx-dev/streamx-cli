@@ -6,6 +6,7 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
+import dev.streamx.runner.StreamxRunnerParams;
 import dev.streamx.runner.event.ContainerStarted;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
@@ -40,6 +41,9 @@ public class RunCommand implements Runnable {
   @Inject
   MeshDefinitionResolver meshDefinitionResolver;
 
+  @Inject
+  RunConfig runConfig;
+
   @Override
   public void run() {
     try {
@@ -49,7 +53,12 @@ public class RunCommand implements Runnable {
       print("Setting up system containers...");
 
       try {
-        this.runner.initialize(result.serviceMesh(), meshPath);
+        Long containerStartupTimeoutSeconds = runConfig.containerStartupTimeoutSeconds()
+            .orElse(null);
+        StreamxRunnerParams params = new StreamxRunnerParams(meshPath,
+            containerStartupTimeoutSeconds);
+
+        this.runner.initialize(result.serviceMesh(), params);
       } catch (DockerContainerNonUniqueException e) {
         throw DockerException.nonUniqueContainersException(e.getContainers());
       } catch (DockerEnvironmentException e) {
