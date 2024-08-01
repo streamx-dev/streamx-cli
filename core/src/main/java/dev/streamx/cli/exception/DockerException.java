@@ -19,6 +19,14 @@ public class DockerException extends RuntimeException {
     super(message);
   }
 
+  public static DockerException containerStartupFailed(String containerName, Long timeoutInSecs) {
+    return new DockerException("""
+        Timeout exceeded waiting for the container "%s" after %d seconds.
+        
+        Try increasing the timeout by setting the "streamx.container.startup-timeout" property."""
+        .formatted(containerName, timeoutInSecs));
+  }
+
   public static DockerException dockerEnvironmentException() {
     return new DockerException("""
         Could not find a valid Docker environment.

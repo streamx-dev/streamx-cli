@@ -26,14 +26,22 @@ public class ExceptionHandler implements IExecutionExceptionHandler {
   }
 
   private static void printErrorMessage(Exception ex, CommandLine cmd) {
-    Throwable exceptionCause = ex;
-    if (ex instanceof CommandLine.ExecutionException e && e.getCause() != null) {
-      exceptionCause = e.getCause();
-    }
+    Throwable exceptionCause = unwrapExceptionCauseIfPossible(ex);
+
     cmd.getErr().println(cmd.getColorScheme().errorText(exceptionCause.getMessage()));
 
     if (ex instanceof ParameterException && "Missing required subcommand".equals(ex.getMessage())) {
       cmd.usage(cmd.getErr());
     }
+  }
+
+  private static Throwable unwrapExceptionCauseIfPossible(Exception ex) {
+    Throwable exceptionCause = ex;
+    if (ex instanceof CommandLine.ExecutionException e
+        && e.getCause() != null
+        && e.getCause().getMessage() != null) {
+      exceptionCause = e.getCause();
+    }
+    return exceptionCause;
   }
 }
