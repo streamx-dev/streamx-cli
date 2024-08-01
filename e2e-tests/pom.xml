@@ -6,7 +6,7 @@
   <parent>
     <groupId>dev.streamx.cli</groupId>
     <artifactId>streamx-cli</artifactId>
-    <version>0.3.7</version>
+    <version>0.3.8-SNAPSHOT</version>
   </parent>
 
   <artifactId>streamx-cli-e2e-tests</artifactId>
