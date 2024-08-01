@@ -1,5 +1,7 @@
 package dev.streamx.cli.exception;
 
+import static dev.streamx.cli.run.RunConfig.STREAMX_CONTAINER_STARTUP_TIMEOUT_SECONDS;
+
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException.ContainerStatus;
 import java.util.List;
 import java.util.Objects;
@@ -23,8 +25,8 @@ public class DockerException extends RuntimeException {
     return new DockerException("""
         Timeout exceeded waiting for the container "%s" after %d seconds.
         
-        Try increasing the timeout by setting the "streamx.container.startup-timeout" property."""
-        .formatted(containerName, timeoutInSecs));
+        Try increasing the timeout by setting the "%s" property."""
+        .formatted(containerName, timeoutInSecs, STREAMX_CONTAINER_STARTUP_TIMEOUT_SECONDS));
   }
 
   public static DockerException dockerEnvironmentException() {
