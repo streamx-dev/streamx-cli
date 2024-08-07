@@ -2,15 +2,14 @@ package dev.streamx.cli.license;
 
 import dev.streamx.cli.license.LicenseFetcher.License;
 import dev.streamx.cli.license.LicenseWiremockConfigs.StandardWiremockLicense;
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@QuarkusTestResource(restrictToAnnotatedClass = true,
-    value = StandardWiremockLicense.class)
+@WithTestResource(StandardWiremockLicense.class)
 class LicenseFetcherTest {
 
   @Inject

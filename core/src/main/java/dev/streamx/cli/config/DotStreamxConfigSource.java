@@ -2,8 +2,6 @@ package dev.streamx.cli.config;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 
-import io.quarkus.runtime.configuration.ApplicationPropertiesConfigSourceLoader.InClassPath;
-import io.quarkus.runtime.configuration.ApplicationPropertiesConfigSourceLoader.InFileSystem;
 import io.smallrye.config.PropertiesConfigSource;
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +15,8 @@ public class DotStreamxConfigSource extends PropertiesConfigSource {
 
   public static final String CONFIG_SOURCE_NAME = "DotStreamxConfigSource";
   /**
-   * Value higher priority than {@link InClassPath Classpath Properties}
-   * but lower than {@link InFileSystem $PWD/config/application.properties}
+   * Value of higher priority than Classpath Properties,
+   * but lower than $PWD/config/application.properties
    */
   public static final int DOT_STREAMX_PRIORITY = 255;
 
