@@ -5,14 +5,13 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 import dev.streamx.cli.exception.LicenseException;
 import dev.streamx.cli.license.LicenseWiremockConfigs.MalformedWiremockLicense;
-import io.quarkus.test.common.QuarkusTestResource;
+import io.quarkus.test.common.WithTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@QuarkusTestResource(restrictToAnnotatedClass = true,
-    value = MalformedWiremockLicense.class)
+@WithTestResource(MalformedWiremockLicense.class)
 class LicenseFetcherMalformedTest {
 
   @Inject
