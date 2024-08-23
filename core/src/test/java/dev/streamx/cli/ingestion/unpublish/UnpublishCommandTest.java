@@ -118,7 +118,7 @@ public class UnpublishCommandTest {
     setupMockResponse(
         CHANNEL,
         SC_ACCEPTED,
-        new PublisherSuccessResult(123456L)
+        new PublisherSuccessResult(123456L, KEY)
     );
 
     setupMockResponse(
