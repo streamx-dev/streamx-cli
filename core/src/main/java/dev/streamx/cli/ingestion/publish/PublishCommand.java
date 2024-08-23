@@ -43,7 +43,6 @@ public class PublishCommand extends BaseIngestionCommand {
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
     List<PayloadArgument> mergedPayloadArgumentList = prependPayloadFile();
     JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);
-    // TODO change result from publish to adequate one
     PublisherSuccessResult result = publisher.publish(publishTargetArguments.getKey(), jsonNode);
     System.out.printf("Registered data publication on '%s' with key '%s' at %d%n",
         publishTargetArguments.getChannel(), result.getKey(), result.getEventTime());
