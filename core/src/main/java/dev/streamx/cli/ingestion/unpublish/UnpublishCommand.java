@@ -6,6 +6,7 @@ import dev.streamx.cli.ingestion.BaseIngestionCommand;
 import dev.streamx.cli.ingestion.IngestionTargetArguments;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.clients.ingestion.publisher.Publisher;
+import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -28,9 +29,9 @@ public class UnpublishCommand extends BaseIngestionCommand {
 
   @Override
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
-    Long eventTime = publisher.unpublish(ingestionTargetArguments.getKey());
+    PublisherSuccessResult result = publisher.unpublish(ingestionTargetArguments.getKey());
 
-    System.out.printf("Registered unpublish trigger on '%s' at %d%n",
-        ingestionTargetArguments.getChannel(), eventTime);
+    System.out.printf("Registered unpublish trigger on '%s' with key '%s' at %d%n",
+        ingestionTargetArguments.getChannel(), result.getKey(),  result.getEventTime());
   }
 }

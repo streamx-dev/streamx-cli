@@ -230,7 +230,7 @@ public class PublishPayloadCommandTest {
   }
 
   private static void stubPublication() {
-    PublisherSuccessResult result = new PublisherSuccessResult(123456L);
+    PublisherSuccessResult result = new PublisherSuccessResult(123456L, KEY);
     wm.stubFor(
         put(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY))
             .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))

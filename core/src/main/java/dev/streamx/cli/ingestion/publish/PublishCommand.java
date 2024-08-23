@@ -7,6 +7,7 @@ import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.cli.ingestion.publish.payload.source.FileSourceResolver;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.clients.ingestion.publisher.Publisher;
+import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
 import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.List;
@@ -42,9 +43,10 @@ public class PublishCommand extends BaseIngestionCommand {
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
     List<PayloadArgument> mergedPayloadArgumentList = prependPayloadFile();
     JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);
-    Long eventTime = publisher.publish(publishTargetArguments.getKey(), jsonNode);
-    System.out.printf("Registered data publication on '%s' at %d%n",
-        publishTargetArguments.getChannel(), eventTime);
+    // TODO change result from publish to adequate one
+    PublisherSuccessResult result = publisher.publish(publishTargetArguments.getKey(), jsonNode);
+    System.out.printf("Registered data publication on '%s' with key '%s' at %d%n",
+        publishTargetArguments.getChannel(), result.getKey(), result.getEventTime());
   }
 
   @NotNull
