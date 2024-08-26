@@ -49,6 +49,8 @@ public class RunCommand implements Runnable {
   public void run() {
     Long containerStartupTimeoutSeconds = runConfig.containerStartupTimeoutSeconds()
         .orElse(null);
+    boolean observabilityEnabled = runConfig.observabilityEnabled().orElse(true);
+
     try {
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
       String meshPath = result.path().normalize().toAbsolutePath().toString();
@@ -57,7 +59,7 @@ public class RunCommand implements Runnable {
 
       try {
         StreamxRunnerParams params = new StreamxRunnerParams(meshPath,
-            containerStartupTimeoutSeconds);
+            containerStartupTimeoutSeconds, observabilityEnabled);
 
         this.runner.initialize(result.serviceMesh(), params);
       } catch (DockerContainerNonUniqueException e) {
