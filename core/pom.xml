@@ -93,6 +93,15 @@
       <artifactId>wiremock</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <!-- This is workaround to https://github.com/quarkusio/quarkus/issues/42796 -->
+    <!-- FIXME remove after issue is resolved   -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-bootstrap-maven-resolver</artifactId>
+      <version>3.11.3</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
