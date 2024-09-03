@@ -6,7 +6,6 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
-import dev.streamx.runner.StreamxRunnerParams;
 import dev.streamx.runner.event.ContainerStarted;
 import dev.streamx.runner.exception.ContainerStartupTimeoutException;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
@@ -24,6 +23,7 @@ import picocli.CommandLine.Option;
     versionProvider = VersionProvider.class,
     description = "Run a StreamX Mesh locally.")
 public class RunCommand implements Runnable {
+
   public static final String COMMAND_NAME = "run";
 
   @ArgGroup
@@ -42,14 +42,8 @@ public class RunCommand implements Runnable {
   @Inject
   MeshDefinitionResolver meshDefinitionResolver;
 
-  @Inject
-  RunConfig runConfig;
-
   @Override
   public void run() {
-    Long containerStartupTimeoutSeconds = runConfig.containerStartupTimeoutSeconds()
-        .orElse(null);
-    boolean observabilityEnabled = runConfig.observabilityEnabled().orElse(true);
 
     try {
       MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
@@ -58,10 +52,7 @@ public class RunCommand implements Runnable {
       print("Setting up system containers...");
 
       try {
-        StreamxRunnerParams params = new StreamxRunnerParams(meshPath,
-            containerStartupTimeoutSeconds, observabilityEnabled);
-
-        this.runner.initialize(result.serviceMesh(), params);
+        this.runner.initialize(result.serviceMesh(), meshPath);
       } catch (DockerContainerNonUniqueException e) {
         throw DockerException.nonUniqueContainersException(e.getContainers());
       } catch (DockerEnvironmentException e) {
@@ -81,7 +72,8 @@ public class RunCommand implements Runnable {
       throw new RuntimeException("Cannot run StreamX", e);
     } catch (ContainerStartupTimeoutException e) {
       throw DockerException.containerStartupFailed(
-          e.getContainerName(), containerStartupTimeoutSeconds);
+          e.getContainerName(),
+          runner.getContext().getStreamxBaseConfig().getContainerStartupTimeout());
     }
   }
 
