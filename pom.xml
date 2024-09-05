@@ -39,7 +39,7 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.13.1</quarkus.platform.version>
 
-    <streamx.version>0.0.31</streamx.version>
+    <streamx.version>0.0.33</streamx.version>
     <json-path.version>2.9.0</json-path.version>
     <assertj-core.version>3.24.2</assertj-core.version>
     <wiremock.version>3.3.1</wiremock.version>
@@ -58,6 +58,13 @@
         <version>${quarkus.platform.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <!-- To be removed once https://github.com/quarkusio/quarkus/issues/42796 is resolved -->
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bootstrap-maven-resolver</artifactId>
+        <version>3.11.3</version>
       </dependency>
 
       <dependency>

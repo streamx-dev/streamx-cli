@@ -6,7 +6,6 @@ import dev.streamx.runner.model.ServiceMesh;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine;
