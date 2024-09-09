@@ -20,8 +20,8 @@ import picocli.CommandLine.ParseResult;
 
 class MeshDefinitionResolverTest {
 
-  private static final String TEST_MESH_PATH = "target/test-classes/streamx-mesh.yml";
-  private static final String CURRENT_DIRECTORY_MESH = "./streamx-mesh.yml";
+  private static final String TEST_MESH_PATH = "target/test-classes/mesh.yml";
+  private static final String CURRENT_DIRECTORY_MESH = "./mesh.yml";
 
   MeshDefinitionResolver uut;
 

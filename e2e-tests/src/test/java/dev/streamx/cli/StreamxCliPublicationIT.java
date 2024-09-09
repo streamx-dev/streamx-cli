@@ -46,7 +46,7 @@ public class StreamxCliPublicationIT {
   @BeforeAll
   public void setup() {
     runStreamxCommand(
-        "--accept-license run -f " + absolutePath("streamx-mesh.yml"),
+        "--accept-license run -f " + absolutePath("mesh.yml"),
         "STREAMX IS READY!",
         setupTimeoutInSec);
   }
