@@ -9,7 +9,7 @@ public class UnableToConnectIngestionServiceException extends RuntimeException {
                 
         Verify:
          * if the mesh is up and running,
-         * if the ingestion service URL is set correctly \
+         * if the ingestion service URL is set correctly\
          (if it's not - set proper '--ingestion-url' option)""";
 
   private final String ingestionUrl;

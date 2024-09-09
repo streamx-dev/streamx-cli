@@ -5,18 +5,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static dev.streamx.clients.ingestion.StreamxClient.PUBLICATIONS_ENDPOINT_PATH_V1;
 import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import dev.streamx.cli.ingestion.AuthorizedProfile;
+import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
 import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
@@ -24,13 +21,10 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class PublishCommandTest {
+public class PublishCommandTest extends BaseIngestionCommandTest {
 
   private static final String CHANNEL = "pages";
   private static final String INVALID_PAYLOAD_REQUEST_CHANNEL = "bad-request-channel";
@@ -40,15 +34,6 @@ public class PublishCommandTest {
       {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
   private static final String PAYLOAD_PATH =
       "target/test-classes/dev/streamx/cli/publish/payload/helloworld-payload.json";
-
-  @RegisterExtension
-  static WireMockExtension wm = WireMockExtension.newInstance()
-      .options(wireMockConfig().dynamicPort()).configureStaticDsl(true).build();
-
-  @BeforeEach
-  void setup() {
-    initializeWiremock();
-  }
 
   @Nested
   @QuarkusMainTest
@@ -64,11 +49,10 @@ public class PublishCommandTest {
           INVALID_PAYLOAD_REQUEST_CHANNEL, KEY);
 
       // then
-      assertThat(result.exitCode()).isNotZero();
-      assertThat(result.getErrorOutput()).contains(
+      expectError(result,
           "Publication Ingestion REST endpoint known error. "
-              + "Code: INVALID_PUBLICATION_PAYLOAD. "
-              + "Message: Error message");
+          + "Code: INVALID_PUBLICATION_PAYLOAD. "
+          + "Message: Error message");
     }
 
     @Test
@@ -83,8 +67,21 @@ public class PublishCommandTest {
           CHANNEL, KEY);
 
       // then
-      assertThat(result.exitCode()).isNotZero();
-      assertThat(result.getErrorOutput()).contains("Payload could not be parsed.");
+      expectError(result, """
+          Payload could not be parsed.
+                    
+          Supplied payload:
+          asdf{][
+                    
+          Make sure that:
+           * it's valid JSON,
+           * object property names are properly single-quoted (') or double-quoted ("),
+           * strings are properly single-quoted (') or double-quoted (")
+                    
+          Details: Unrecognized token 'asdf': was expecting (JSON String, Number, Array, Object\
+           or token 'null', 'true' or 'false')
+           at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled);\
+           line: 1, column: 6]""");
     }
 
     @Test
@@ -96,7 +93,7 @@ public class PublishCommandTest {
           CHANNEL, KEY);
 
       // then
-      assertThat(result.exitCode()).isZero();
+      expectSuccess(result);
     }
 
     @Test
@@ -108,7 +105,7 @@ public class PublishCommandTest {
           CHANNEL, KEY);
 
       // then
-      assertThat(result.exitCode()).isZero();
+      expectSuccess(result);
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
           .withoutHeader("Authorization"));
     }
@@ -122,7 +119,7 @@ public class PublishCommandTest {
           CHANNEL, KEY);
 
       // then
-      assertThat(result.exitCode()).isZero();
+      expectSuccess(result);
     }
 
     @Test
@@ -133,7 +130,7 @@ public class PublishCommandTest {
           CHANNEL, KEY, PAYLOAD_PATH);
 
       // then
-      assertThat(result.exitCode()).isZero();
+      expectSuccess(result);
     }
 
     @Test
@@ -145,10 +142,9 @@ public class PublishCommandTest {
           UNSUPPORTED_CHANNEL, KEY);
 
       // then
-      assertThat(result.getErrorOutput()).isEqualTo(
+      expectError(result,
           "Publication Ingestion REST endpoint known error. Code: UNSUPPORTED_CHANNEL. "
           + "Message: Channel images is unsupported. Supported channels: pages");
-      assertThat(result.exitCode()).isNotZero();
     }
 
     @Test
@@ -161,12 +157,17 @@ public class PublishCommandTest {
           CHANNEL, KEY);
 
       // then
-      assertThat(result.getErrorOutput().lines()).contains(
-          "Unable to connect to the ingestion service.",
-          "The ingestion service URL: " + ingestionServiceUrl,
-          "Verify:"
+      expectError(result,
+          """
+              Unable to connect to the ingestion service.
+                            
+              The ingestion service URL: http://aaa.bbb.ccc
+                            
+              Verify:
+               * if the mesh is up and running,
+               * if the ingestion service URL is set correctly\
+               (if it's not - set proper '--ingestion-url' option)"""
       );
-      assertThat(result.exitCode()).isNotZero();
     }
   }
 
@@ -184,17 +185,14 @@ public class PublishCommandTest {
           CHANNEL, KEY);
 
       // then
-      assertThat(result.exitCode()).isZero();
+      expectSuccess(result);
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
           .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }
 
-  private static void initializeWiremock() {
-    stubPublication();
-  }
-
-  private static void stubPublication() {
+  @Override
+  protected void initializeWiremock() {
     setupMockResponse(
         CHANNEL,
         SC_ACCEPTED,
@@ -224,14 +222,5 @@ public class PublishCommandTest {
 
     wm.stubFor(WireMock.put(getPublicationPath(channel, KEY))
         .willReturn(mockResponse));
-  }
-
-  @NotNull
-  private static String getIngestionUrl() {
-    return "http://localhost:" + wm.getPort();
-  }
-
-  private static String getPublicationPath(String channel, String key) {
-    return PUBLICATIONS_ENDPOINT_PATH_V1 + "/" + channel + "/" + key;
   }
 }
