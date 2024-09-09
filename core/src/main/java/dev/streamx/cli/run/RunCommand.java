@@ -2,6 +2,7 @@ package dev.streamx.cli.run;
 
 import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
+import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
@@ -14,6 +15,7 @@ import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -42,17 +44,20 @@ public class RunCommand implements Runnable {
   @Inject
   MeshDefinitionResolver meshDefinitionResolver;
 
+  @Inject
+  BannerPrinter bannerPrinter;
+
   @Override
   public void run() {
-
     try {
-      MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
-      String meshPath = result.path().normalize().toAbsolutePath().toString();
+      MeshDefinitionResolvingResult meshDefinition = resolveMeshDefinition();
+
+      bannerPrinter.printBanner();
 
       print("Setting up system containers...");
 
       try {
-        this.runner.initialize(result.serviceMesh(), meshPath);
+        this.runner.initialize(meshDefinition.result().serviceMesh(), meshDefinition.meshPath());
       } catch (DockerContainerNonUniqueException e) {
         throw DockerException.nonUniqueContainersException(e.getContainers());
       } catch (DockerEnvironmentException e) {
@@ -66,15 +71,34 @@ public class RunCommand implements Runnable {
 
       this.runner.startMesh();
 
-      printSummary(this.runner, result.path());
+      printSummary(this.runner, meshDefinition.result().path());
       Quarkus.waitForExit();
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot run StreamX", e);
     } catch (ContainerStartupTimeoutException e) {
       throw DockerException.containerStartupFailed(
           e.getContainerName(),
           runner.getContext().getStreamxBaseConfig().getContainerStartupTimeout());
     }
+  }
+
+  @NotNull
+  private MeshDefinitionResolvingResult resolveMeshDefinition() {
+    try {
+      MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
+      String meshPath = result.path().normalize().toAbsolutePath().toString();
+
+      return new MeshDefinitionResolvingResult(result, meshPath);
+    } catch (IOException e) {
+      var path = meshSource.meshDefinitionFile;
+
+      throw new RuntimeException("Unable to read mesh definition from '" + path + "'.\n"
+          + "\n"
+          + "Details:\n"
+          + e.getMessage(), e);
+    }
+  }
+
+  private record MeshDefinitionResolvingResult(MeshDefinition result, String meshPath) {
+
   }
 
   void onContainerStarted(@Observes ContainerStarted event) {

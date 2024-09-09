@@ -88,7 +88,7 @@ public class StreamxCommand implements QuarkusApplication {
   }
 
   private void init() {
-    bannerPrinter.printBanner(commandLine, args);
+    bannerPrinter.initialize(commandLine, args);
 
     licenseProcessorEntrypoint.process();
   }

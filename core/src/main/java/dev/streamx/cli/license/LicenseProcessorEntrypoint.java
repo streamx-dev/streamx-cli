@@ -1,5 +1,6 @@
 package dev.streamx.cli.license;
 
+import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.exception.LicenseException;
 import dev.streamx.cli.exception.PublicSettingsFileException;
 import dev.streamx.cli.exception.SettingsFileException;
@@ -23,6 +24,9 @@ public class LicenseProcessorEntrypoint {
 
   @Inject
   Logger log;
+
+  @Inject
+  BannerPrinter bannerPrinter;
 
   @Inject
   LicenseProceedingStrategy licenseProceeding;
@@ -68,6 +72,8 @@ public class LicenseProcessorEntrypoint {
   }
 
   private void proceedLicenseAcceptance(LicenseSettings licenseSettings, LocalDateTime now) {
+    bannerPrinter.printBanner();
+
     print("");
     print("Do you accept the license agreement? [Y/n]");
 

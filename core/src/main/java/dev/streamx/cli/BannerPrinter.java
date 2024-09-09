@@ -20,7 +20,10 @@ public class BannerPrinter {
       |____/ \\__|_|  \\___|\\__,_|_| |_| |_/_/\\_\\.dev
                                                \s""";
 
-  void printBanner(CommandLine commandLine, String[] args) {
+  private boolean bannerShouldBePrinted = false;
+  private boolean bannerAlreadyPrinted = false;
+
+  void initialize(CommandLine commandLine, String[] args) {
     ParseResult parseResult = commandLine.parseArgs(args);
 
     ParseResult subcommand = parseResult.subcommand();
@@ -30,7 +33,14 @@ public class BannerPrinter {
 
     String commandName = subcommand.commandSpec().name();
     if (COMMANDS_REQUIRING_PRINTING_BANNER.contains(commandName)) {
+      bannerShouldBePrinted = true;
+    }
+  }
+
+  public void printBanner() {
+    if (bannerShouldBePrinted && !bannerAlreadyPrinted) {
       print(BANNER);
+      bannerAlreadyPrinted = true;
     }
   }
 
