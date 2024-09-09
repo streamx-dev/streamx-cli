@@ -14,7 +14,7 @@ import picocli.CommandLine.ParameterException;
 @ApplicationScoped
 class MeshDefinitionResolver {
 
-  private static final String CURRENT_DIRECTORY_MESH = "./streamx-mesh.yml";
+  private static final String CURRENT_DIRECTORY_MESH = "./mesh.yml";
 
   private final MeshConfigMapper mapper = new MeshConfigMapper();
 
@@ -44,7 +44,7 @@ class MeshDefinitionResolver {
     } else {
       throw new ParameterException(parseResult.subcommand().commandSpec().commandLine(),
           "Missing mesh definition. Use '-f' to select mesh file or "
-          + "make sure 'streamx-mesh.yml' exists in current directory.");
+          + "make sure 'mesh.yml' exists in current directory.");
     }
   }
 

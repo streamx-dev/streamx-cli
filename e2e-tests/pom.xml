@@ -58,7 +58,7 @@
         <filtering>true</filtering>
         <directory>src/test/resources/filtered</directory>
         <includes>
-          <include>streamx-mesh.yml</include>
+          <include>mesh.yml</include>
           <include>overridden-nginx-conf</include>
         </includes>
       </testResource>
