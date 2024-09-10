@@ -9,7 +9,7 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
 @ApplicationScoped
-public class ExceptionHandler implements IExecutionExceptionHandler {
+public class ExecutionExceptionHandler implements IExecutionExceptionHandler {
 
   @Inject
   Logger log;

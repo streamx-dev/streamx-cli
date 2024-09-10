@@ -32,7 +32,10 @@ public class StreamxCommand implements QuarkusApplication {
   CommandLine.IFactory factory;
 
   @Inject
-  ExceptionHandler exceptionHandler;
+  ParameterExceptionHandler parameterExceptionHandler;
+
+  @Inject
+  ExecutionExceptionHandler executionExceptionHandler;
 
   @Inject
   LicenseProcessorEntrypoint licenseProcessorEntrypoint;
@@ -54,7 +57,8 @@ public class StreamxCommand implements QuarkusApplication {
     this.args = args;
 
     commandLine = new CommandLine(this, factory)
-        .setExecutionExceptionHandler(exceptionHandler)
+        .setParameterExceptionHandler(parameterExceptionHandler)
+        .setExecutionExceptionHandler(executionExceptionHandler)
         .setExpandAtFiles(false)
         .setExecutionStrategy(this::executionStrategy);
 
@@ -70,7 +74,8 @@ public class StreamxCommand implements QuarkusApplication {
     try {
       configSourcesValidator.validate();
     } catch (Exception e) {
-      exceptionHandler.handleExecutionException(e, commandLine, commandLine.getParseResult());
+      executionExceptionHandler.handleExecutionException(e, commandLine,
+          commandLine.getParseResult());
       return 1;
     }
     return null;
@@ -82,7 +87,7 @@ public class StreamxCommand implements QuarkusApplication {
 
       return new CommandLine.RunLast().execute(parseResult);
     } catch (Exception e) {
-      exceptionHandler.handleExecutionException(e, commandLine, parseResult);
+      executionExceptionHandler.handleExecutionException(e, commandLine, parseResult);
       return 1;
     }
   }
