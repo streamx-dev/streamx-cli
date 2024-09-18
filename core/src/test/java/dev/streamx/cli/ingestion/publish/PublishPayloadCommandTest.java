@@ -12,8 +12,9 @@ import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
-import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
+import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
@@ -109,9 +110,11 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        getPublicationPath(CHANNEL)))
         .withRequestBody(
-            equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+            equalToJson(
+                buildResponseWith(
+                    "{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}"))));
   }
 
   @Test
@@ -126,9 +129,11 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        getPublicationPath(PublishPayloadCommandTest.CHANNEL)))
         .withRequestBody(
-            equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+            equalToJson(
+                buildResponseWith(
+                    "{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}"))));
   }
 
   @Test
@@ -145,9 +150,9 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(equalToJson("""
-            {"content": {"bytes": {"nana": "lele"}}}""")));
+        getPublicationPath(CHANNEL)))
+        .withRequestBody(equalToJson(buildResponseWith("""
+            {"content": {"bytes": {"nana": "lele"}}}"""))));
   }
 
   @Test
@@ -162,9 +167,9 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(equalToJson("""
-            {"content": {"bytes": null}}""")));
+        getPublicationPath(CHANNEL)))
+        .withRequestBody(equalToJson(buildResponseWith("""
+            {"content": {"bytes": null}}"""))));
   }
 
   @Test
@@ -179,8 +184,8 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(equalToJson("{\"content\": {\"bytes\": \"bytes\"}}")));
+        getPublicationPath(CHANNEL)))
+        .withRequestBody(equalToJson(buildResponseWith("{\"content\": {\"bytes\": \"bytes\"}}"))));
   }
 
   @Test
@@ -194,9 +199,10 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        getPublicationPath(CHANNEL)))
         .withRequestBody(
-            equalToJson("{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}")));
+            equalToJson(buildResponseWith(
+                "{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}"))));
   }
 
   @Test
@@ -213,9 +219,10 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
+        getPublicationPath(CHANNEL)))
         .withRequestBody(
-            equalToJson("{\"content\": {\"bytes\": \"<h1>This works ąćpretty well...</h1>\"}}")));
+            equalToJson(buildResponseWith(
+                "{\"content\": {\"bytes\": \"<h1>This works ąćpretty well...</h1>\"}}"))));
   }
 
   @Test
@@ -231,17 +238,40 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
+    StringValuePattern matchingPngFileContent = matchingJsonPath(
+        "$.payload[\"dev.streamx.blueprints.data.Page\"].content.bytes",
+        new ContainsPattern("PNG")
+    );
+
     wm.verify(putRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY)))
-        .withRequestBody(matchingJsonPath("content.bytes", new ContainsPattern("PNG"))));
+        getPublicationPath(CHANNEL)))
+        .withRequestBody(matchingPngFileContent));
   }
+
+  private String buildResponseWith(String content) {
+    return
+        """
+            {
+              "key" : "index.html",
+              "action" : "publish",
+              "eventTime" : null,
+              "properties" : { },
+              "payload" : {
+                "dev.streamx.blueprints.data.Page" : %s
+              }
+            }
+            """.formatted(content);
+  }
+
 
   @Override
   protected void initializeWiremock() {
-    PublisherSuccessResult result = new PublisherSuccessResult(123456L, KEY);
+    SuccessResult result = new SuccessResult(123456L, KEY);
     wm.stubFor(
-        put(getPublicationPath(PublishPayloadCommandTest.CHANNEL, PublishPayloadCommandTest.KEY))
+        put(getPublicationPath(CHANNEL))
             .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
+
+    setupMockChannelsSchemasResponse();
   }
 }

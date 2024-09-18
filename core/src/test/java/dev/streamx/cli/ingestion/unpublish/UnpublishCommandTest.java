@@ -1,7 +1,10 @@
 package dev.streamx.cli.ingestion.unpublish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
@@ -16,7 +19,7 @@ import dev.streamx.cli.ingestion.AuthorizedProfile;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
-import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
+import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
@@ -56,7 +59,8 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
       // then
       expectSuccess(result);
 
-      wm.verify(deleteRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
+      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          .withRequestBody(matchingJsonPath("$.action", equalTo("unpublish")))
           .withoutHeader("Authorization"));
     }
 
@@ -69,7 +73,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectError(result,
-          "Publication Ingestion REST endpoint known error. Code: UNSUPPORTED_CHANNEL. "
+          "Ingestion REST endpoint known error. Code: UNSUPPORTED_CHANNEL. "
           + "Message: Channel images is unsupported. Supported channels: pages");
     }
   }
@@ -89,8 +93,16 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
       // then
       expectSuccess(result);
 
-      wm.verify(deleteRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
-          .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
+      wm.verify(
+          putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+              .withRequestBody(equalToJson("""
+                  {
+                    "key": "%s",
+                    "payload": null,
+                    "action": "unpublish"
+                  }
+              """.formatted(KEY), true, true))
+              .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }
 
@@ -99,7 +111,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
     setupMockResponse(
         CHANNEL,
         SC_ACCEPTED,
-        new PublisherSuccessResult(123456L, KEY)
+        new SuccessResult(123456L, KEY)
     );
 
     setupMockResponse(
@@ -117,7 +129,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
         .withBody(Json.write(response))
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-    wm.stubFor(WireMock.delete(getPublicationPath(channel, KEY))
+    wm.stubFor(WireMock.put(getPublicationPath(channel))
         .willReturn(mockResponse));
   }
 }

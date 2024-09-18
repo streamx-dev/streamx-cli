@@ -1,8 +1,8 @@
 package dev.streamx.cli.run;
 
 import dev.streamx.cli.run.RunCommand.MeshSource;
-import dev.streamx.runner.mapper.MeshConfigMapper;
-import dev.streamx.runner.model.ServiceMesh;
+import dev.streamx.mesh.mapper.MeshConfigMapper;
+import dev.streamx.mesh.model.ServiceMesh;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;

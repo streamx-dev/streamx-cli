@@ -23,7 +23,7 @@ public class IngestionArgumentsValidationTest extends BaseIngestionCommandTest {
 
     // then
     expectError(result,
-        "Publication endpoint URI: hattetepe:///in valid/publications/v1 is malformed. "
+        "Endpoint URI: hattetepe:///in valid/ingestion/v1 is malformed. "
         + "Illegal character in path");
   }
 
@@ -82,7 +82,7 @@ public class IngestionArgumentsValidationTest extends BaseIngestionCommandTest {
 
     // then
     expectError(result,
-        "Publication endpoint URI: hattetepe:///invalid/publications/v1 is malformed. "
+        "Endpoint URI: hattetepe:///invalid/ingestion/v1 is malformed. "
         + "URI without host is not supported.");
   }
 

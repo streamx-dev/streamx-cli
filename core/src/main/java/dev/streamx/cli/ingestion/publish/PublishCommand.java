@@ -1,21 +1,29 @@
 package dev.streamx.cli.ingestion.publish;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import dev.streamx.cli.SchemaProvider;
 import dev.streamx.cli.VersionProvider;
+import dev.streamx.cli.exception.UnknownChannelException;
 import dev.streamx.cli.ingestion.BaseIngestionCommand;
 import dev.streamx.cli.ingestion.publish.payload.PayloadResolver;
 import dev.streamx.cli.ingestion.publish.payload.source.FileSourceResolver;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.clients.ingestion.publisher.Publisher;
-import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
+import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
+import org.apache.avro.Schema.Type;
 import org.jetbrains.annotations.NotNull;
+import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Spec;
 
 @Command(name = PublishCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
@@ -34,6 +42,15 @@ public class PublishCommand extends BaseIngestionCommand {
   @Inject
   PayloadResolver payloadResolver;
 
+  @Inject
+  SchemaProvider schemaProvider;
+
+  @Spec
+  CommandLine.Model.CommandSpec spec;
+
+  @Inject
+  IngestionMessageJsonFactory ingestionMessageJsonFactory;
+
   @Override
   protected String getChannel() {
     return publishTargetArguments.getChannel();
@@ -42,10 +59,42 @@ public class PublishCommand extends BaseIngestionCommand {
   @Override
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
     List<PayloadArgument> mergedPayloadArgumentList = prependPayloadFile();
-    JsonNode jsonNode = payloadResolver.createPayload(mergedPayloadArgumentList);
-    PublisherSuccessResult result = publisher.publish(publishTargetArguments.getKey(), jsonNode);
+    JsonNode payload = payloadResolver.createPayload(mergedPayloadArgumentList);
+    JsonNode schemaJson = null;
+    try {
+      schemaJson = schemaProvider.getSchema(getChannel());
+    } catch (UnknownChannelException e) {
+      throw new ParameterException(spec.commandLine(),
+          "Channel '" + e.getChannel() + "' not found. "
+              + "Available channels: " + e.getAvailableChannels());
+    }
+    String payloadPropertyName = getPayloadPropertyName(schemaJson);
+    JsonNode requestPayload = ingestionMessageJsonFactory.from(
+        publishTargetArguments.getKey(),
+        COMMAND_NAME,
+        payload,
+        payloadPropertyName
+    );
+
+    SuccessResult result = publisher.send(requestPayload);
     System.out.printf("Registered data publication on '%s' with key '%s' at %d%n",
         publishTargetArguments.getChannel(), result.getKey(), result.getEventTime());
+  }
+
+  private String getPayloadPropertyName(JsonNode schemaJson) {
+    Schema.Parser parser = new Schema.Parser();
+    Schema channelschema = parser.parse(schemaJson.toString());
+    Field payload = channelschema.getField("payload");
+    Schema payloadSchema = payload.schema();
+    if (payloadSchema.getType() == Type.UNION) {
+      List<Schema> unionSchemas = payloadSchema.getTypes();
+      for (Schema schema : unionSchemas) {
+        if (schema.getType() == Type.RECORD) {
+          return schema.getFullName();
+        }
+      }
+    }
+    return payloadSchema.getFullName();
   }
 
   @NotNull
