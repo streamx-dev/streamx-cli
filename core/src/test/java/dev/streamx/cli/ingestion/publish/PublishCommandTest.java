@@ -1,6 +1,9 @@
 package dev.streamx.cli.ingestion.publish;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
@@ -16,7 +19,7 @@ import dev.streamx.cli.ingestion.AuthorizedProfile;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
-import dev.streamx.clients.ingestion.publisher.PublisherSuccessResult;
+import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
@@ -50,9 +53,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectError(result,
-          "Publication Ingestion REST endpoint known error. "
-          + "Code: INVALID_PUBLICATION_PAYLOAD. "
-          + "Message: Error message");
+          "Channel 'bad-request-channel' not found. Available channels: [pages]");
     }
 
     @Test
@@ -94,6 +95,9 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectSuccess(result);
+      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
+          .withoutHeader("Authorization"));
     }
 
     @Test
@@ -106,7 +110,22 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectSuccess(result);
-      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
+      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          .withRequestBody(equalToJson("""
+              {
+                "key" : "index.html",
+                "action" : "publish",
+                "eventTime" : null,
+                "properties" : { },
+                "payload" : {
+                  "dev.streamx.blueprints.data.Page" : {
+                    "content" : {
+                      "bytes" : "<h1>Hello World!</h1>"
+                    }
+                  }
+                }
+              }
+              """))
           .withoutHeader("Authorization"));
     }
 
@@ -143,8 +162,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectError(result,
-          "Publication Ingestion REST endpoint known error. Code: UNSUPPORTED_CHANNEL. "
-          + "Message: Channel images is unsupported. Supported channels: pages");
+          "Channel 'images' not found. Available channels: [pages]");
     }
 
     @Test
@@ -186,41 +204,45 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectSuccess(result);
-      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL, KEY)))
+      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
           .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }
 
   @Override
   protected void initializeWiremock() {
-    setupMockResponse(
+    setupMockPublicationResponse(
         CHANNEL,
         SC_ACCEPTED,
-        new PublisherSuccessResult(123456L, KEY)
+        new SuccessResult(123456L, KEY)
     );
 
-    setupMockResponse(
+    setupMockPublicationResponse(
         INVALID_PAYLOAD_REQUEST_CHANNEL,
         SC_BAD_REQUEST,
         new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message")
     );
 
-    setupMockResponse(
+    setupMockPublicationResponse(
         UNSUPPORTED_CHANNEL,
         SC_BAD_REQUEST,
         new FailureResponse("UNSUPPORTED_CHANNEL",
             "Channel " + UNSUPPORTED_CHANNEL + " is unsupported. Supported channels: " + CHANNEL
         )
     );
+
+    setupMockChannelsSchemasResponse();
   }
 
-  private static void setupMockResponse(String channel, int httpStatus, Object response) {
+  private static void setupMockPublicationResponse(String channel, int httpStatus,
+      Object response) {
     ResponseDefinitionBuilder mockResponse = responseDefinition()
         .withStatus(httpStatus)
         .withBody(response == null ? null : Json.write(response))
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-    wm.stubFor(WireMock.put(getPublicationPath(channel, KEY))
+    wm.stubFor(WireMock.put(getPublicationPath(channel))
         .willReturn(mockResponse));
   }
 }

@@ -7,7 +7,7 @@ import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientConnectionException;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
-import dev.streamx.clients.ingestion.exceptions.StreamxClientUnsupportedChannelException;
+import dev.streamx.clients.ingestion.exceptions.UnsupportedChannelException;
 import dev.streamx.clients.ingestion.publisher.Publisher;
 import jakarta.inject.Inject;
 import javax.net.ssl.SSLHandshakeException;
@@ -22,7 +22,7 @@ public abstract class BaseIngestionCommand implements Runnable {
   IngestionArguments ingestionArguments;
 
   @Spec
-  CommandSpec spec;
+  protected CommandSpec spec;
 
   @Inject
   StreamxClientProvider streamxClientProvider;
@@ -39,7 +39,7 @@ public abstract class BaseIngestionCommand implements Runnable {
     try (StreamxClient client = streamxClientProvider.createStreamxClient(ingestionClientConfig)) {
       Publisher<JsonNode> publisher = client.newPublisher(getChannel(), JsonNode.class);
       perform(publisher);
-    } catch (StreamxClientUnsupportedChannelException e) {
+    } catch (UnsupportedChannelException e) {
       throw new ParameterException(spec.commandLine(), e.getMessage());
     } catch (StreamxClientConnectionException e) {
       throw new UnableToConnectIngestionServiceException(ingestionClientConfig.url(), e);
