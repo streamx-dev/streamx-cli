@@ -19,11 +19,9 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
 import org.jetbrains.annotations.NotNull;
-import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.Spec;
 
 @Command(name = PublishCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
@@ -55,33 +53,44 @@ public class PublishCommand extends BaseIngestionCommand {
 
   @Override
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
+    JsonNode message = prepareIngestionMessage();
+
+    SuccessResult result = publisher.send(message);
+    System.out.printf("Registered data publication on '%s' with key '%s' at %d%n",
+        publishTargetArguments.getChannel(), result.getKey(), result.getEventTime());
+  }
+
+  private JsonNode prepareIngestionMessage() {
     List<PayloadArgument> mergedPayloadArgumentList = prependPayloadFile();
     JsonNode payload = payloadResolver.createPayload(mergedPayloadArgumentList);
-    JsonNode schemaJson = null;
-    try {
-      schemaJson = schemaProvider.getSchema(getChannel());
-    } catch (UnknownChannelException e) {
-      throw new ParameterException(spec.commandLine(),
-          "Channel '" + e.getChannel() + "' not found. "
-              + "Available channels: " + e.getAvailableChannels());
-    }
-    String payloadPropertyName = getPayloadPropertyName(schemaJson);
-    JsonNode requestPayload = ingestionMessageJsonFactory.from(
+    String payloadPropertyName = getPayloadPropertyName();
+    return ingestionMessageJsonFactory.from(
         publishTargetArguments.getKey(),
         COMMAND_NAME,
         payload,
         payloadPropertyName
     );
+  }
 
-    SuccessResult result = publisher.send(requestPayload);
-    System.out.printf("Registered data publication on '%s' with key '%s' at %d%n",
-        publishTargetArguments.getChannel(), result.getKey(), result.getEventTime());
+  private String getPayloadPropertyName() {
+    JsonNode schemaJson = getSchemaForChannel();
+    return getPayloadPropertyName(schemaJson);
+  }
+
+  private JsonNode getSchemaForChannel() {
+    try {
+      return schemaProvider.getSchema(getChannel());
+    } catch (UnknownChannelException e) {
+      throw new ParameterException(spec.commandLine(),
+          "Channel '" + e.getChannel() + "' not found. "
+              + "Available channels: " + e.getAvailableChannels());
+    }
   }
 
   private String getPayloadPropertyName(JsonNode schemaJson) {
     Schema.Parser parser = new Schema.Parser();
-    Schema channelschema = parser.parse(schemaJson.toString());
-    Field payload = channelschema.getField("payload");
+    Schema channelSchema = parser.parse(schemaJson.toString());
+    Field payload = channelSchema.getField("payload");
     Schema payloadSchema = payload.schema();
     if (payloadSchema.getType() == Type.UNION) {
       List<Schema> unionSchemas = payloadSchema.getTypes();

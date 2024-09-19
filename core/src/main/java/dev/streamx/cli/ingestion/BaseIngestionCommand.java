@@ -37,8 +37,8 @@ public abstract class BaseIngestionCommand implements Runnable {
   @Override
   public final void run() {
     try (StreamxClient client = streamxClientProvider.createStreamxClient(ingestionClientConfig)) {
-      Publisher<JsonNode> ingestor = client.newPublisher(getChannel(), JsonNode.class);
-      perform(ingestor);
+      Publisher<JsonNode> publisher = client.newPublisher(getChannel(), JsonNode.class);
+      perform(publisher);
     } catch (UnsupportedChannelException e) {
       throw new ParameterException(spec.commandLine(), e.getMessage());
     } catch (StreamxClientConnectionException e) {
