@@ -45,9 +45,6 @@ public class PublishCommand extends BaseIngestionCommand {
   @Inject
   SchemaProvider schemaProvider;
 
-  @Spec
-  CommandLine.Model.CommandSpec spec;
-
   @Inject
   IngestionMessageJsonFactory ingestionMessageJsonFactory;
 

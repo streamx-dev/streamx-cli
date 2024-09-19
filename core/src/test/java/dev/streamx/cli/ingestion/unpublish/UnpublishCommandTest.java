@@ -60,7 +60,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
       expectSuccess(result);
 
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(matchingJsonPath("$.action", equalTo("unpublish")))
+          .withRequestBody(matchingJsonPath("action", equalTo("unpublish")))
           .withoutHeader("Authorization"));
     }
 

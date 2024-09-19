@@ -2,6 +2,11 @@ defaultRegistry: ghcr.io/streamx-dev/streamx
 defaultImageTag: ${streamx.version}-jvm
 tenant: "streamx"
 
+sources:
+  cli:
+    outgoing:
+      - "pages"
+
 processing:
   relay:
     image: sample-relay-processing-service

@@ -239,7 +239,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
     // then
     expectSuccess(result);
     StringValuePattern matchingPngFileContent = matchingJsonPath(
-        "$.payload[\"dev.streamx.blueprints.data.Page\"].content.bytes",
+        "payload[\"dev.streamx.blueprints.data.Page\"].content.bytes",
         new ContainsPattern("PNG")
     );
 

@@ -31,6 +31,8 @@ import org.apache.http.util.EntityUtils;
 @ApplicationScoped
 public class SchemaProvider {
 
+  private static final ObjectMapper objectMapper = new ObjectMapper();
+
   @Inject
   CloseableHttpClient httpClient;
 
@@ -60,7 +62,6 @@ public class SchemaProvider {
 
       String body = EntityUtils.toString(entity, "UTF-8");
 
-      ObjectMapper objectMapper = new ObjectMapper();
       return objectMapper.readValue(body, new TypeReference<>() {
       });
     } catch (SSLHandshakeException e) {

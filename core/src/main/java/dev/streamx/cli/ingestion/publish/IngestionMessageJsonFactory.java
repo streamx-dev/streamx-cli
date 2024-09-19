@@ -9,10 +9,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class IngestionMessageJsonFactory {
 
+  private static final ObjectMapper mapper = new ObjectMapper();
+
   /**
    * @param key of resource
    * @param action publish or unpublish
-   * @param payload to include as a payload in returned JsonNode
+   * @param payloadContent to include as a payload in returned JsonNode
    * @param nameOfObjectToWrapPayload
    * @return JsonNode representation of {@link dev.streamx.clients.ingestion.publisher.Message}
    */
@@ -20,19 +22,17 @@ public class IngestionMessageJsonFactory {
   public JsonNode from(
       String key,
       String action,
-      JsonNode payload,
+      JsonNode payloadContent,
       String nameOfObjectToWrapPayload
   ) {
-
-    ObjectMapper mapper = new ObjectMapper();
     ObjectNode root = mapper.createObjectNode();
 
     root.put("key", key);
     root.put("action", action);
     root.putNull("eventTime");
     root.putObject("properties");
-    ObjectNode properties = root.putObject("payload");
-    properties.set(nameOfObjectToWrapPayload, payload);
+    ObjectNode payload = root.putObject("payload");
+    payload.set(nameOfObjectToWrapPayload, payloadContent);
     return root;
   }
 }

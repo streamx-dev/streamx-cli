@@ -96,7 +96,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
       // then
       expectSuccess(result);
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(matchingJsonPath("$.action", equalTo("publish")))
+          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
           .withoutHeader("Authorization"));
     }
 
@@ -205,7 +205,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
       // then
       expectSuccess(result);
       wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(matchingJsonPath("$.action", equalTo("publish")))
+          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
           .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }

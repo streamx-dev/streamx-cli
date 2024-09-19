@@ -22,7 +22,7 @@ public abstract class BaseIngestionCommand implements Runnable {
   IngestionArguments ingestionArguments;
 
   @Spec
-  CommandSpec spec;
+  protected CommandSpec spec;
 
   @Inject
   StreamxClientProvider streamxClientProvider;
