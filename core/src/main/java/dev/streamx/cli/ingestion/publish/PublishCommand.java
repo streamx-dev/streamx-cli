@@ -72,19 +72,21 @@ public class PublishCommand extends BaseIngestionCommand {
     );
   }
 
+  @NotNull
+  private List<PayloadArgument> prependPayloadFile() {
+    var payloadFileArgument = Optional.ofNullable(publishTargetArguments)
+        .map(PublishTargetArguments::getPayloadFile)
+        .map(arg -> PayloadArgument.ofJsonNode(FileSourceResolver.FILE_STRATEGY_PREFIX + arg));
+    var payloadArgStream = Optional.ofNullable(payloadArguments)
+        .map(PayloadArguments::getPayloadArgs).stream()
+        .flatMap(Collection::stream);
+
+    return Stream.concat(payloadFileArgument.stream(), payloadArgStream).toList();
+  }
+
   private String getPayloadPropertyName() {
     JsonNode schemaJson = getSchemaForChannel();
     return getPayloadPropertyName(schemaJson);
-  }
-
-  private JsonNode getSchemaForChannel() {
-    try {
-      return schemaProvider.getSchema(getChannel());
-    } catch (UnknownChannelException e) {
-      throw new ParameterException(spec.commandLine(),
-          "Channel '" + e.getChannel() + "' not found. "
-              + "Available channels: " + e.getAvailableChannels());
-    }
   }
 
   private String getPayloadPropertyName(JsonNode schemaJson) {
@@ -103,15 +105,13 @@ public class PublishCommand extends BaseIngestionCommand {
     return payloadSchema.getFullName();
   }
 
-  @NotNull
-  private List<PayloadArgument> prependPayloadFile() {
-    var payloadFileArgument = Optional.ofNullable(publishTargetArguments)
-        .map(PublishTargetArguments::getPayloadFile)
-        .map(arg -> PayloadArgument.ofJsonNode(FileSourceResolver.FILE_STRATEGY_PREFIX + arg));
-    var payloadArgStream = Optional.ofNullable(payloadArguments)
-        .map(PayloadArguments::getPayloadArgs).stream()
-        .flatMap(Collection::stream);
-
-    return Stream.concat(payloadFileArgument.stream(), payloadArgStream).toList();
+  private JsonNode getSchemaForChannel() {
+    try {
+      return schemaProvider.getSchema(getChannel());
+    } catch (UnknownChannelException e) {
+      throw new ParameterException(spec.commandLine(),
+          "Channel '" + e.getChannel() + "' not found. "
+              + "Available channels: " + e.getAvailableChannels());
+    }
   }
 }
