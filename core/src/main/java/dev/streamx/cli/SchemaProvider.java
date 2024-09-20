@@ -13,10 +13,8 @@ import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.Map;
 import javax.net.ssl.SSLHandshakeException;
 import org.apache.commons.lang3.StringUtils;
@@ -66,9 +64,9 @@ public class SchemaProvider {
       });
     } catch (SSLHandshakeException e) {
       throw IngestionClientException.sslException(ingestionClientConfig.url());
-    } catch (ConnectException | UnknownHostException e) {
+    } catch (IOException e) {
       throw new UnableToConnectIngestionServiceException(ingestionClientConfig.url(), e);
-    } catch (IOException | StreamxClientException e) {
+    } catch (StreamxClientException e) {
       throw sneakyThrow(e);
     }
   }
