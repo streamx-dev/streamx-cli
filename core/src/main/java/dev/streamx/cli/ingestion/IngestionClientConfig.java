@@ -13,6 +13,7 @@ public interface IngestionClientConfig {
 
   String STREAMX_INGESTION_URL = "streamx.ingestion.url";
   String STREAMX_INGESTION_AUTH_TOKEN = "streamx.ingestion.auth-token";
+  String STREAMX_INGESTION_ROOT_AUTH_TOKEN = "streamx.ingestion.root-auth-token";
   String STREAMX_INGESTION_INSECURE = "streamx.ingestion.insecure";
 
   @WithName(STREAMX_INGESTION_URL)
@@ -21,6 +22,9 @@ public interface IngestionClientConfig {
 
   @WithName(STREAMX_INGESTION_AUTH_TOKEN)
   Optional<String> authToken();
+
+  @WithName(STREAMX_INGESTION_ROOT_AUTH_TOKEN)
+  Optional<String> rootAuthToken();
 
   @WithName(STREAMX_INGESTION_INSECURE)
   @WithDefault(BooleanUtils.FALSE)

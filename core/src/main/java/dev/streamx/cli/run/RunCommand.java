@@ -1,13 +1,12 @@
 package dev.streamx.cli.run;
 
-import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_INGESTION_AUTH_TOKEN;
+import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_INGESTION_ROOT_AUTH_TOKEN;
 import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.config.DotStreamxConfigSource;
 import dev.streamx.cli.exception.DockerException;
-import dev.streamx.cli.ingestion.IngestionClientConfig;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.event.ContainerStarted;
@@ -57,9 +56,6 @@ public class RunCommand implements Runnable {
   @Inject
   BannerPrinter bannerPrinter;
 
-  @Inject
-  IngestionClientConfig ingestionClientConfig;
-
   @Override
   public void run() {
     try {
@@ -83,7 +79,7 @@ public class RunCommand implements Runnable {
       print("Starting DX Mesh...");
 
       this.runner.startMesh();
-      setupAuthToken();
+      setupRootAuthToken();
 
       printSummary(this.runner, meshDefinition.result().path());
       Quarkus.waitForExit();
@@ -124,29 +120,27 @@ public class RunCommand implements Runnable {
   }
 
 
-  private void setupAuthToken() {
-    if (ingestionClientConfig.authToken().isEmpty()) {
-      Map<String, String> tokensBySource = this.runner.getContext().getTokensBySource();
-      if (tokensBySource != null) {
-        InputStream input = null;
-        OutputStream output = null;
-        try {
-          String streamxConfigPath = DotStreamxConfigSource.getUrl().getPath();
-          input = new FileInputStream(streamxConfigPath);
+  private void setupRootAuthToken() {
+    Map<String, String> tokensBySource = this.runner.getContext().getTokensBySource();
+    if (tokensBySource != null) {
+      InputStream input = null;
+      OutputStream output = null;
+      try {
+        String streamxConfigPath = DotStreamxConfigSource.getUrl().getPath();
+        input = new FileInputStream(streamxConfigPath);
 
-          Properties properties = new Properties();
-          properties.load(input);
-          properties.setProperty(STREAMX_INGESTION_AUTH_TOKEN, tokensBySource.get("root"));
+        Properties properties = new Properties();
+        properties.load(input);
+        properties.setProperty(STREAMX_INGESTION_ROOT_AUTH_TOKEN, tokensBySource.get("root"));
 
-          output = new FileOutputStream(streamxConfigPath);
-          properties.store(output, null);
+        output = new FileOutputStream(streamxConfigPath);
+        properties.store(output, null);
 
-        } catch (IOException e) {
-          throw new RuntimeException("Failed to setup authentication token", e);
-        } finally {
-          IOUtils.closeQuietly(input);
-          IOUtils.closeQuietly(output);
-        }
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to setup root authentication token", e);
+      } finally {
+        IOUtils.closeQuietly(input);
+        IOUtils.closeQuietly(output);
       }
     }
   }

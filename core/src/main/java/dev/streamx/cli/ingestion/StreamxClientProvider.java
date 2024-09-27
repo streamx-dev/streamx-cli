@@ -18,7 +18,7 @@ public class StreamxClientProvider {
     StreamxClientBuilder builder = StreamxClient.builder(ingestionClientConfig.url())
         .setApacheHttpClient(httpClient);
 
-    ingestionClientConfig.authToken()
+    ingestionClientConfig.authToken().or(ingestionClientConfig::rootAuthToken)
         .ifPresent(builder::setAuthToken);
 
     return builder.build();
