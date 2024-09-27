@@ -1,11 +1,9 @@
 package dev.streamx.cli.run;
 
-import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_INGESTION_ROOT_AUTH_TOKEN;
 import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
-import dev.streamx.cli.config.DotStreamxConfigSource;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.runner.StreamxRunner;
@@ -16,14 +14,7 @@ import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Map;
-import java.util.Properties;
-import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -79,7 +70,7 @@ public class RunCommand implements Runnable {
       print("Starting DX Mesh...");
 
       this.runner.startMesh();
-      setupRootAuthToken();
+      RunningMeshPropertiesGenerator.generateRootAuthToken(this.runner.getContext());
 
       printSummary(this.runner, meshDefinition.result().path());
       Quarkus.waitForExit();
@@ -117,31 +108,5 @@ public class RunCommand implements Runnable {
 
   private static void print(String x) {
     System.out.println(x);
-  }
-
-
-  private void setupRootAuthToken() {
-    Map<String, String> tokensBySource = this.runner.getContext().getTokensBySource();
-    if (tokensBySource != null) {
-      InputStream input = null;
-      OutputStream output = null;
-      try {
-        String streamxConfigPath = DotStreamxConfigSource.getUrl().getPath();
-        input = new FileInputStream(streamxConfigPath);
-
-        Properties properties = new Properties();
-        properties.load(input);
-        properties.setProperty(STREAMX_INGESTION_ROOT_AUTH_TOKEN, tokensBySource.get("root"));
-
-        output = new FileOutputStream(streamxConfigPath);
-        properties.store(output, null);
-
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to setup root authentication token", e);
-      } finally {
-        IOUtils.closeQuietly(input);
-        IOUtils.closeQuietly(output);
-      }
-    }
   }
 }
