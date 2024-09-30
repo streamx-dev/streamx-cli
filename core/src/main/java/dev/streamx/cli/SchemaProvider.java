@@ -50,7 +50,7 @@ public class SchemaProvider {
       URI channelsEndpointUri = buildUri(ingestionUrl);
       HttpGet httpRequest = new HttpGet(channelsEndpointUri);
 
-      ingestionClientConfig.authToken().or(ingestionClientConfig::rootAuthToken)
+      ingestionClientConfig.authToken()
           .ifPresent(authToken -> addAuthorizationHeader(httpRequest, authToken));
 
       HttpResponse execute = httpClient.execute(httpRequest);
