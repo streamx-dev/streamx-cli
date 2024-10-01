@@ -21,7 +21,7 @@ public class DotStreamxConfigSource extends PropertiesConfigSource {
     super(getUrl(), DOT_STREAMX_PRIORITY);
   }
 
-  public static URL getUrl() throws IOException {
+  private static URL getUrl() throws IOException {
     String rootDir = System.getProperty("user.home");
     String dotStreamxConfigSourcePath = rootDir + "/.streamx/config";
 
