@@ -12,9 +12,9 @@ public class DotStreamxGeneratedConfigSource extends PropertiesConfigSource {
 
   public static final String CONFIG_SOURCE_NAME = "DotStreamxGeneratedConfigSource";
   /**
-   * Value lower than classpath application.properties
+   * Value lower than DotStreamxConfigSource
    */
-  public static final int DOT_STREAMX_GENERATED_PRIORITY = 240;
+  public static final int DOT_STREAMX_GENERATED_PRIORITY = 254;
 
   public DotStreamxGeneratedConfigSource() throws IOException {
     super(getUrl(), DOT_STREAMX_GENERATED_PRIORITY);
