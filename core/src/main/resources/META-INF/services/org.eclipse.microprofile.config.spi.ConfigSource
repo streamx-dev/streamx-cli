@@ -1,2 +1,3 @@
 dev.streamx.cli.config.ArgumentConfigSource
 dev.streamx.cli.config.DotStreamxConfigSource
+dev.streamx.cli.config.DotStreamxGeneratedConfigSource

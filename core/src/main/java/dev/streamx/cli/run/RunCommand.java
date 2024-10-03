@@ -70,6 +70,7 @@ public class RunCommand implements Runnable {
       print("Starting DX Mesh...");
 
       this.runner.startMesh();
+      RunningMeshPropertiesGenerator.generateRootAuthToken(this.runner.getContext());
 
       printSummary(this.runner, meshDefinition.result().path());
       Quarkus.waitForExit();
