@@ -34,7 +34,7 @@ public abstract class BaseIngestionCommandTest {
   }
 
   protected static String getPublicationPath(String channel) {
-    return INGESTION_ENDPOINT_PATH_V1 + "/" + channel + "/message";
+    return INGESTION_ENDPOINT_PATH_V1 + "/channels/" + channel + "/messages";
   }
 
   protected static String getChannelsPath() {

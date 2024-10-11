@@ -4,7 +4,7 @@ import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.r
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
@@ -95,7 +95,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectSuccess(result);
-      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
           .withRequestBody(matchingJsonPath("action", equalTo("publish")))
           .withoutHeader("Authorization"));
     }
@@ -110,7 +110,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectSuccess(result);
-      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
           .withRequestBody(equalToJson("""
               {
                 "key" : "index.html",
@@ -204,7 +204,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
 
       // then
       expectSuccess(result);
-      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
           .withRequestBody(matchingJsonPath("action", equalTo("publish")))
           .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
@@ -242,7 +242,7 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
         .withBody(response == null ? null : Json.write(response))
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-    wm.stubFor(WireMock.put(getPublicationPath(channel))
+    wm.stubFor(WireMock.post(getPublicationPath(channel))
         .willReturn(mockResponse));
   }
 }
