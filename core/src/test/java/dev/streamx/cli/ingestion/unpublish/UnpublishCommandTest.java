@@ -19,6 +19,7 @@ import dev.streamx.cli.ingestion.AuthorizedProfile;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
+import dev.streamx.clients.ingestion.impl.MessageStatus;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
@@ -111,7 +112,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
     setupMockResponse(
         CHANNEL,
         SC_ACCEPTED,
-        new SuccessResult(123456L, KEY)
+        MessageStatus.success(new SuccessResult(123456L, KEY))
     );
 
     setupMockResponse(

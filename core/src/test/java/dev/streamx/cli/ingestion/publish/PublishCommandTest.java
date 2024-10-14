@@ -19,6 +19,7 @@ import dev.streamx.cli.ingestion.AuthorizedProfile;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
+import dev.streamx.clients.ingestion.impl.MessageStatus;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
@@ -215,13 +216,13 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
     setupMockPublicationResponse(
         CHANNEL,
         SC_ACCEPTED,
-        new SuccessResult(123456L, KEY)
+        MessageStatus.success(new SuccessResult(123456L, KEY))
     );
 
     setupMockPublicationResponse(
         INVALID_PAYLOAD_REQUEST_CHANNEL,
         SC_BAD_REQUEST,
-        new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message")
+        MessageStatus.failure(new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message"))
     );
 
     setupMockPublicationResponse(
