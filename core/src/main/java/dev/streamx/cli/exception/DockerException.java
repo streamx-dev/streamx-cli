@@ -1,5 +1,6 @@
 package dev.streamx.cli.exception;
 
+import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.runner.config.StreamxBaseConfig;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException.ContainerStatus;
 import java.util.List;
@@ -21,21 +22,21 @@ public class DockerException extends RuntimeException {
   }
 
   public static DockerException containerStartupFailed(String containerName, Long timeoutInSecs) {
-    return new DockerException("""
+    return new DockerException(ExceptionUtils.appendLogSuggestion("""
         Timeout exceeded waiting for the container "%s" after %d seconds.
                 
         Try increasing the timeout by setting the "%s" property."""
         .formatted(containerName, timeoutInSecs,
-            StreamxBaseConfig.PN_CONTAINER_STARTUP_TIMEOUT_SECONDS));
+            StreamxBaseConfig.PN_CONTAINER_STARTUP_TIMEOUT_SECONDS)));
   }
 
   public static DockerException dockerEnvironmentException() {
-    return new DockerException("""
+    return new DockerException(ExceptionUtils.appendLogSuggestion("""
         Could not find a valid Docker environment.
 
         Make sure that:
          * Docker is installed,
-         * Docker is running""");
+         * Docker is running"""));
   }
 
   public static DockerException nonUniqueContainersException(

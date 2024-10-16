@@ -2,6 +2,7 @@ package dev.streamx.cli.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import dev.streamx.cli.util.ExceptionUtils;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -61,6 +62,7 @@ public class PayloadException extends RuntimeException {
   }
 
   public static PayloadException ioException(Exception exception) {
-    return new PayloadException(exception.getMessage(), exception);
+    return new PayloadException(ExceptionUtils.appendLogSuggestion(
+        exception.getMessage()), exception);
   }
 }

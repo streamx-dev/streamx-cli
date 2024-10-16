@@ -48,7 +48,7 @@ public abstract class BaseIngestionCommandTest {
 
   protected static void expectError(LaunchResult result, String expectedErrorOutput) {
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput()).isEqualTo(expectedErrorOutput);
+    assertThat(result.getErrorOutput()).contains(expectedErrorOutput);
   }
 
   protected static void setupMockChannelsSchemasResponse() {
