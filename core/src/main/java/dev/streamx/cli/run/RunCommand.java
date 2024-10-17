@@ -1,11 +1,13 @@
 package dev.streamx.cli.run;
 
+import static dev.streamx.cli.run.MeshDefinitionResolver.CURRENT_DIRECTORY_MESH;
 import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.run.MeshDefinitionResolver.MeshDefinition;
+import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.event.ContainerStarted;
 import dev.streamx.runner.exception.ContainerStartupTimeoutException;
@@ -14,7 +16,6 @@ import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -34,7 +35,8 @@ public class RunCommand implements Runnable {
   static class MeshSource {
 
     @Option(names = {"-f", "--file"}, paramLabel = "mesh definition file",
-        description = "Path to mesh definition file.")
+        description = "Path to mesh definition file.",
+        defaultValue = CURRENT_DIRECTORY_MESH)
     String meshDefinitionFile;
   }
 
@@ -62,6 +64,8 @@ public class RunCommand implements Runnable {
         throw DockerException.nonUniqueContainersException(e.getContainers());
       } catch (DockerEnvironmentException e) {
         throw DockerException.dockerEnvironmentException();
+      } catch (Exception e) {
+        throw throwMeshException(e);
       }
 
       this.runner.startBase();
@@ -88,14 +92,19 @@ public class RunCommand implements Runnable {
       String meshPath = result.path().normalize().toAbsolutePath().toString();
 
       return new MeshDefinitionResolvingResult(result, meshPath);
-    } catch (IOException e) {
-      var path = meshSource.meshDefinitionFile;
-
-      throw new RuntimeException("Unable to read mesh definition from '" + path + "'.\n"
-          + "\n"
-          + "Details:\n"
-          + e.getMessage(), e);
+    } catch (Exception e) {
+      throw throwMeshException(e);
     }
+  }
+
+  private RuntimeException throwMeshException(Exception e) {
+    var path = meshSource.meshDefinitionFile;
+
+    return new RuntimeException(
+        ExceptionUtils.appendLogSuggestion("Unable to read mesh definition from '" + path + "'.\n"
+        + "\n"
+        + "Details:\n"
+        + e.getMessage()), e);
   }
 
   private record MeshDefinitionResolvingResult(MeshDefinition result, String meshPath) {

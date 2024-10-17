@@ -184,7 +184,9 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
               Verify:
                * if the mesh is up and running,
                * if the ingestion service URL is set correctly\
-               (if it's not - set proper '--ingestion-url' option)"""
+               (if it's not - set proper '--ingestion-url' option)
+               
+              Full logs can be found in"""
       );
     }
   }

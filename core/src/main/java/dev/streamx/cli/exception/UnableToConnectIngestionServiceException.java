@@ -1,5 +1,7 @@
 package dev.streamx.cli.exception;
 
+import dev.streamx.cli.util.ExceptionUtils;
+
 public class UnableToConnectIngestionServiceException extends RuntimeException {
 
   private static final String MESSAGE = """
@@ -21,6 +23,6 @@ public class UnableToConnectIngestionServiceException extends RuntimeException {
 
   @Override
   public String getMessage() {
-    return MESSAGE.formatted(ingestionUrl);
+    return ExceptionUtils.appendLogSuggestion(MESSAGE.formatted(ingestionUrl));
   }
 }

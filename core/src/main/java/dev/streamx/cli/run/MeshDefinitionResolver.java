@@ -14,7 +14,7 @@ import picocli.CommandLine.ParameterException;
 @ApplicationScoped
 class MeshDefinitionResolver {
 
-  private static final String CURRENT_DIRECTORY_MESH = "./mesh.yml";
+  public static final String CURRENT_DIRECTORY_MESH = "./mesh.yml";
 
   private final MeshConfigMapper mapper = new MeshConfigMapper();
 
