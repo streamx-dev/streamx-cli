@@ -16,6 +16,7 @@ import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -98,7 +99,9 @@ public class RunCommand implements Runnable {
   }
 
   private RuntimeException throwMeshException(Exception e) {
-    var path = meshSource.meshDefinitionFile;
+    var path = Optional.ofNullable(meshSource)
+        .map(meshSource -> meshSource.meshDefinitionFile)
+        .orElse(CURRENT_DIRECTORY_MESH);
 
     return new RuntimeException(
         ExceptionUtils.appendLogSuggestion("Unable to read mesh definition from '" + path + "'.\n"
