@@ -112,7 +112,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
     setupMockResponse(
         CHANNEL,
         SC_ACCEPTED,
-        MessageStatus.success(new SuccessResult(123456L, KEY))
+        MessageStatus.of(new SuccessResult(123456L, KEY))
     );
 
     setupMockResponse(

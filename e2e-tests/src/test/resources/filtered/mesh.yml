@@ -1,4 +1,4 @@
-defaultRegistry: ghcr.io/streamx-dev/streamx
+defaultRegistry: europe-west1-docker.pkg.dev/streamx-releases/streamx-docker-snapshots/streamx
 defaultImageTag: ${streamx.version}-jvm
 tenant: "streamx"
 

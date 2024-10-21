@@ -218,13 +218,13 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
     setupMockPublicationResponse(
         CHANNEL,
         SC_ACCEPTED,
-        MessageStatus.success(new SuccessResult(123456L, KEY))
+        MessageStatus.of(new SuccessResult(123456L, KEY))
     );
 
     setupMockPublicationResponse(
         INVALID_PAYLOAD_REQUEST_CHANNEL,
         SC_BAD_REQUEST,
-        MessageStatus.failure(new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message"))
+        MessageStatus.of(new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message"))
     );
 
     setupMockPublicationResponse(

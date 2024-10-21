@@ -267,7 +267,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
   @Override
   protected void initializeWiremock() {
-    var result = MessageStatus.success(new SuccessResult(123456L, KEY));
+    var result = MessageStatus.of(new SuccessResult(123456L, KEY));
     wm.stubFor(
         post(getPublicationPath(CHANNEL))
             .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
