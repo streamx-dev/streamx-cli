@@ -4,7 +4,7 @@ import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.r
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
@@ -19,6 +19,7 @@ import dev.streamx.cli.ingestion.AuthorizedProfile;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.ingestion.UnauthorizedProfile;
 import dev.streamx.clients.ingestion.impl.FailureResponse;
+import dev.streamx.clients.ingestion.impl.MessageStatus;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
@@ -59,7 +60,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
       // then
       expectSuccess(result);
 
-      wm.verify(putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
           .withRequestBody(matchingJsonPath("action", equalTo("unpublish")))
           .withoutHeader("Authorization"));
     }
@@ -94,7 +95,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
       expectSuccess(result);
 
       wm.verify(
-          putRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
               .withRequestBody(equalToJson("""
                   {
                     "key": "%s",
@@ -111,7 +112,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
     setupMockResponse(
         CHANNEL,
         SC_ACCEPTED,
-        new SuccessResult(123456L, KEY)
+        MessageStatus.of(new SuccessResult(123456L, KEY))
     );
 
     setupMockResponse(
@@ -129,7 +130,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
         .withBody(Json.write(response))
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-    wm.stubFor(WireMock.put(getPublicationPath(channel))
+    wm.stubFor(WireMock.post(getPublicationPath(channel))
         .willReturn(mockResponse));
   }
 }
