@@ -135,11 +135,4 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
     wm.stubFor(WireMock.post(getMessageIngestionUrlPattern(channel))
         .willReturn(mockResponse));
   }
-
-  private static UrlPattern getMessageIngestionUrlPattern(String channel) {
-    String messageIngestionPath = INGESTION_ENDPOINT_PATH_V1 + "/channels/" + channel + "/messages";
-    String urlRegex = messageIngestionPath + ".*";
-    return urlMatching(urlRegex);
-  }
-
 }

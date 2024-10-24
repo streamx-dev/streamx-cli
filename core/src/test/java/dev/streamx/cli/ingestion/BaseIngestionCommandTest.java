@@ -1,6 +1,7 @@
 package dev.streamx.cli.ingestion;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -10,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import io.quarkus.test.junit.main.LaunchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -21,6 +23,12 @@ public abstract class BaseIngestionCommandTest {
       .options(wireMockConfig().dynamicPort())
       .configureStaticDsl(true)
       .build();
+
+  protected static UrlPattern getMessageIngestionUrlPattern(String channel) {
+    String messageIngestionPath = INGESTION_ENDPOINT_PATH_V1 + "/channels/" + channel + "/messages";
+    String urlRegex = messageIngestionPath + ".*";
+    return urlMatching(urlRegex);
+  }
 
   @BeforeEach
   void setup() {
