@@ -5,14 +5,16 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static dev.streamx.clients.ingestion.StreamxClient.INGESTION_ENDPOINT_PATH_V1;
 import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.clients.ingestion.impl.MessageStatus;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
@@ -110,8 +112,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
         .withRequestBody(
             equalToJson(
                 buildResponseWith(
@@ -129,8 +130,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(PublishPayloadCommandTest.CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(PublishPayloadCommandTest.CHANNEL))
         .withRequestBody(
             equalToJson(
                 buildResponseWith(
@@ -150,8 +150,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
         .withRequestBody(equalToJson(buildResponseWith("""
             {"content": {"bytes": {"nana": "lele"}}}"""))));
   }
@@ -167,8 +166,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
         .withRequestBody(equalToJson(buildResponseWith("""
             {"content": {"bytes": null}}"""))));
   }
@@ -184,8 +182,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
         .withRequestBody(equalToJson(buildResponseWith("{\"content\": {\"bytes\": \"bytes\"}}"))));
   }
 
@@ -199,8 +196,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
         .withRequestBody(
             equalToJson(buildResponseWith(
                 "{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}"))));
@@ -219,8 +215,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
     // then
     expectSuccess(result);
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
         .withRequestBody(
             equalToJson(buildResponseWith(
                 "{\"content\": {\"bytes\": \"<h1>This works ąćpretty well...</h1>\"}}"))));
@@ -244,8 +239,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
         new ContainsPattern("PNG")
     );
 
-    wm.verify(postRequestedFor(urlEqualTo(
-        getPublicationPath(CHANNEL)))
+    wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
         .withRequestBody(matchingPngFileContent));
   }
 
@@ -268,11 +262,16 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   @Override
   protected void initializeWiremock() {
     var result = MessageStatus.of(new SuccessResult(123456L, KEY));
-    wm.stubFor(
-        post(getPublicationPath(CHANNEL))
+    wm.stubFor(post(getMessageIngestionUrlPattern(CHANNEL))
             .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON)));
 
     setupMockChannelsSchemasResponse();
+  }
+
+  private static UrlPattern getMessageIngestionUrlPattern(String channel) {
+    String messageIngestionPath = INGESTION_ENDPOINT_PATH_V1 + "/channels/" + channel + "/messages";
+    String urlRegex = messageIngestionPath + ".*";
+    return urlMatching(urlRegex);
   }
 }

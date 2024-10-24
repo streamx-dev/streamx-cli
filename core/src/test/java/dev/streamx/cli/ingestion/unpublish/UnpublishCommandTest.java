@@ -5,9 +5,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static dev.streamx.clients.ingestion.StreamxClient.INGESTION_ENDPOINT_PATH_V1;
 import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
 
@@ -15,6 +16,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import dev.streamx.cli.ingestion.AuthorizedProfile;
 import dev.streamx.cli.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.ingestion.UnauthorizedProfile;
@@ -60,7 +62,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
       // then
       expectSuccess(result);
 
-      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+      wm.verify(postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
           .withRequestBody(matchingJsonPath("action", equalTo("unpublish")))
           .withoutHeader("Authorization"));
     }
@@ -95,7 +97,7 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
       expectSuccess(result);
 
       wm.verify(
-          postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          postRequestedFor(getMessageIngestionUrlPattern(CHANNEL))
               .withRequestBody(equalToJson("""
                   {
                     "key": "%s",
@@ -130,7 +132,14 @@ public class UnpublishCommandTest extends BaseIngestionCommandTest {
         .withBody(Json.write(response))
         .withHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-    wm.stubFor(WireMock.post(getPublicationPath(channel))
+    wm.stubFor(WireMock.post(getMessageIngestionUrlPattern(channel))
         .willReturn(mockResponse));
   }
+
+  private static UrlPattern getMessageIngestionUrlPattern(String channel) {
+    String messageIngestionPath = INGESTION_ENDPOINT_PATH_V1 + "/channels/" + channel + "/messages";
+    String urlRegex = messageIngestionPath + ".*";
+    return urlMatching(urlRegex);
+  }
+
 }
