@@ -1,6 +1,7 @@
 package dev.streamx.cli.run;
 
-import static dev.streamx.cli.run.MeshDefinitionResolver.CURRENT_DIRECTORY_MESH;
+import static dev.streamx.cli.run.MeshDefinitionResolver.CURRENT_DIRECTORY_MESH_YAML;
+import static dev.streamx.cli.util.Output.print;
 import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
 import dev.streamx.cli.BannerPrinter;
@@ -37,7 +38,7 @@ public class RunCommand implements Runnable {
 
     @Option(names = {"-f", "--file"}, paramLabel = "mesh definition file",
         description = "Path to mesh definition file.",
-        defaultValue = CURRENT_DIRECTORY_MESH)
+        defaultValue = CURRENT_DIRECTORY_MESH_YAML)
     String meshDefinitionFile;
   }
 
@@ -101,7 +102,7 @@ public class RunCommand implements Runnable {
   private RuntimeException throwMeshException(Exception e) {
     var path = Optional.ofNullable(meshSource)
         .map(meshSource -> meshSource.meshDefinitionFile)
-        .orElse(CURRENT_DIRECTORY_MESH);
+        .orElse(CURRENT_DIRECTORY_MESH_YAML);
 
     return new RuntimeException(
         ExceptionUtils.appendLogSuggestion("Unable to read mesh definition from '" + path + "'.\n"
@@ -116,9 +117,5 @@ public class RunCommand implements Runnable {
 
   void onContainerStarted(@Observes ContainerStarted event) {
     print("- " + event.getContainerName() + " ready.");
-  }
-
-  private static void print(String x) {
-    System.out.println(x);
   }
 }

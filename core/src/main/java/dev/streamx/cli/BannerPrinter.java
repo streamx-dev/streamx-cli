@@ -1,5 +1,7 @@
 package dev.streamx.cli;
 
+import static dev.streamx.cli.util.Output.print;
+
 import dev.streamx.cli.run.RunCommand;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Set;
@@ -42,9 +44,5 @@ public class BannerPrinter {
       print(BANNER);
       bannerAlreadyPrinted = true;
     }
-  }
-
-  private static void print(String x) {
-    System.out.println(x);
   }
 }

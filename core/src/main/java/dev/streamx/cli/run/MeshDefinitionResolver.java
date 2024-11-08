@@ -1,5 +1,7 @@
 package dev.streamx.cli.run;
 
+import static dev.streamx.cli.util.Output.printf;
+
 import dev.streamx.cli.run.RunCommand.MeshSource;
 import dev.streamx.mesh.mapper.MeshConfigMapper;
 import dev.streamx.mesh.model.ServiceMesh;
@@ -14,7 +16,8 @@ import picocli.CommandLine.ParameterException;
 @ApplicationScoped
 class MeshDefinitionResolver {
 
-  public static final String CURRENT_DIRECTORY_MESH = "./mesh.yml";
+  public static final String CURRENT_DIRECTORY_MESH_YAML = "./mesh.yaml";
+  public static final String CURRENT_DIRECTORY_MESH_YML = "./mesh.yml";
 
   private final MeshConfigMapper mapper = new MeshConfigMapper();
 
@@ -36,25 +39,39 @@ class MeshDefinitionResolver {
   @NotNull
   private MeshDefinitionResolver.MeshDefinition resolveCurrentDirectoryMeshDefinition()
       throws IOException {
-    Path path;
-    path = Path.of(CURRENT_DIRECTORY_MESH);
-    if (path.toFile().exists()) {
-      ServiceMesh serviceMesh = this.mapper.read(path);
-      return new MeshDefinition(path, serviceMesh);
+    Path pathToYaml = Path.of(CURRENT_DIRECTORY_MESH_YAML);
+    Path pathToYml = Path.of(CURRENT_DIRECTORY_MESH_YML);
+
+    var yamlExists = pathToYaml.toFile().exists();
+    var ymlExists = pathToYml.toFile().exists();
+
+    if (yamlExists && ymlExists) {
+      printf("Warning! Both '%s' and '%s' exist. Starting '%s' as it has higher priority.",
+          CURRENT_DIRECTORY_MESH_YAML, CURRENT_DIRECTORY_MESH_YML, CURRENT_DIRECTORY_MESH_YAML);
+    }
+
+    if (yamlExists) {
+      return resolveMesh(pathToYaml);
+    } else if (ymlExists) {
+      return resolveMesh(pathToYml);
     } else {
       throw new ParameterException(parseResult.subcommand().commandSpec().commandLine(),
           "Missing mesh definition. Use '-f' to select mesh file or "
-          + "make sure 'mesh.yml' exists in current directory.");
+          + "make sure 'mesh.yaml' (or 'mesh.yml') exists in current directory.");
     }
+  }
+
+  @NotNull
+  private MeshDefinition resolveMesh(Path pathToYaml) throws IOException {
+    ServiceMesh serviceMesh = this.mapper.read(pathToYaml);
+    return new MeshDefinition(pathToYaml, serviceMesh);
   }
 
   @NotNull
   private MeshDefinitionResolver.MeshDefinition resolveExplicitlyGivenMeshDefinitionFile(
       MeshSource meshSource) throws IOException {
     Path path = Path.of(meshSource.meshDefinitionFile);
-    ServiceMesh serviceMesh = this.mapper.read(path);
-
-    return new MeshDefinition(path, serviceMesh);
+    return resolveMesh(path);
   }
 
   record MeshDefinition(Path path, ServiceMesh serviceMesh) {

@@ -116,7 +116,7 @@
         <filtering>true</filtering>
         <directory>src/test/resources/filtered</directory>
         <includes>
-          <include>mesh.yml</include>
+          <include>mesh.yaml</include>
         </includes>
       </testResource>
     </testResources>
