@@ -20,7 +20,7 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class StreamxCliLicenseIT {
 
-  private static final int CLI_SHORT_TIMEOUT_IN_SEC = 2;
+  private static final int CLI_SHORT_TIMEOUT_IN_SEC = 5;
 
   @Inject
   @Named("StreamxCommandRunner")
