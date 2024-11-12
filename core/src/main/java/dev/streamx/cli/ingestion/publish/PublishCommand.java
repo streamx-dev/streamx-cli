@@ -1,5 +1,7 @@
 package dev.streamx.cli.ingestion.publish;
 
+import static dev.streamx.cli.util.Output.printf;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.cli.SchemaProvider;
 import dev.streamx.cli.VersionProvider;
@@ -56,7 +58,7 @@ public class PublishCommand extends BaseIngestionCommand {
     JsonNode message = prepareIngestionMessage();
 
     SuccessResult result = publisher.send(message);
-    System.out.printf("Registered data publication on '%s' with key '%s' at %d%n",
+    printf("Registered data publication on '%s' with key '%s' at %d%n",
         publishTargetArguments.getChannel(), result.getKey(), result.getEventTime());
   }
 

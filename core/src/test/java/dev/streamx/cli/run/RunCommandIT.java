@@ -17,7 +17,7 @@ public class RunCommandIT {
 
   @Test
   void shouldRunStreamxExampleMesh(QuarkusMainLauncher launcher) {
-    String s = Paths.get("target/test-classes/mesh.yml")
+    String s = Paths.get("target/test-classes/mesh.yaml")
         .normalize()
         .toAbsolutePath()
         .toString();

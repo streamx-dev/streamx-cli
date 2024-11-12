@@ -1,5 +1,7 @@
 package dev.streamx.cli.ingestion.unpublish;
 
+import static dev.streamx.cli.util.Output.printf;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.ingestion.BaseIngestionCommand;
@@ -31,7 +33,7 @@ public class UnpublishCommand extends BaseIngestionCommand {
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
     SuccessResult result = publisher.unpublish(ingestionTargetArguments.getKey());
 
-    System.out.printf("Registered unpublish trigger on '%s' with key '%s' at %d%n",
+    printf("Registered unpublish trigger on '%s' with key '%s' at %d%n",
         ingestionTargetArguments.getChannel(), result.getKey(),  result.getEventTime());
   }
 }

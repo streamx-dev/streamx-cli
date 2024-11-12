@@ -1,5 +1,7 @@
 package dev.streamx.cli.license;
 
+import static dev.streamx.cli.util.Output.print;
+
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.exception.LicenseException;
 import dev.streamx.cli.exception.PublicSettingsFileException;
@@ -105,9 +107,5 @@ public class LicenseProcessorEntrypoint {
         licenseSettings.licenseName(),
         licenseSettings.licenseUrl()
     );
-  }
-
-  private static void print(String x) {
-    System.out.println(x);
   }
 }

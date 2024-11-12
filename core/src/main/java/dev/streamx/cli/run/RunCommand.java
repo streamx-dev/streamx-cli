@@ -1,6 +1,6 @@
 package dev.streamx.cli.run;
 
-import static dev.streamx.cli.run.MeshDefinitionResolver.CURRENT_DIRECTORY_MESH;
+import static dev.streamx.cli.util.Output.print;
 import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
 import dev.streamx.cli.BannerPrinter;
@@ -16,7 +16,7 @@ import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import java.util.Optional;
+import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -35,9 +35,8 @@ public class RunCommand implements Runnable {
 
   static class MeshSource {
 
-    @Option(names = {"-f", "--file"}, paramLabel = "mesh definition file",
-        description = "Path to mesh definition file.",
-        defaultValue = CURRENT_DIRECTORY_MESH)
+    @Option(names = {"-f", "--file"}, paramLabel = "<meshDefinitionFile>",
+        description = "Path to mesh definition file.")
     String meshDefinitionFile;
   }
 
@@ -53,7 +52,9 @@ public class RunCommand implements Runnable {
   @Override
   public void run() {
     try {
-      MeshDefinitionResolvingResult meshDefinition = resolveMeshDefinition();
+      Path meshPath = meshDefinitionResolver.resolveMeshPath(meshSource);
+
+      MeshDefinitionResolvingResult meshDefinition = resolveMeshDefinition(meshPath);
 
       bannerPrinter.printBanner();
 
@@ -66,7 +67,7 @@ public class RunCommand implements Runnable {
       } catch (DockerEnvironmentException e) {
         throw DockerException.dockerEnvironmentException();
       } catch (Exception e) {
-        throw throwMeshException(e);
+        throw throwMeshException(meshPath, e);
       }
 
       this.runner.startBase();
@@ -87,27 +88,24 @@ public class RunCommand implements Runnable {
   }
 
   @NotNull
-  private MeshDefinitionResolvingResult resolveMeshDefinition() {
+  private MeshDefinitionResolvingResult resolveMeshDefinition(Path meshPath) {
     try {
-      MeshDefinition result = meshDefinitionResolver.resolve(meshSource);
-      String meshPath = result.path().normalize().toAbsolutePath().toString();
+      MeshDefinition result = meshDefinitionResolver.resolve(meshPath);
+      String meshPathAsString = result.path().normalize().toAbsolutePath().toString();
 
-      return new MeshDefinitionResolvingResult(result, meshPath);
+      return new MeshDefinitionResolvingResult(result, meshPathAsString);
     } catch (Exception e) {
-      throw throwMeshException(e);
+      throw throwMeshException(meshPath, e);
     }
   }
 
-  private RuntimeException throwMeshException(Exception e) {
-    var path = Optional.ofNullable(meshSource)
-        .map(meshSource -> meshSource.meshDefinitionFile)
-        .orElse(CURRENT_DIRECTORY_MESH);
-
+  private RuntimeException throwMeshException(Path meshPath, Exception e) {
     return new RuntimeException(
-        ExceptionUtils.appendLogSuggestion("Unable to read mesh definition from '" + path + "'.\n"
-        + "\n"
-        + "Details:\n"
-        + e.getMessage()), e);
+        ExceptionUtils.appendLogSuggestion(
+            "Unable to read mesh definition from '" + meshPath + "'.\n"
+                + "\n"
+                + "Details:\n"
+                + e.getMessage()), e);
   }
 
   private record MeshDefinitionResolvingResult(MeshDefinition result, String meshPath) {
@@ -116,9 +114,5 @@ public class RunCommand implements Runnable {
 
   void onContainerStarted(@Observes ContainerStarted event) {
     print("- " + event.getContainerName() + " ready.");
-  }
-
-  private static void print(String x) {
-    System.out.println(x);
   }
 }

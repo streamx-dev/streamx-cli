@@ -1,5 +1,7 @@
 package dev.streamx.cli.license.input;
 
+import static dev.streamx.cli.util.Output.print;
+
 import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,9 +56,5 @@ public class StdInLineReadStrategy implements AcceptingStrategy {
 
   private static boolean isRejected(char ch) {
     return ch == 'n' || ch == 'N';
-  }
-
-  private static void print(String x) {
-    System.out.println(x);
   }
 }
