@@ -35,7 +35,7 @@ public class IngestionArgumentsValidationTest extends BaseIngestionCommandTest {
     // then
     expectError(result, """
         Error: Missing required argument(s): (<channel> <key>)
-        Usage: streamx unpublish [-hV] [[--ingestion-url=<propagateIngestionUrl>]]
+        Usage: streamx unpublish [-hV] [[--ingestion-url=<restIngestionServiceUrl>]]
                                  (<channel> <key>)
 
         Try 'streamx unpublish --help' for more information.""");
@@ -49,7 +49,7 @@ public class IngestionArgumentsValidationTest extends BaseIngestionCommandTest {
     // then
     expectError(result, """
         Missing required parameter for option '--string-fragment' (<string>)
-        Usage: streamx publish [-hV] [[--ingestion-url=<propagateIngestionUrl>]]
+        Usage: streamx publish [-hV] [[--ingestion-url=<restIngestionServiceUrl>]]
                                (<channel> <key> [payloadFile]) [[[-s=<string> |
                                -b=<binary> | -j=<json>]]...]
 
@@ -64,7 +64,7 @@ public class IngestionArgumentsValidationTest extends BaseIngestionCommandTest {
     // then
     expectError(result, """
         Error: Missing required argument(s): <key>
-        Usage: streamx unpublish [-hV] [[--ingestion-url=<propagateIngestionUrl>]]
+        Usage: streamx unpublish [-hV] [[--ingestion-url=<restIngestionServiceUrl>]]
                                  (<channel> <key>)
 
         Try 'streamx unpublish --help' for more information.""");

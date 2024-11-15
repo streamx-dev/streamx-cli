@@ -12,7 +12,7 @@ public class IngestionArguments {
       description = "Address of 'rest-ingestion-service'",
       showDefaultValue = Visibility.ALWAYS,
       defaultValue = DEFAULT_INGESTION_URL)
-  void propagateIngestionUrl(String ingestionUrl) {
+  void restIngestionServiceUrl(String ingestionUrl) {
     ArgumentConfigSource.registerValue(IngestionClientConfig.STREAMX_INGESTION_URL, ingestionUrl);
   }
 }
