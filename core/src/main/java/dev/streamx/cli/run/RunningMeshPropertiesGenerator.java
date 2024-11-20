@@ -3,6 +3,7 @@ package dev.streamx.cli.run;
 import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_INGESTION_AUTH_TOKEN;
 
 import dev.streamx.cli.config.DotStreamxGeneratedConfigSource;
+import dev.streamx.runner.MeshContext;
 import dev.streamx.runner.RunnerContext;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,7 +21,7 @@ public class RunningMeshPropertiesGenerator {
     // no instance
   }
 
-  public static void generateRootAuthToken(RunnerContext context) {
+  public static void generateRootAuthToken(MeshContext context) {
     Map<String, String> tokensBySource = context.getTokensBySource();
     if (tokensBySource != null) {
       InputStream input = null;

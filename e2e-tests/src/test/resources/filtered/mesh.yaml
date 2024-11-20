@@ -1,6 +1,5 @@
 defaultRegistry: ghcr.io/streamx-dev/streamx
 defaultImageTag: ${streamx.version}-jvm
-tenant: "streamx"
 
 sources:
   cli:
