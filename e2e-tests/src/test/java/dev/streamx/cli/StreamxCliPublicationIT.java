@@ -25,9 +25,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 public class StreamxCliPublicationIT {
 
   private static final int CLI_SHORT_TIMEOUT_IN_SEC = 2;
-  @ConfigProperty(name = "streamx.cli.e2e.web.delivery.port.url", defaultValue = "http://localhost:8087/")
+  @ConfigProperty(name = "streamx.cli.e2e.web.delivery.url", defaultValue = "http://localhost:8087/")
   String webDeliveryPortUrl;
-  @ConfigProperty(name = "streamx.cli.e2e.nginx.port.url", defaultValue = "http://localhost:8089/")
+  @ConfigProperty(name = "streamx.cli.e2e.nginx.url", defaultValue = "http://localhost:8089/overridden/")
   String nginxPortUrl;
 
   @ConfigProperty(name = "streamx.cli.e2e.setup.timeoutInSec", defaultValue = "60")
