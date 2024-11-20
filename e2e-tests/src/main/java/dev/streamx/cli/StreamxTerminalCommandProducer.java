@@ -25,7 +25,11 @@ public class StreamxTerminalCommandProducer {
   }
 
   public String built() {
-    return "java -jar " + findStreamxJar();
+    return "java %s -jar %s".formatted(createParameters(), findStreamxJar());
+  }
+
+  private static String createParameters() {
+    return "-Dstreamx.runner.observability.enabled=false";
   }
 
   private String findStreamxJar() {

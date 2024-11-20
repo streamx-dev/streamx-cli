@@ -38,6 +38,7 @@ delivery:
         ports:
           - 8089:80
         repositoryVolume: "/usr/share/nginx/html"
-        volumes:
-          - "${project.basedir}/target/test-classes/overridden-nginx-conf:/etc/nginx/conf.d/default.conf"
+        volumesFrom:
+          configs:
+          - "overridden-nginx-conf:/etc/nginx/conf.d/default.conf"
 
