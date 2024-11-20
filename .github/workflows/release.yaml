@@ -10,6 +10,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      released-version: ${{ steps.prepare-release.outputs.RELEASED_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,7 +40,12 @@ jobs:
           distribution: 'adopt'
 
       - name: Release prepare
-        run: ./mvnw -B release:prepare
+        id: prepare-release
+        run: |
+          ./mvnw -B release:prepare
+          RELEASED_VERSION=$(git describe --tags --abbrev=0)
+          echo "RELEASED_VERSION=${RELEASED_VERSION}" >> $GITHUB_ENV
+          echo "RELEASED_VERSION=${RELEASED_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Release perform
         env:
@@ -47,3 +54,10 @@ jobs:
           JRELEASER_SCOOP_GITHUB_TOKEN: ${{ secrets.JRELEASER_SCOOP_GITHUB_TOKEN }}
         run: |
           ./mvnw -B release:perform -P release
+
+  release-jira:
+    needs: release
+    uses: ./.github/workflows/helper-release-jira.yaml
+    secrets: inherit
+    with:
+      tag: ${{ needs.release.outputs.released-version }}
