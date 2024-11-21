@@ -4,7 +4,7 @@
   <parent>
     <groupId>dev.streamx.cli</groupId>
     <artifactId>streamx-cli</artifactId>
-    <version>0.3.10-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>streamx-cli-distribution</artifactId>
