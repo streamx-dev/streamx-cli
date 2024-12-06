@@ -1,12 +1,12 @@
 package dev.streamx.cli;
 
+import dev.streamx.cli.command.ingestion.publish.PublishCommand;
+import dev.streamx.cli.command.ingestion.unpublish.UnpublishCommand;
+import dev.streamx.cli.command.run.RunCommand;
 import dev.streamx.cli.config.ArgumentConfigSource;
 import dev.streamx.cli.config.validation.ConfigSourcesValidator;
-import dev.streamx.cli.ingestion.publish.PublishCommand;
-import dev.streamx.cli.ingestion.unpublish.UnpublishCommand;
 import dev.streamx.cli.license.LicenseArguments;
 import dev.streamx.cli.license.LicenseProcessorEntrypoint;
-import dev.streamx.cli.run.RunCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
@@ -52,6 +52,23 @@ public class StreamxCommand implements QuarkusApplication {
   private CommandLine commandLine;
   private String[] args;
 
+  public static void main(String... args) {
+    initializeArgumentConfigSource(args);
+
+    Quarkus.run(StreamxCommand.class, args);
+  }
+
+  private static void initializeArgumentConfigSource(String[] args) {
+    try {
+      new CommandLine(new StreamxCommand()).parseArgs(args);
+    } catch (Exception e) {
+      // Parsing args exception will be handled when Quarkus Context is up
+      // to provide uniform exception handling
+    } finally {
+      ArgumentConfigSource.lock();
+    }
+  }
+
   @Override
   public int run(String... args) throws Exception {
     this.args = args;
@@ -96,22 +113,5 @@ public class StreamxCommand implements QuarkusApplication {
     bannerPrinter.initialize(commandLine, args);
 
     licenseProcessorEntrypoint.process();
-  }
-
-  public static void main(String... args) {
-    initializeArgumentConfigSource(args);
-
-    Quarkus.run(StreamxCommand.class, args);
-  }
-
-  private static void initializeArgumentConfigSource(String[] args) {
-    try {
-      new CommandLine(new StreamxCommand()).parseArgs(args);
-    } catch (Exception e) {
-      // Parsing args exception will be handled when Quarkus Context is up
-      // to provide uniform exception handling
-    } finally {
-      ArgumentConfigSource.lock();
-    }
   }
 }

@@ -1,9 +1,9 @@
 package dev.streamx.cli.config;
 
+import static dev.streamx.cli.command.ingestion.IngestionClientConfig.STREAMX_INGESTION_AUTH_TOKEN;
 import static dev.streamx.cli.config.ConfigUtils.clearConfigCache;
 import static dev.streamx.cli.config.ConfigUtils.clearConfigFile;
 import static dev.streamx.cli.config.ConfigUtils.installFile;
-import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_INGESTION_AUTH_TOKEN;
 import static dev.streamx.cli.license.LicenseConfig.STREAMX_ACCEPT_LICENSE;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
