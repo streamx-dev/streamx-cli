@@ -1,6 +1,6 @@
 package dev.streamx.cli.exception;
 
-import static dev.streamx.cli.ingestion.IngestionClientConfig.STREAMX_INGESTION_INSECURE;
+import static dev.streamx.cli.command.ingestion.IngestionClientConfig.STREAMX_INGESTION_INSECURE;
 
 import dev.streamx.cli.util.ExceptionUtils;
 

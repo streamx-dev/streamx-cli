@@ -1,6 +1,6 @@
 package dev.streamx.cli.config.validation;
 
-import dev.streamx.cli.ingestion.IngestionClientConfig;
+import dev.streamx.cli.command.ingestion.IngestionClientConfig;
 import dev.streamx.cli.license.LicenseConfig;
 
 public enum SecuredProperty {
