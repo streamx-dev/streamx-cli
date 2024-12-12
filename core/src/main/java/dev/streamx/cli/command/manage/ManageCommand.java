@@ -55,20 +55,39 @@ public class ManageCommand implements Runnable {
 
   @Override
   public void run() {
-    dockerValidator.validateDockerEnvironment(Set.of(MeshManagerContainer.CONTAINER_NAME));
+    try {
+      dockerValidator.validateDockerEnvironment(Set.of(MeshManagerContainer.CONTAINER_NAME));
 
-    var meshPath = meshResolver.resolveMeshPath(meshSource);
-    var meshPathAsString = meshPath.toAbsolutePath().normalize().toString();
-    var projectDirectory = meshPath.resolve("..");
-    var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
+      var meshPath = meshResolver.resolveMeshPath(meshSource);
+      var meshPathAsString = meshPath.toAbsolutePath().normalize().toString();
+      var projectDirectory = meshPath.resolve("..");
+      var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
 
-    logger.infov("Resolved mesh {0} and project directory {1}",
-        meshPathAsString, projectDirectoryAsString);
+      logger.infov("Resolved mesh {0} and project directory {1}",
+          meshPathAsString, projectDirectoryAsString);
 
-    bannerPrinter.printBanner();
+      bannerPrinter.printBanner();
 
-    print("Setting up StreamX Mesh Manager...");
+      print("Setting up StreamX Mesh Manager...");
 
+      startMeshManager(meshPathAsString, projectDirectoryAsString);
+    } catch (ContainerLaunchException e) {
+      if (org.apache.commons.lang3.exception.ExceptionUtils
+          .throwableOfThrowable(e.getCause(), TimeoutException.class) != null) {
+        throw DockerException.containerStartupFailed(
+            MeshManagerContainer.CONTAINER_NAME, CONTAINER_TIMEOUT_IN_SECS);
+      }
+      throw throwGenericException(e);
+    } catch (DockerContainerNonUniqueException e) {
+      throw DockerException.nonUniqueContainersException(e.getContainers());
+    } catch (DockerEnvironmentException e) {
+      throw DockerException.dockerEnvironmentException();
+    } catch (Exception e) {
+      throw throwGenericException(e);
+    }
+  }
+
+  private void startMeshManager(String meshPathAsString, String projectDirectoryAsString) {
     try (var meshManagerContainer = new MeshManagerContainer(
         manageConfig.meshManagerImage(),
         manageConfig.meshManagerPort(),
@@ -82,19 +101,6 @@ public class ManageCommand implements Runnable {
       meshManagerStartedEvent.fire(new MeshManagerStarted());
 
       Quarkus.waitForExit();
-    } catch (DockerContainerNonUniqueException e) {
-      throw DockerException.nonUniqueContainersException(e.getContainers());
-    } catch (DockerEnvironmentException e) {
-      throw DockerException.dockerEnvironmentException();
-    } catch (ContainerLaunchException e) {
-      if (org.apache.commons.lang3.exception.ExceptionUtils
-          .throwableOfThrowable(e.getCause(), TimeoutException.class) != null) {
-        throw DockerException.containerStartupFailed(
-            MeshManagerContainer.CONTAINER_NAME, CONTAINER_TIMEOUT_IN_SECS);
-      }
-      throw throwGenericException(e);
-    } catch (Exception e) {
-      throw throwGenericException(e);
     }
   }
 
