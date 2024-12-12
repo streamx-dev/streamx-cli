@@ -5,6 +5,8 @@ import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
+import dev.streamx.cli.command.meshprocessing.MeshResolver;
+import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.command.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
@@ -20,7 +22,6 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 @Command(name = RunCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
@@ -33,15 +34,11 @@ public class RunCommand implements Runnable {
   @ArgGroup
   MeshSource meshSource;
 
-  static class MeshSource {
-
-    @Option(names = {"-f", "--file"}, paramLabel = "<meshDefinitionFile>",
-        description = "Path to mesh definition file.")
-    String meshDefinitionFile;
-  }
-
   @Inject
   StreamxRunner runner;
+
+  @Inject
+  MeshResolver meshResolver;
 
   @Inject
   MeshDefinitionResolver meshDefinitionResolver;
@@ -52,7 +49,7 @@ public class RunCommand implements Runnable {
   @Override
   public void run() {
     try {
-      Path meshPath = meshDefinitionResolver.resolveMeshPath(meshSource);
+      Path meshPath = meshResolver.resolveMeshPath(meshSource);
 
       MeshDefinitionResolvingResult meshDefinition = resolveMeshDefinition(meshPath);
 
