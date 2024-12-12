@@ -9,15 +9,16 @@ import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
-import dev.streamx.runner.exception.ContainerStartupTimeoutException;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Set;
 import org.jboss.logging.Logger;
+import org.rnorth.ducttape.TimeoutException;
+import org.testcontainers.containers.ContainerLaunchException;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -57,10 +58,9 @@ public class ManageCommand implements Runnable {
 
     var meshPath = meshResolver.resolveMeshPath(meshSource);
     var meshPathAsString = meshPath.toAbsolutePath().normalize().toString();
-
-
     var projectDirectory = meshPath.resolve("..");
     var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
+
     logger.infov("Resolved mesh {0} and project directory {1}",
         meshPathAsString, projectDirectoryAsString);
 
@@ -73,7 +73,7 @@ public class ManageCommand implements Runnable {
         manageConfig.meshManagerPort(),
         meshPathAsString,
         projectDirectoryAsString
-    )) {
+    ).withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS))) {
       meshManagerContainer.start();
 
       print("StreamX Mesh Manager started on http://localhost:" + manageConfig.meshManagerPort());
@@ -85,18 +85,22 @@ public class ManageCommand implements Runnable {
       throw DockerException.nonUniqueContainersException(e.getContainers());
     } catch (DockerEnvironmentException e) {
       throw DockerException.dockerEnvironmentException();
-    } catch (ContainerStartupTimeoutException e) {
-      throw DockerException.containerStartupFailed(
-          e.getContainerName(), CONTAINER_TIMEOUT_IN_SECS);
+    } catch (ContainerLaunchException e) {
+      if (org.apache.commons.lang3.exception.ExceptionUtils
+          .throwableOfThrowable(e.getCause(), TimeoutException.class) != null) {
+        throw DockerException.containerStartupFailed(
+            MeshManagerContainer.CONTAINER_NAME, CONTAINER_TIMEOUT_IN_SECS);
+      }
+      throw throwGenericException(e);
     } catch (Exception e) {
-      throw throwMeshException(meshPath, e);
+      throw throwGenericException(e);
     }
   }
 
-  private RuntimeException throwMeshException(Path meshPath, Exception e) {
+  private RuntimeException throwGenericException(Exception e) {
     return new RuntimeException(
         ExceptionUtils.appendLogSuggestion(
-            "Unable to read mesh definition from '" + meshPath + "'.\n"
+            "Unable serve MeshManager.\n"
                 + "\n"
                 + "Details:\n"
                 + e.getMessage()), e);
