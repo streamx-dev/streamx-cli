@@ -1,18 +1,16 @@
 package dev.streamx.cli.util;
 
-import org.jboss.logging.Logger;
+import io.quarkus.logging.Log;
 
 public class Output {
 
-  private static final Logger logger = Logger.getLogger(Output.class);
-
   public static void print(String x) {
     System.out.println(x);
-    logger.info(x);
+    Log.info(x);
   }
 
   public static void printf(String format, Object ... args) {
     System.out.printf(format, args);
-    logger.infof(format, args);
+    Log.infof(format, args);
   }
 }

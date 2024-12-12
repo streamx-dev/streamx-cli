@@ -29,8 +29,6 @@ import picocli.CommandLine.Command;
     description = "Serves StreamX Mesh Manager locally.")
 public class ManageCommand implements Runnable {
 
-  private final Logger logger = Logger.getLogger(ManageCommand.class);
-
   public static final String COMMAND_NAME = "manage";
   public static final long CONTAINER_TIMEOUT_IN_SECS = 60_000L;
 
@@ -51,6 +49,9 @@ public class ManageCommand implements Runnable {
 
   @Inject
   Event<MeshManagerStarted> meshManagerStartedEvent;
+
+  @Inject
+  Logger logger;
 
   @Override
   public void run() {
