@@ -5,11 +5,12 @@ import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
+import dev.streamx.cli.command.meshprocessing.MeshDefinitionResolver;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
-import dev.streamx.cli.command.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
+import dev.streamx.mesh.model.ServiceMesh;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.event.ContainerStarted;
 import dev.streamx.runner.exception.ContainerStartupTimeoutException;
@@ -49,16 +50,18 @@ public class RunCommand implements Runnable {
   @Override
   public void run() {
     try {
-      Path meshPath = meshResolver.resolveMeshPath(meshSource);
+      var meshPath = meshResolver.resolveMeshPath(meshSource);
+      var normalizedMeshPath = meshPath.normalize().toAbsolutePath();
+      var meshPathAsString = normalizedMeshPath.toString();
 
-      MeshDefinitionResolvingResult meshDefinition = resolveMeshDefinition(meshPath);
+      var serviceMesh = resolveMeshDefinition(meshPath);
 
       bannerPrinter.printBanner();
 
       print("Setting up system containers...");
 
       try {
-        this.runner.initialize(meshDefinition.result().serviceMesh(), meshDefinition.meshPath());
+        this.runner.initialize(serviceMesh, meshPathAsString);
       } catch (DockerContainerNonUniqueException e) {
         throw DockerException.nonUniqueContainersException(e.getContainers());
       } catch (DockerEnvironmentException e) {
@@ -75,7 +78,7 @@ public class RunCommand implements Runnable {
       this.runner.startMesh();
       RunningMeshPropertiesGenerator.generateRootAuthToken(this.runner.getMeshContext());
 
-      printSummary(this.runner, meshDefinition.result().path());
+      printSummary(this.runner, normalizedMeshPath);
       Quarkus.waitForExit();
     } catch (ContainerStartupTimeoutException e) {
       throw DockerException.containerStartupFailed(
@@ -85,12 +88,9 @@ public class RunCommand implements Runnable {
   }
 
   @NotNull
-  private MeshDefinitionResolvingResult resolveMeshDefinition(Path meshPath) {
+  private ServiceMesh resolveMeshDefinition(Path meshPath) {
     try {
-      MeshDefinition result = meshDefinitionResolver.resolve(meshPath);
-      String meshPathAsString = result.path().normalize().toAbsolutePath().toString();
-
-      return new MeshDefinitionResolvingResult(result, meshPathAsString);
+      return meshDefinitionResolver.resolve(meshPath);
     } catch (Exception e) {
       throw throwMeshException(meshPath, e);
     }
@@ -103,10 +103,6 @@ public class RunCommand implements Runnable {
                 + "\n"
                 + "Details:\n"
                 + e.getMessage()), e);
-  }
-
-  private record MeshDefinitionResolvingResult(MeshDefinition result, String meshPath) {
-
   }
 
   void onContainerStarted(@Observes ContainerStarted event) {
