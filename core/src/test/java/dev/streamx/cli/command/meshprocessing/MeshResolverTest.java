@@ -1,11 +1,10 @@
-package dev.streamx.cli.command.run;
+package dev.streamx.cli.command.meshprocessing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-import dev.streamx.cli.command.run.MeshDefinitionResolver.MeshDefinition;
 import dev.streamx.cli.path.CurrentDirectoryProvider;
 import dev.streamx.cli.path.FixedCurrentDirectoryProvider;
 import java.io.IOException;
@@ -22,7 +21,7 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 
-class MeshDefinitionResolverTest {
+class MeshResolverTest {
 
   private static final String TEST_MESH_LOCATION = "target/test-classes/mesh.yaml";
   private static final Path TEST_MESH_PATH = Path.of(TEST_MESH_LOCATION);
@@ -30,13 +29,13 @@ class MeshDefinitionResolverTest {
   private static final String MESH_YAML = "mesh.yaml";
   private static final String MESH_YML = "mesh.yml";
 
-  MeshDefinitionResolver uut;
+  MeshResolver uut;
 
   CurrentDirectoryProvider currentDirectoryProvider;
 
   @BeforeEach
   void setup(@TempDir Path tempDir) {
-    uut = new MeshDefinitionResolver();
+    uut = new MeshResolver();
     currentDirectoryProvider = new FixedCurrentDirectoryProvider(tempDir);
     uut.currentDirectoryProvider = this.currentDirectoryProvider;
     uut.parseResult = getParseResult();
@@ -116,17 +115,6 @@ class MeshDefinitionResolverTest {
     // then
     assertThat(exception).isInstanceOf(ParameterException.class);
     assertThat(exception).hasMessageContaining("Missing mesh definition");
-  }
-
-  @Test
-  void shouldResolveGivenMeshDefinition() throws IOException {
-    // when
-    MeshDefinition result = uut.resolve(TEST_MESH_PATH);
-
-    // then
-    assertNotNull(result);
-    assertThat(result.path()).isEqualTo(TEST_MESH_PATH);
-    assertThat(result.serviceMesh()).isNotNull();
   }
 
   @NotNull
