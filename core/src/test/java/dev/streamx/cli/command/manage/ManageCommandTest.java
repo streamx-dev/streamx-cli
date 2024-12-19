@@ -68,9 +68,9 @@ class ManageCommandTest {
 
   @ApplicationScoped
   public static class StateVerifier {
-    public static final String PROJECT_DIR_DIFFERENT =
+    private static final String PROJECT_DIR_DIFFERENT =
         "Provided project directory contend is different than container project.";
-    public static final String MESH_CONTENT_DIFFERENT =
+    private static final String MESH_CONTENT_DIFFERENT =
         "Provided mesh and container mesh have different content.";
 
     private final DockerClient client = DockerClientFactory.instance().client();
@@ -85,7 +85,7 @@ class ManageCommandTest {
     private void compareProjectDirectoryContent() throws InterruptedException {
       var command = "ls -1 /data/project";
 
-      byte[] containerMeshContent = executeCommand(client, command);
+      var containerMeshContent = executeCommand(client, command);
 
       var containerDirectoryContent = extractContainerFiles(containerMeshContent);
       var directoryContent = extractHostFiles();
@@ -116,7 +116,7 @@ class ManageCommandTest {
     private void compareMeshContent() throws InterruptedException, IOException {
       var command = "cat /data/mesh.yaml";
 
-      byte[] containerMeshContent = executeCommand(client, command);
+      var containerMeshContent = executeCommand(client, command);
       var meshPath = Paths.get(HOST_MESH_PATH);
 
       if (!Arrays.equals(Files.readAllBytes(meshPath), containerMeshContent)) {

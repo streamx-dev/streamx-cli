@@ -30,7 +30,8 @@ import picocli.CommandLine.Command;
 public class ManageCommand implements Runnable {
 
   public static final String COMMAND_NAME = "manage";
-  public static final long CONTAINER_TIMEOUT_IN_SECS = 60_000L;
+
+  private static final long CONTAINER_TIMEOUT_IN_SECS = 60_000L;
 
   @ArgGroup
   MeshSource meshSource;
