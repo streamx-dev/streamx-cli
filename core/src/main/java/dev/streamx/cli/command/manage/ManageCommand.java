@@ -11,12 +11,12 @@ import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.Set;
-import org.jboss.logging.Logger;
 import org.rnorth.ducttape.TimeoutException;
 import org.testcontainers.containers.ContainerLaunchException;
 import picocli.CommandLine.ArgGroup;
@@ -50,9 +50,6 @@ public class ManageCommand implements Runnable {
   @Inject
   Event<MeshManagerStarted> meshManagerStartedEvent;
 
-  @Inject
-  Logger logger;
-
   @Override
   public void run() {
     try {
@@ -63,7 +60,7 @@ public class ManageCommand implements Runnable {
       var projectDirectory = meshPath.resolve("..");
       var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
 
-      logger.infov("Resolved mesh {0} and project directory {1}",
+      Log.infov("Resolved mesh {0} and project directory {1}",
           meshPathAsString, projectDirectoryAsString);
 
       bannerPrinter.printBanner();

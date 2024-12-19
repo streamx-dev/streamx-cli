@@ -8,7 +8,9 @@ import com.github.dockerjava.api.model.Container;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException.ContainerStatus;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -21,10 +23,8 @@ import org.testcontainers.DockerClientFactory;
 @Dependent
 public class DockerValidator {
 
-  private static final Logger LOG = Logger.getLogger(DockerValidator.class);
-
   public void validateDockerEnvironment(Set<String> validatedContainerNames) {
-    LOG.info("Validating environment...");
+    Log.info("Validating environment...");
 
     DockerClient client = retrieveDockerClient();
     verifyExistingContainers(client, validatedContainerNames);
