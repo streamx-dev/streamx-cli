@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contact our Business Team
+    url: https://www.streamx.dev/contact-us.html?utm_source=github&utm_medium=issue&utm_campaign=streamx-examples
+    about: Reach out to our business team for inquiries about StreamX, partnerships, or other opportunities.
+  - name: Request a demo
+    url: https://www.streamx.dev/book-a-demo.html?utm_source=github&utm_medium=issue&utm_campaign=streamx-examples
+    about: Request your demo now to see how StreamX can transform your digital experience!
