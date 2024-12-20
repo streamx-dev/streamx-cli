@@ -1,10 +1,10 @@
-package dev.streamx.cli.command.manage;
+package dev.streamx.cli.command.manager;
 
 import static dev.streamx.cli.util.Output.print;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
-import dev.streamx.cli.command.manage.event.MeshManagerStarted;
+import dev.streamx.cli.command.manager.event.MeshManagerStarted;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.exception.DockerException;
@@ -22,14 +22,14 @@ import org.testcontainers.containers.ContainerLaunchException;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = ManageCommand.COMMAND_NAME,
+@Command(name = ManagerCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
     hidden = true, // FIXME change after official release of StreamX Mesh Manager
     description = "Serves StreamX Mesh Manager locally.")
-public class ManageCommand implements Runnable {
+public class ManagerCommand implements Runnable {
 
-  public static final String COMMAND_NAME = "manage";
+  public static final String COMMAND_NAME = "manager";
 
   private static final long CONTAINER_TIMEOUT_IN_SECS = 60_000L;
 
@@ -43,7 +43,7 @@ public class ManageCommand implements Runnable {
   BannerPrinter bannerPrinter;
 
   @Inject
-  ManageConfig manageConfig;
+  ManagerConfig managerConfig;
 
   @Inject
   DockerValidator dockerValidator;
@@ -87,14 +87,14 @@ public class ManageCommand implements Runnable {
 
   private void startMeshManager(String meshPathAsString, String projectDirectoryAsString) {
     try (var meshManagerContainer = new MeshManagerContainer(
-        manageConfig.meshManagerImage(),
-        manageConfig.meshManagerPort(),
+        managerConfig.meshManagerImage(),
+        managerConfig.meshManagerPort(),
         meshPathAsString,
         projectDirectoryAsString
     ).withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS))) {
       meshManagerContainer.start();
 
-      print("StreamX Mesh Manager started on http://localhost:" + manageConfig.meshManagerPort());
+      print("StreamX Mesh Manager started on http://localhost:" + managerConfig.meshManagerPort());
 
       meshManagerStartedEvent.fire(new MeshManagerStarted());
 

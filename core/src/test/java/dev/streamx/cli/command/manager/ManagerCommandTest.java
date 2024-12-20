@@ -1,9 +1,9 @@
-package dev.streamx.cli.command.manage;
+package dev.streamx.cli.command.manager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.dockerjava.api.DockerClient;
-import dev.streamx.cli.command.manage.event.MeshManagerStarted;
+import dev.streamx.cli.command.manager.event.MeshManagerStarted;
 import io.quarkus.runtime.ApplicationLifecycleManager;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
@@ -29,13 +29,13 @@ import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
 
 @QuarkusMainTest
-class ManageCommandTest {
+class ManagerCommandTest {
 
   public static final String HOST_DIRECTORY = "target/test-classes";
   public static final String HOST_MESH_PATH = HOST_DIRECTORY + "/mesh.yaml";
 
   @Test
-  void shouldManageExampleMesh(QuarkusMainLauncher launcher) {
+  void shouldServeExampleMeshManager(QuarkusMainLauncher launcher) {
     // given
     var meshPath = Paths.get(HOST_MESH_PATH);
     String s = meshPath
@@ -44,7 +44,7 @@ class ManageCommandTest {
         .toString();
 
     // when
-    LaunchResult result = launcher.launch("manage", "-f=" + s);
+    LaunchResult result = launcher.launch("manager", "-f=" + s);
 
     // then
     var errorOutput = getErrorOutput(result);

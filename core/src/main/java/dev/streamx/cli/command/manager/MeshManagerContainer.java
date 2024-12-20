@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.manage;
+package dev.streamx.cli.command.manager;
 
 import java.util.List;
 import org.testcontainers.containers.BindMode;

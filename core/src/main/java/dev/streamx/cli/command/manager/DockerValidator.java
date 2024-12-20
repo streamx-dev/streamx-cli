@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.manage;
+package dev.streamx.cli.command.manager;
 
 import static dev.streamx.runner.StreamxRunner.MESH_FILE_PATH_LABEL;
 
@@ -10,13 +10,11 @@ import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.testcontainers.DockerClientFactory;
 
