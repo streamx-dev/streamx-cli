@@ -17,6 +17,9 @@
     <skipITs>true</skipITs>
     <quarkus.package.type>uber-jar</quarkus.package.type>
     <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
+
+    <!-- this should not be overridden by user, same as streamx runner dependencies -->
+    <streamx.manager.mesh-manager.image>ghcr.io/streamx-dev/streamx-mesh-manager/streamx-mesh-manager:0.0.1-jvm</streamx.manager.mesh-manager.image>
   </properties>
 
   <dependencies>
@@ -115,9 +118,6 @@
       <testResource>
         <filtering>true</filtering>
         <directory>src/test/resources/filtered</directory>
-        <includes>
-          <include>mesh.yaml</include>
-        </includes>
       </testResource>
     </testResources>
     <plugins>

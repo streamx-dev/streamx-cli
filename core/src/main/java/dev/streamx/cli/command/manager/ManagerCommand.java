@@ -9,6 +9,7 @@ import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
+import dev.streamx.cli.util.StreamxMavenPropertiesUtils;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.logging.Log;
@@ -87,7 +88,7 @@ public class ManagerCommand implements Runnable {
 
   private void startMeshManager(String meshPathAsString, String projectDirectoryAsString) {
     try (var meshManagerContainer = new MeshManagerContainer(
-        managerConfig.meshManagerImage(),
+        StreamxMavenPropertiesUtils.getMeshManagerImage(),
         managerConfig.meshManagerPort(),
         meshPathAsString,
         projectDirectoryAsString
