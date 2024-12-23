@@ -2,6 +2,7 @@ package dev.streamx.cli;
 
 import static dev.streamx.cli.util.Output.print;
 
+import dev.streamx.cli.command.manager.ManagerCommand;
 import dev.streamx.cli.command.run.RunCommand;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Set;
@@ -12,7 +13,7 @@ import picocli.CommandLine.ParseResult;
 public class BannerPrinter {
 
   private static final Set<String> COMMANDS_REQUIRING_PRINTING_BANNER =
-      Set.of(RunCommand.COMMAND_NAME);
+      Set.of(RunCommand.COMMAND_NAME, ManagerCommand.COMMAND_NAME);
 
   private static final String BANNER = """
        ____  _                           __  __
