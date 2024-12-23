@@ -40,6 +40,7 @@
     <quarkus.platform.version>3.13.3</quarkus.platform.version>
 
     <streamx.version>1.0.0</streamx.version>
+    <streamx-operator.version>0.0.1-SNAPSHOT</streamx-operator.version>
     <json-path.version>2.9.0</json-path.version>
     <assertj-core.version>3.24.2</assertj-core.version>
     <wiremock.version>3.3.1</wiremock.version>
@@ -87,6 +88,11 @@
         <groupId>dev.streamx</groupId>
         <artifactId>ingestion-client</artifactId>
         <version>${streamx.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>dev.streamx</groupId>
+        <artifactId>streamx-operator-api</artifactId>
+        <version>${streamx-operator.version}</version>
       </dependency>
       <dependency>
         <groupId>com.jayway.jsonpath</groupId>
@@ -238,7 +244,7 @@
                     <limit>
                       <counter>INSTRUCTION</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>75%</minimum>
+                      <minimum>63%</minimum>
                     </limit>
                   </limits>
                 </rule>

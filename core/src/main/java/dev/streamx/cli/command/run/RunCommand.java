@@ -33,7 +33,7 @@ public class RunCommand implements Runnable {
   @ArgGroup
   MeshSource meshSource;
 
-  static class MeshSource {
+  public static class MeshSource {
 
     @Option(names = {"-f", "--file"}, paramLabel = "<meshDefinitionFile>",
         description = "Path to mesh definition file.")

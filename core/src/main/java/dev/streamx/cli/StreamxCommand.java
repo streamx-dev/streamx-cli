@@ -1,5 +1,6 @@
 package dev.streamx.cli;
 
+import dev.streamx.cli.command.cloud.CloudCommand;
 import dev.streamx.cli.command.ingestion.publish.PublishCommand;
 import dev.streamx.cli.command.ingestion.unpublish.UnpublishCommand;
 import dev.streamx.cli.command.run.RunCommand;
@@ -24,7 +25,7 @@ import picocli.CommandLine.ParseResult;
 @Command(mixinStandardHelpOptions = true,
     name = "streamx",
     subcommands = {RunCommand.class, PublishCommand.class, UnpublishCommand.class,
-        HelpCommand.class},
+        HelpCommand.class, CloudCommand.class},
     versionProvider = VersionProvider.class)
 public class StreamxCommand implements QuarkusApplication {
 

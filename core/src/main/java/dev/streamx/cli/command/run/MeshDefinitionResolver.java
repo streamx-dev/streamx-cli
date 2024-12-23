@@ -16,7 +16,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 
 @ApplicationScoped
-class MeshDefinitionResolver {
+public class MeshDefinitionResolver {
 
   public static final String MESH_YAML = "mesh.yaml";
   public static final String MESH_YML = "mesh.yml";
@@ -30,7 +30,7 @@ class MeshDefinitionResolver {
   CurrentDirectoryProvider currentDirectoryProvider;
 
   @NotNull
-  Path resolveMeshPath(MeshSource meshSource) {
+  public Path resolveMeshPath(MeshSource meshSource) {
     return Optional.ofNullable(meshSource)
         .map(source -> source.meshDefinitionFile)
         .map(Path::of)
@@ -38,7 +38,7 @@ class MeshDefinitionResolver {
   }
 
   @NotNull
-  MeshDefinitionResolver.MeshDefinition resolve(Path meshPath) throws IOException {
+  public MeshDefinitionResolver.MeshDefinition resolve(Path meshPath) throws IOException {
     return resolveMesh(meshPath);
   }
 
@@ -73,7 +73,7 @@ class MeshDefinitionResolver {
     return new MeshDefinition(pathToYaml, serviceMesh);
   }
 
-  record MeshDefinition(Path path, ServiceMesh serviceMesh) {
+  public record MeshDefinition(Path path, ServiceMesh serviceMesh) {
 
   }
 }
