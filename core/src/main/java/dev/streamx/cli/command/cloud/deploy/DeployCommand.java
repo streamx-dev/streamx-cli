@@ -16,8 +16,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -30,8 +28,6 @@ import picocli.CommandLine.Command;
 public class DeployCommand implements Runnable {
 
   public static final String COMMAND_NAME = "deploy";
-  public static final String CONFIGS_DIRECTORY = "configs";
-  public static final String SECRETS_DIRECTORY = "secrets";
 
   @ArgGroup
   MeshSource meshSource;
@@ -48,6 +44,9 @@ public class DeployCommand implements Runnable {
   @Inject
   KubernetesService kubernetesService;
 
+  @Inject
+  DataService dataService;
+
   @Override
   public void run() {
     Path meshPath = meshDefinitionResolver.resolveMeshPath(meshSource);
@@ -61,48 +60,42 @@ public class DeployCommand implements Runnable {
     List<ConfigMap> configMaps = new ArrayList<>();
     List<Secret> secrets = new ArrayList<>();
     String serviceMeshName = serviceMesh.getMetadata().getName();
-    fromSourcesPaths.envConfigsPaths().stream()
-        .map(mapFromSourcePathToConfigMap(serviceMeshName, projectPath,
-            DataResolver::loadDataMapFromEnvFile))
-        .forEach(configMaps::add);
-    fromSourcesPaths.envSecretsPaths().stream()
-        .map(mapFromSourcePathToSecret(serviceMeshName, projectPath,
-            DataResolver::loadDataMapFromEnvFile))
-        .forEach(secrets::add);
-    fromSourcesPaths.volumesConfigsPaths().stream()
-        .map(mapFromSourcePathToConfigMap(serviceMeshName, projectPath,
-            DataResolver::loadDataMapFromPath))
-        .forEach(configMaps::add);
-    fromSourcesPaths.volumesSecretsPaths().stream()
-        .map(mapFromSourcePathToSecret(serviceMeshName, projectPath,
-            DataResolver::loadDataMapFromPath))
-        .forEach(secrets::add);
+
+    fromSourcesPaths.envConfigsPaths().forEach(path -> {
+      Path resolvedPath = dataService.resolveConfigPath(projectPath, path);
+      Map<String, String> data = dataService.loadDataMapFromEnvFile(resolvedPath);
+      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data);
+      configMaps.add(configMap);
+    });
+
+    fromSourcesPaths.envSecretsPaths().forEach(path -> {
+      Path resolvedPath = dataService.resolveSecretPath(projectPath, path);
+      Map<String, String> data = dataService.loadDataMapFromEnvFile(resolvedPath);
+      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data);
+      secrets.add(secret);
+    });
+
+    fromSourcesPaths.volumesConfigsPaths().forEach(path -> {
+      Path resolvedPath = dataService.resolveConfigPath(projectPath, path);
+      Map<String, String> data = dataService.loadDataMapFromPath(resolvedPath);
+      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data);
+      configMaps.add(configMap);
+    });
+
+    fromSourcesPaths.volumesSecretsPaths().forEach(path -> {
+      Path resolvedPath = dataService.resolveSecretPath(projectPath, path);
+      Map<String, String> data = dataService.loadDataMapFromPath(resolvedPath);
+      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data);
+      secrets.add(secret);
+    });
+
     String namespace = KubernetesNamespace.getNamespace(namespaceArg);
     kubernetesService.deploy(configMaps, namespace);
     kubernetesService.deploy(secrets, namespace);
     kubernetesService.deploy(serviceMesh, namespace);
+
     printf("%s successfully deployed to '%s' namespace.",
         projectPath.toAbsolutePath().normalize(),
         namespace);
-  }
-
-  @NotNull
-  private Function<String, Secret> mapFromSourcePathToSecret(String serviceMeshName,
-      Path projectPath, Function<Path, Map<String, String>> pathToDataMapper) {
-    return path -> {
-      Path dataPath = projectPath.resolve(SECRETS_DIRECTORY).resolve(path);
-      Map<String, String> dataMap = pathToDataMapper.apply(dataPath);
-      return kubernetesService.buildSecret(serviceMeshName, path, dataMap);
-    };
-  }
-
-  @NotNull
-  private Function<String, ConfigMap> mapFromSourcePathToConfigMap(String serviceMeshName,
-      Path projectPath, Function<Path, Map<String, String>> pathToDataMapper) {
-    return path -> {
-      Path dataPath = projectPath.resolve(CONFIGS_DIRECTORY).resolve(path);
-      Map<String, String> dataMap = pathToDataMapper.apply(dataPath);
-      return kubernetesService.buildConfigMap(serviceMeshName, path, dataMap);
-    };
   }
 }

@@ -1,5 +1,6 @@
 package dev.streamx.cli.command.cloud.deploy;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,9 +11,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-public final class DataResolver {
+@ApplicationScoped
+public final class DataService {
 
-  static Map<String, String> loadDataMapFromEnvFile(Path propertiesFilePath) {
+  public static final String CONFIGS_DIRECTORY = "configs";
+  public static final String SECRETS_DIRECTORY = "secrets";
+
+  public Map<String, String> loadDataMapFromEnvFile(Path propertiesFilePath) {
     File propertiesFile = propertiesFilePath.toFile();
     if (!propertiesFile.exists() || !propertiesFile.isFile()) {
       throw new IllegalStateException("Path " + propertiesFilePath.normalize()
@@ -32,7 +37,7 @@ public final class DataResolver {
     }
   }
 
-  static Map<String, String> loadDataMapFromPath(Path path) {
+  public Map<String, String> loadDataMapFromPath(Path path) {
     Map<String, String> data = new HashMap<>();
     try {
       if (Files.isRegularFile(path)) {
@@ -63,5 +68,17 @@ public final class DataResolver {
     }
 
     return data;
+  }
+
+  public Path resolveSecretPath(Path projectPath, String sourcePath) {
+    return resolveSourcePath(projectPath, SECRETS_DIRECTORY, sourcePath);
+  }
+
+  public Path resolveConfigPath(Path projectPath, String sourcePath) {
+    return resolveSourcePath(projectPath, CONFIGS_DIRECTORY, sourcePath);
+  }
+
+  private Path resolveSourcePath(Path projectPath, String sourceDirectory, String sourcePath) {
+    return projectPath.resolve(sourceDirectory).resolve(sourcePath);
   }
 }
