@@ -37,9 +37,19 @@ public class DeployCommandIT {
   }
 
   @Test
-  void shouldReturnMessageAboutSubcommands(QuarkusMainLauncher launcher) {
+  void shouldDeployProject(QuarkusMainLauncher launcher) {
     String meshPath = Paths.get(
             "target/test-classes/dev/streamx/cli/command/cloud/deploy/project/mesh.yaml")
+        .normalize().toAbsolutePath().toString();
+    LaunchResult result = launcher.launch("cloud", "deploy", "-f=" + meshPath);
+
+    assertThat(result.getOutput()).contains("successfully deployed to 'default' namespace.");
+  }
+
+  @Test
+  void shouldDeployProjectWithCustomMeshName(QuarkusMainLauncher launcher) {
+    String meshPath = Paths.get(
+            "target/test-classes/dev/streamx/cli/command/cloud/deploy/project/test.yaml")
         .normalize().toAbsolutePath().toString();
     LaunchResult result = launcher.launch("cloud", "deploy", "-f=" + meshPath);
 

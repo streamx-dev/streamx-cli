@@ -17,6 +17,14 @@ public final class DataService {
   public static final String CONFIGS_DIRECTORY = "configs";
   public static final String SECRETS_DIRECTORY = "secrets";
 
+  public enum ConfigType {
+    DIR, FILE;
+
+    public String getLabelValue() {
+      return this.toString().toLowerCase();
+    }
+  }
+
   public Map<String, String> loadDataMapFromEnvFile(Path propertiesFilePath) {
     File propertiesFile = propertiesFilePath.toFile();
     if (!propertiesFile.exists() || !propertiesFile.isFile()) {
@@ -76,6 +84,18 @@ public final class DataService {
 
   public Path resolveConfigPath(Path projectPath, String sourcePath) {
     return resolveSourcePath(projectPath, CONFIGS_DIRECTORY, sourcePath);
+  }
+
+  public ConfigType getConfigType(Path dataSourcePath) {
+    File dataSource = dataSourcePath.toFile();
+    if (dataSource.isFile()) {
+      return ConfigType.FILE;
+    }
+    if (dataSource.isDirectory()) {
+      return ConfigType.DIR;
+    }
+    throw new IllegalStateException(
+        "Config source " + dataSource + " provided in mesh should be file or directory.");
   }
 
   private Path resolveSourcePath(Path projectPath, String sourceDirectory, String sourcePath) {

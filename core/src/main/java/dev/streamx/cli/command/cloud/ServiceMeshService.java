@@ -25,24 +25,26 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
 public class ServiceMeshService {
 
   public static final String SERVICE_MESH_NAME = "sx";
+  protected static final String DEPLOYMENT_FILE_NAME = "deployment.yaml";
   private final ObjectMapper objectMapper = (new ObjectMapper(
       new YAMLFactory())).setSerializationInclusion(Include.NON_NULL);
 
-  public record FromSourcePaths(List<String> envConfigsPaths, List<String> envSecretsPaths,
-                                List<String> volumesConfigsPaths,
-                                List<String> volumesSecretsPaths) {
+  public record ConfigSourcesPaths(List<String> envConfigsPaths, List<String> envSecretsPaths,
+                                   List<String> volumesConfigsPaths,
+                                   List<String> volumesSecretsPaths) {
 
   }
 
   @NotNull
   public ServiceMesh getServiceMesh(Path meshPath) {
-    Path deploymentPath = meshPath.getParent().resolve("deployment.yaml");
+    Path deploymentPath = resolveDeploymentPath(meshPath);
     ServiceMesh serviceMesh = new ServiceMesh();
     try {
       ServiceMeshSpec spec = objectMapper.readValue(meshPath.toFile(),
@@ -89,7 +91,7 @@ public class ServiceMeshService {
   }
 
   @NotNull
-  public FromSourcePaths getFromSourcesPaths(ServiceMesh serviceMesh) {
+  public ConfigSourcesPaths getConfigSourcesPaths(ServiceMesh serviceMesh) {
     List<AbstractContainer> containers = getContainers(serviceMesh);
     List<String> envConfigsPaths = new ArrayList<>();
     List<String> envSecretsPaths = new ArrayList<>();
@@ -98,21 +100,21 @@ public class ServiceMeshService {
     containers.forEach(container -> {
       EnvironmentFrom environmentFrom = container.getEnvironmentFrom();
       envConfigsPaths.addAll(
-          getSourcesPaths(environmentFrom, AbstractFromSource::getConfigs, null));
+          getConfigSourcesPaths(environmentFrom, AbstractFromSource::getConfigs, null));
       envSecretsPaths.addAll(
-          getSourcesPaths(environmentFrom, AbstractFromSource::getSecrets, null));
+          getConfigSourcesPaths(environmentFrom, AbstractFromSource::getSecrets, null));
       VolumesFrom volumesFrom = container.getVolumesFrom();
-      volumesConfigsPaths.addAll(getSourcesPaths(volumesFrom, AbstractFromSource::getConfigs,
+      volumesConfigsPaths.addAll(getConfigSourcesPaths(volumesFrom, AbstractFromSource::getConfigs,
           ServiceMeshService::mapToHostPath));
-      volumesSecretsPaths.addAll(getSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
+      volumesSecretsPaths.addAll(getConfigSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
           ServiceMeshService::mapToHostPath));
     });
-    return new FromSourcePaths(envConfigsPaths, envSecretsPaths, volumesConfigsPaths,
+    return new ConfigSourcesPaths(envConfigsPaths, envSecretsPaths, volumesConfigsPaths,
         volumesSecretsPaths);
   }
 
   @NotNull
-  private static List<String> getSourcesPaths(AbstractFromSource fromSource,
+  private static List<String> getConfigSourcesPaths(AbstractFromSource fromSource,
       Function<AbstractFromSource, List<String>> pathsExtractor, Function<String, String> mapper) {
     List<String> configsPaths = Collections.emptyList();
     if (fromSource != null) {
@@ -129,5 +131,17 @@ public class ServiceMeshService {
 
   private static String mapToHostPath(String volumeConf) {
     return volumeConf.split(":")[0];
+  }
+
+  @NotNull
+  static Path resolveDeploymentPath(Path meshPath) {
+    String meshFileName = meshPath.getFileName().toString();
+    meshFileName = StringUtils.removeEnd(meshFileName, ".yaml");
+    meshFileName = StringUtils.removeEnd(meshFileName, ".yml");
+    String deploymentFileName = DEPLOYMENT_FILE_NAME;
+    if (!"mesh".equals(meshFileName)) {
+      deploymentFileName = meshFileName + "." + deploymentFileName;
+    }
+    return meshPath.getParent().resolve(deploymentFileName);
   }
 }

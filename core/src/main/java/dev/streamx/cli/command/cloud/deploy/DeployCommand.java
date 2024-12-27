@@ -5,7 +5,8 @@ import static dev.streamx.cli.util.Output.printf;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.cloud.KubernetesNamespace;
 import dev.streamx.cli.command.cloud.ServiceMeshService;
-import dev.streamx.cli.command.cloud.ServiceMeshService.FromSourcePaths;
+import dev.streamx.cli.command.cloud.ServiceMeshService.ConfigSourcesPaths;
+import dev.streamx.cli.command.cloud.deploy.DataService.ConfigType;
 import dev.streamx.cli.command.run.MeshDefinitionResolver;
 import dev.streamx.cli.command.run.RunCommand.MeshSource;
 import dev.streamx.operator.crd.ServiceMesh;
@@ -50,13 +51,14 @@ public class DeployCommand implements Runnable {
   @Override
   public void run() {
     Path meshPath = meshDefinitionResolver.resolveMeshPath(meshSource);
+    meshPath = meshPath.toAbsolutePath();
     ServiceMesh serviceMesh = serviceMeshService.getServiceMesh(meshPath);
     Path projectPath = meshPath.getParent();
     deploy(serviceMesh, projectPath);
   }
 
   private void deploy(ServiceMesh serviceMesh, Path projectPath) {
-    FromSourcePaths fromSourcesPaths = serviceMeshService.getFromSourcesPaths(serviceMesh);
+    ConfigSourcesPaths fromSourcesPaths = serviceMeshService.getConfigSourcesPaths(serviceMesh);
     List<ConfigMap> configMaps = new ArrayList<>();
     List<Secret> secrets = new ArrayList<>();
     String serviceMeshName = serviceMesh.getMetadata().getName();
@@ -64,28 +66,32 @@ public class DeployCommand implements Runnable {
     fromSourcesPaths.envConfigsPaths().forEach(path -> {
       Path resolvedPath = dataService.resolveConfigPath(projectPath, path);
       Map<String, String> data = dataService.loadDataMapFromEnvFile(resolvedPath);
-      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data);
+      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data,
+          ConfigType.FILE);
       configMaps.add(configMap);
     });
 
     fromSourcesPaths.envSecretsPaths().forEach(path -> {
       Path resolvedPath = dataService.resolveSecretPath(projectPath, path);
       Map<String, String> data = dataService.loadDataMapFromEnvFile(resolvedPath);
-      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data);
+      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data, ConfigType.FILE);
       secrets.add(secret);
     });
 
     fromSourcesPaths.volumesConfigsPaths().forEach(path -> {
       Path resolvedPath = dataService.resolveConfigPath(projectPath, path);
       Map<String, String> data = dataService.loadDataMapFromPath(resolvedPath);
-      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data);
+      ConfigType configType = dataService.getConfigType(resolvedPath);
+      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data,
+          configType);
       configMaps.add(configMap);
     });
 
     fromSourcesPaths.volumesSecretsPaths().forEach(path -> {
       Path resolvedPath = dataService.resolveSecretPath(projectPath, path);
       Map<String, String> data = dataService.loadDataMapFromPath(resolvedPath);
-      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data);
+      ConfigType configType = dataService.getConfigType(resolvedPath);
+      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data, configType);
       secrets.add(secret);
     });
 

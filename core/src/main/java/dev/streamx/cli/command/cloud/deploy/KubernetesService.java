@@ -1,5 +1,6 @@
 package dev.streamx.cli.command.cloud.deploy;
 
+import dev.streamx.cli.command.cloud.deploy.DataService.ConfigType;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -23,9 +24,10 @@ public class KubernetesService {
   private static final String COMPONENT_LABEL = "app.kubernetes.io/component";
   private static final String MANAGED_BY_LABEL = "app.kubernetes.io/managed-by";
   private static final String MANAGED_BY_LABEL_VALUE = "streamx-cli";
+  private static final String CONFIG_TYPE_LABEL = "mesh.streamx.dev/config-type";
   private static final String PART_OF_LABEL = "app.kubernetes.io/part-of";
-  private static final String COMPONENT_CONFIG = "config";
-  private static final String COMPONENT_SECRET = "secret";
+  private static final String COMPONENT_EXTERNAL_CONFIG = "extcfg";
+  private static final String COMPONENT_EXTERNAL_SECRET = "extsec";
 
   @Inject
   KubernetesClient kubernetesClient;
@@ -40,26 +42,30 @@ public class KubernetesService {
   }
 
   @NotNull
-  public ConfigMap buildConfigMap(String meshName, String name, Map<String, String> data) {
+  public ConfigMap buildConfigMap(String meshName, String name, Map<String, String> data,
+      ConfigType configType) {
     ConfigMap configMap = new ConfigMapBuilder()
         .withNewMetadata()
         .endMetadata()
         .addToData(data)
         .build();
     String sanitizedName = KubernetesResourceUtil.sanitizeName(name);
-    setMetadata(meshName, COMPONENT_CONFIG, sanitizedName, configMap);
+    setMetadata(meshName, COMPONENT_EXTERNAL_CONFIG, sanitizedName, configMap);
+    setLabel(configMap, CONFIG_TYPE_LABEL, configType.getLabelValue());
     return configMap;
   }
 
   @NotNull
-  public Secret buildSecret(String meshName, String name, Map<String, String> data) {
+  public Secret buildSecret(String meshName, String name, Map<String, String> data,
+      ConfigType configType) {
     Secret secret = new SecretBuilder()
         .withNewMetadata()
         .endMetadata()
         .withStringData(data)
         .build();
     String sanitizedName = KubernetesResourceUtil.sanitizeName(name);
-    setMetadata(meshName, COMPONENT_SECRET, sanitizedName, secret);
+    setMetadata(meshName, COMPONENT_EXTERNAL_SECRET, sanitizedName, secret);
+    setLabel(secret, CONFIG_TYPE_LABEL, configType.getLabelValue());
     return secret;
   }
 
