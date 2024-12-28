@@ -21,11 +21,9 @@ ingestion:
     volumesFrom:
       configs:
         - "ingestion/rest/file.txt"
-        - "ingestion/rest/subdir/file.txt"
         - "shared"
       secrets:
         - "ingestion/rest/file.txt"
-        - "ingestion/rest/subdir/file.txt"
         - "shared"
 
 processing:
@@ -47,11 +45,9 @@ processing:
     volumesFrom:
       configs:
         - "processing/relay/file.txt"
-        - "processing/relay/subdir/file.txt"
         - "shared"
       secrets:
         - "processing/relay/file.txt"
-        - "processing/relay/subdir/file.txt"
         - "shared"
 
 delivery:
@@ -71,11 +67,9 @@ delivery:
     volumesFrom:
       configs:
         - "delivery/wds/file.txt"
-        - "delivery/wds/subdir/file.txt"
         - "delivery/wds/dir"
       secrets:
         - "delivery/wds/file.txt"
-        - "delivery/wds/subdir/file.txt"
         - "delivery/wds/dir"
     components:
       nginx:
@@ -91,9 +85,7 @@ delivery:
         volumesFrom:
           configs:
             - "delivery/wds/nginx/file.txt"
-            - "delivery/wds/nginx/subdir/file.txt"
             - "shared"
           secrets:
             - "delivery/wds/nginx/file.txt"
-            - "delivery/wds/nginx/subdir/file.txt"
             - "shared"

@@ -85,14 +85,10 @@ class ServiceMeshServiceTest {
         expectedEnvsPaths);
     Set<String> expectedVolumesPaths = Set.of(
         "ingestion/rest/file.txt",
-        "ingestion/rest/subdir/file.txt",
         "processing/relay/file.txt",
-        "processing/relay/subdir/file.txt",
         "delivery/wds/file.txt",
-        "delivery/wds/subdir/file.txt",
         "delivery/wds/dir",
         "delivery/wds/nginx/file.txt",
-        "delivery/wds/nginx/subdir/file.txt",
         "shared"
     );
     assertThat(configSourcesPaths.volumesConfigsPaths()).containsExactlyInAnyOrderElementsOf(

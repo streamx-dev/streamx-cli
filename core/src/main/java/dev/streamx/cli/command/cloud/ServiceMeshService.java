@@ -123,21 +123,6 @@ public class ServiceMeshService {
         volumesSecretsPaths);
   }
 
-  private static void processGlobalEnvSources(ServiceMesh serviceMesh, Set<String> envConfigsPaths,
-      Set<String> envSecretsPaths) {
-    EnvironmentFrom globalEnvironmentFrom = serviceMesh.getSpec().getEnvironmentFrom();
-    if (globalEnvironmentFrom != null) {
-      List<String> globalEnvironmentFromConfigs = globalEnvironmentFrom.getConfigs();
-      if (globalEnvironmentFromConfigs != null) {
-        envConfigsPaths.addAll(globalEnvironmentFromConfigs);
-      }
-      List<String> globalEnvironmentFromSecrets = globalEnvironmentFrom.getSecrets();
-      if (globalEnvironmentFromSecrets != null) {
-        envSecretsPaths.addAll(globalEnvironmentFromSecrets);
-      }
-    }
-  }
-
   @NotNull
   private static List<String> getConfigSourcesPaths(AbstractFromSource fromSource,
       Function<AbstractFromSource, List<String>> pathsExtractor, Function<String, String> mapper) {
@@ -152,6 +137,21 @@ public class ServiceMeshService {
       }
     }
     return configsPaths;
+  }
+
+  private static void processGlobalEnvSources(ServiceMesh serviceMesh, Set<String> envConfigsPaths,
+      Set<String> envSecretsPaths) {
+    EnvironmentFrom globalEnvironmentFrom = serviceMesh.getSpec().getEnvironmentFrom();
+    if (globalEnvironmentFrom != null) {
+      List<String> globalEnvironmentFromConfigs = globalEnvironmentFrom.getConfigs();
+      if (globalEnvironmentFromConfigs != null) {
+        envConfigsPaths.addAll(globalEnvironmentFromConfigs);
+      }
+      List<String> globalEnvironmentFromSecrets = globalEnvironmentFrom.getSecrets();
+      if (globalEnvironmentFromSecrets != null) {
+        envSecretsPaths.addAll(globalEnvironmentFromSecrets);
+      }
+    }
   }
 
   private static String mapToHostPath(String volumeConf) {
