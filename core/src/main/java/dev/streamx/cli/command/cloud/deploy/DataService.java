@@ -86,6 +86,10 @@ public final class DataService {
     return resolveSourcePath(projectPath, CONFIGS_DIRECTORY, sourcePath);
   }
 
+  private Path resolveSourcePath(Path projectPath, String sourceDirectory, String sourcePath) {
+    return projectPath.resolve(sourceDirectory).resolve(sourcePath);
+  }
+
   public ConfigType getConfigType(Path dataSourcePath) {
     File dataSource = dataSourcePath.toFile();
     if (dataSource.isFile()) {
@@ -96,9 +100,5 @@ public final class DataService {
     }
     throw new IllegalStateException(
         "Config source " + dataSource + " provided in mesh should be file or directory.");
-  }
-
-  private Path resolveSourcePath(Path projectPath, String sourceDirectory, String sourcePath) {
-    return projectPath.resolve(sourceDirectory).resolve(sourcePath);
   }
 }

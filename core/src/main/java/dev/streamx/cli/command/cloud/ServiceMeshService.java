@@ -1,5 +1,7 @@
 package dev.streamx.cli.command.cloud;
 
+import static dev.streamx.cli.command.run.MeshDefinitionResolver.MESH_YAML;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -18,32 +20,38 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
 public class ServiceMeshService {
 
   public static final String SERVICE_MESH_NAME = "sx";
-  protected static final String DEPLOYMENT_FILE_NAME = "deployment.yaml";
-  private final ObjectMapper objectMapper = (new ObjectMapper(
+  protected static final String DEPLOYMENT = "deployment";
+  protected static final String YAML_EXT = ".yaml";
+  protected static final String DEPLOYMENT_FILE_NAME = DEPLOYMENT + YAML_EXT;
+  final ObjectMapper objectMapper = (new ObjectMapper(
       new YAMLFactory())).setSerializationInclusion(Include.NON_NULL);
 
-  public record ConfigSourcesPaths(List<String> envConfigsPaths, List<String> envSecretsPaths,
-                                   List<String> volumesConfigsPaths,
-                                   List<String> volumesSecretsPaths) {
+  public record ConfigSourcesPaths(Set<String> envConfigsPaths, Set<String> envSecretsPaths,
+                                   Set<String> volumesConfigsPaths,
+                                   Set<String> volumesSecretsPaths) {
 
   }
 
   @NotNull
   public ServiceMesh getServiceMesh(Path meshPath) {
+    if (!meshPath.toFile().exists()) {
+      throw new RuntimeException("File with provided path '" + meshPath + "' does not exist.");
+    }
     Path deploymentPath = resolveDeploymentPath(meshPath);
     ServiceMesh serviceMesh = new ServiceMesh();
     try {
@@ -68,7 +76,7 @@ public class ServiceMeshService {
   }
 
   @NotNull
-  public List<AbstractContainer> getContainers(ServiceMesh serviceMesh) {
+  List<AbstractContainer> getContainers(ServiceMesh serviceMesh) {
     ServiceMeshSpec serviceMeshSpec = serviceMesh.getSpec();
     List<AbstractContainer> containers = Stream.of(
             serviceMeshSpec.getIngestion(),
@@ -92,11 +100,12 @@ public class ServiceMeshService {
 
   @NotNull
   public ConfigSourcesPaths getConfigSourcesPaths(ServiceMesh serviceMesh) {
+    Set<String> envConfigsPaths = new HashSet<>();
+    Set<String> envSecretsPaths = new HashSet<>();
+    Set<String> volumesConfigsPaths = new HashSet<>();
+    Set<String> volumesSecretsPaths = new HashSet<>();
+    processGlobalEnvSources(serviceMesh, envConfigsPaths, envSecretsPaths);
     List<AbstractContainer> containers = getContainers(serviceMesh);
-    List<String> envConfigsPaths = new ArrayList<>();
-    List<String> envSecretsPaths = new ArrayList<>();
-    List<String> volumesConfigsPaths = new ArrayList<>();
-    List<String> volumesSecretsPaths = new ArrayList<>();
     containers.forEach(container -> {
       EnvironmentFrom environmentFrom = container.getEnvironmentFrom();
       envConfigsPaths.addAll(
@@ -109,8 +118,24 @@ public class ServiceMeshService {
       volumesSecretsPaths.addAll(getConfigSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
           ServiceMeshService::mapToHostPath));
     });
+
     return new ConfigSourcesPaths(envConfigsPaths, envSecretsPaths, volumesConfigsPaths,
         volumesSecretsPaths);
+  }
+
+  private static void processGlobalEnvSources(ServiceMesh serviceMesh, Set<String> envConfigsPaths,
+      Set<String> envSecretsPaths) {
+    EnvironmentFrom globalEnvironmentFrom = serviceMesh.getSpec().getEnvironmentFrom();
+    if (globalEnvironmentFrom != null) {
+      List<String> globalEnvironmentFromConfigs = globalEnvironmentFrom.getConfigs();
+      if (globalEnvironmentFromConfigs != null) {
+        envConfigsPaths.addAll(globalEnvironmentFromConfigs);
+      }
+      List<String> globalEnvironmentFromSecrets = globalEnvironmentFrom.getSecrets();
+      if (globalEnvironmentFromSecrets != null) {
+        envSecretsPaths.addAll(globalEnvironmentFromSecrets);
+      }
+    }
   }
 
   @NotNull
@@ -136,11 +161,9 @@ public class ServiceMeshService {
   @NotNull
   static Path resolveDeploymentPath(Path meshPath) {
     String meshFileName = meshPath.getFileName().toString();
-    meshFileName = StringUtils.removeEnd(meshFileName, ".yaml");
-    meshFileName = StringUtils.removeEnd(meshFileName, ".yml");
     String deploymentFileName = DEPLOYMENT_FILE_NAME;
-    if (!"mesh".equals(meshFileName)) {
-      deploymentFileName = meshFileName + "." + deploymentFileName;
+    if (!MESH_YAML.equals(meshFileName)) {
+      deploymentFileName = DEPLOYMENT + "." + meshFileName;
     }
     return meshPath.getParent().resolve(deploymentFileName);
   }

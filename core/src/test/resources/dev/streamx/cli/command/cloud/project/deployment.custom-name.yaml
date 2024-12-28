@@ -1,3 +1,4 @@
+---
 tenantConfig:
   inboxesPartitions: 2
   relaysPartitions: 2
@@ -14,5 +15,5 @@ processing:
     replicas: 2
 delivery:
   web-delivery-service:
-    stateful: false
     replicas: 2
+    stateful: false
