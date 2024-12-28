@@ -1,7 +1,5 @@
 package dev.streamx.cli.command.cloud;
 
-import static dev.streamx.cli.command.cloud.ServiceMeshService.DEPLOYMENT;
-import static dev.streamx.cli.command.cloud.ServiceMeshService.DEPLOYMENT_FILE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,7 +31,7 @@ class ServiceMeshServiceTest {
     ServiceMesh serviceMesh = getServiceMesh("mesh.yaml");
     assertNotNull(serviceMesh);
     String deploymentConfigYaml = mapDeploymentConfigToYaml(serviceMesh);
-    String expected = ProjectUtils.getResource(DEPLOYMENT_FILE_NAME);
+    String expected = ProjectUtils.getResource("deployment.yaml");
     assertEquals(expected, deploymentConfigYaml);
   }
 
@@ -42,7 +40,7 @@ class ServiceMeshServiceTest {
     ServiceMesh serviceMesh = getServiceMesh("custom-name.yaml");
     assertNotNull(serviceMesh);
     String deploymentConfigYaml = mapDeploymentConfigToYaml(serviceMesh);
-    String expected = ProjectUtils.getResource(DEPLOYMENT + ".custom-name.yaml");
+    String expected = ProjectUtils.getResource("deployment.custom-name.yaml");
     assertEquals(expected, deploymentConfigYaml);
   }
 
@@ -79,9 +77,9 @@ class ServiceMeshServiceTest {
         "delivery/wds/nginx.properties",
         "shared.properties"
     );
-    assertThat(configSourcesPaths.envConfigsPaths()).containsExactlyInAnyOrderElementsOf(
+    assertThat(configSourcesPaths.configEnvPaths()).containsExactlyInAnyOrderElementsOf(
         expectedEnvsPaths);
-    assertThat(configSourcesPaths.envSecretsPaths()).containsExactlyInAnyOrderElementsOf(
+    assertThat(configSourcesPaths.secretEnvPaths()).containsExactlyInAnyOrderElementsOf(
         expectedEnvsPaths);
     Set<String> expectedVolumesPaths = Set.of(
         "ingestion/rest/file.txt",
@@ -91,15 +89,15 @@ class ServiceMeshServiceTest {
         "delivery/wds/nginx/file.txt",
         "shared"
     );
-    assertThat(configSourcesPaths.volumesConfigsPaths()).containsExactlyInAnyOrderElementsOf(
+    assertThat(configSourcesPaths.configVolumePaths()).containsExactlyInAnyOrderElementsOf(
         expectedVolumesPaths);
-    assertThat(configSourcesPaths.volumesSecretsPaths()).containsExactlyInAnyOrderElementsOf(
+    assertThat(configSourcesPaths.secretVolumePaths()).containsExactlyInAnyOrderElementsOf(
         expectedVolumesPaths);
   }
 
   @NotNull
   private ServiceMesh getServiceMesh(String meshName) {
-    Path meshPath = ProjectUtils.getMeshPath(meshName);
+    Path meshPath = ProjectUtils.getResourcePath(meshName);
     return cut.getServiceMesh(meshPath);
   }
 

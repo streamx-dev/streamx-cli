@@ -11,11 +11,11 @@ public final class ProjectUtils {
 
   private static final String PROJECT_PATH = "project/";
 
-  public static Path getMeshPath(String name) {
+  public static Path getResourcePath(String name) {
     try {
       return Paths.get(ProjectUtils.class.getResource(PROJECT_PATH + name).toURI());
     } catch (URISyntaxException e) {
-      throw new RuntimeException("Could not map mesh resource to URI", e);
+      throw new RuntimeException("Could not map resource to URI", e);
     }
   }
 

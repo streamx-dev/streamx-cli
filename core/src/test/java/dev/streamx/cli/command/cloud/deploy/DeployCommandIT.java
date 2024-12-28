@@ -14,7 +14,6 @@ import io.quarkus.test.junit.main.QuarkusMainTest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 @QuarkusMainTest
@@ -39,7 +38,7 @@ public class DeployCommandIT {
 
   @Test
   void shouldDeployProject(QuarkusMainLauncher launcher) {
-    String meshPath = ProjectUtils.getMeshPath("with-configs.yaml").toString();
+    String meshPath = ProjectUtils.getResourcePath("with-configs.yaml").toString();
     LaunchResult result = launcher.launch("cloud", "deploy", "-f=" + meshPath);
 
     assertThat(result.getOutput()).contains("successfully deployed to 'default' namespace.");

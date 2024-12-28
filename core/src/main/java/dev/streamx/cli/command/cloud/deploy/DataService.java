@@ -14,9 +14,6 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public final class DataService {
 
-  public static final String CONFIGS_DIRECTORY = "configs";
-  public static final String SECRETS_DIRECTORY = "secrets";
-
   public enum ConfigType {
     DIR, FILE;
 
@@ -25,7 +22,7 @@ public final class DataService {
     }
   }
 
-  public Map<String, String> loadDataMapFromEnvFile(Path propertiesFilePath) {
+  public Map<String, String> loadDataFromProperties(Path propertiesFilePath) {
     File propertiesFile = propertiesFilePath.toFile();
     if (!propertiesFile.exists() || !propertiesFile.isFile()) {
       throw new IllegalStateException("Path " + propertiesFilePath.normalize()
@@ -45,7 +42,7 @@ public final class DataService {
     }
   }
 
-  public Map<String, String> loadDataMapFromPath(Path path) {
+  public Map<String, String> loadDataFromFiles(Path path) {
     Map<String, String> data = new HashMap<>();
     try {
       if (Files.isRegularFile(path)) {
@@ -76,18 +73,6 @@ public final class DataService {
     }
 
     return data;
-  }
-
-  public Path resolveSecretPath(Path projectPath, String sourcePath) {
-    return resolveSourcePath(projectPath, SECRETS_DIRECTORY, sourcePath);
-  }
-
-  public Path resolveConfigPath(Path projectPath, String sourcePath) {
-    return resolveSourcePath(projectPath, CONFIGS_DIRECTORY, sourcePath);
-  }
-
-  private Path resolveSourcePath(Path projectPath, String sourceDirectory, String sourcePath) {
-    return projectPath.resolve(sourceDirectory).resolve(sourcePath);
   }
 
   public ConfigType getConfigType(Path dataSourcePath) {
