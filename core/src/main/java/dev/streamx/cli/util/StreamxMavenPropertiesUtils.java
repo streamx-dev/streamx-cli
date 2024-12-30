@@ -25,7 +25,7 @@ public class StreamxMavenPropertiesUtils {
     PROPERTIES = properties;
   }
 
-  public static String getStreamxVersion() {
+  public static String getStreamxCliVersion() {
     return getProperty("streamx.cli.version");
   }
 

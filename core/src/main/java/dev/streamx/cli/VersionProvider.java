@@ -7,7 +7,7 @@ public class VersionProvider implements IVersionProvider {
 
   @Override
   public String[] getVersion() {
-    var streamxVersion = StreamxMavenPropertiesUtils.getStreamxVersion();
+    var streamxVersion = StreamxMavenPropertiesUtils.getStreamxCliVersion();
     if (streamxVersion == null) {
       return new String[]{"No version information included."};
     }
