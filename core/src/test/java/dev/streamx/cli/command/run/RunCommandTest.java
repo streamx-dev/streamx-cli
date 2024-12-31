@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 @QuarkusMainTest
-public class RunCommandIT {
+public class RunCommandTest {
 
   @Test
   void shouldRunStreamxExampleMesh(QuarkusMainLauncher launcher) {

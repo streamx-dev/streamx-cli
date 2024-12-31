@@ -1,8 +1,0 @@
-TODO:
-Implement CLI Goals/UX/UI
-Integrate with java-client to provide SH client
-
-Add support for Windows/Chocolatey/SDKMan!
-Add support for native builds
-Add automated build pipelines
-Add support for preview releases
