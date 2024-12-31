@@ -1,7 +1,6 @@
 package dev.streamx.cli.command.cloud;
 
-import static dev.streamx.cli.command.run.MeshDefinitionResolver.MESH_YAML;
-
+import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +18,7 @@ public class ProjectPathsService {
   public Path resolveDeploymentPath(Path meshPath) {
     String meshFileName = meshPath.getFileName().toString();
     String deploymentFileName = DEPLOYMENT_FILE_NAME;
-    if (!MESH_YAML.equals(meshFileName)) {
+    if (!MeshResolver.MESH_YAML.equals(meshFileName)) {
       deploymentFileName = DEPLOYMENT + "." + meshFileName;
     }
     return meshPath.getParent().resolve(deploymentFileName);

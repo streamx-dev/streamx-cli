@@ -6,8 +6,8 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.cloud.KubernetesNamespace;
 import dev.streamx.cli.command.cloud.ServiceMeshService;
 import dev.streamx.cli.command.cloud.ServiceMeshService.ConfigSourcesPaths;
-import dev.streamx.cli.command.run.MeshDefinitionResolver;
-import dev.streamx.cli.command.run.RunCommand.MeshSource;
+import dev.streamx.cli.command.meshprocessing.MeshResolver;
+import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.operator.crd.ServiceMesh;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
@@ -35,7 +35,7 @@ public class DeployCommand implements Runnable {
   KubernetesNamespace namespaceArg;
 
   @Inject
-  MeshDefinitionResolver meshDefinitionResolver;
+  MeshResolver meshResolver;
 
   @Inject
   ServiceMeshService serviceMeshService;
@@ -48,7 +48,7 @@ public class DeployCommand implements Runnable {
 
   @Override
   public void run() {
-    Path meshPath = meshDefinitionResolver.resolveMeshPath(meshSource);
+    Path meshPath = meshResolver.resolveMeshPath(meshSource);
     meshPath = meshPath.toAbsolutePath();
     ServiceMesh serviceMesh = serviceMeshService.getServiceMesh(meshPath);
     Path projectPath = meshPath.getParent();

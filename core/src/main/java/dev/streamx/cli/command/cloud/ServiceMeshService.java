@@ -39,8 +39,7 @@ public class ServiceMeshService {
   ProjectPathsService projectPathsService;
 
   public record ConfigSourcesPaths(Set<String> configEnvPaths, Set<String> secretEnvPaths,
-                                   Set<String> configVolumePaths,
-                                   Set<String> secretVolumePaths) {
+                                   Set<String> configVolumePaths, Set<String> secretVolumePaths) {
 
   }
 
