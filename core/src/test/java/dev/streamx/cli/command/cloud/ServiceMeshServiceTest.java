@@ -97,7 +97,7 @@ class ServiceMeshServiceTest {
 
   @NotNull
   private ServiceMesh getServiceMesh(String meshName) {
-    Path meshPath = ProjectUtils.getResourcePath(meshName);
+    Path meshPath = ProjectUtils.getResourcePath(Path.of(meshName));
     return cut.getServiceMesh(meshPath);
   }
 

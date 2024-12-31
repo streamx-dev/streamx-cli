@@ -1,0 +1,1 @@
+This file tests if directory volume config reads only one level of files tree.

@@ -14,20 +14,11 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public final class DataService {
 
-  public enum ConfigType {
-    DIR, FILE;
-
-    public String getLabelValue() {
-      return this.toString().toLowerCase();
-    }
-  }
-
   public Map<String, String> loadDataFromProperties(Path propertiesFilePath) {
     File propertiesFile = propertiesFilePath.toFile();
     if (!propertiesFile.exists() || !propertiesFile.isFile()) {
       throw new IllegalStateException("Path " + propertiesFilePath.normalize()
-          + " provided in Mesh must be a valid properties file. Path was resolved to "
-          + propertiesFilePath.toAbsolutePath().normalize() + ".");
+          + " provided in Mesh must be a valid properties file.");
     }
     Properties properties = new Properties();
     try (FileInputStream fis = new FileInputStream(propertiesFile)) {
@@ -58,32 +49,19 @@ public final class DataService {
                   String relativePath = path.relativize(file).toString();
                   data.put(relativePath, content);
                 } catch (IOException e) {
-                  throw new RuntimeException("Failed to read file: " + file, e);
+                  throw new RuntimeException("Failed to read data file: " + file.toAbsolutePath(),
+                      e);
                 }
               });
         }
       } else {
         throw new IllegalArgumentException(
-            "Path " + path.normalize()
-                + " provided in Mesh must be a file or a directory. Path was resolved to "
-                + path.toAbsolutePath().normalize() + ".");
+            "Path " + path.normalize() + " provided in Mesh must be a file or a directory.");
       }
     } catch (IOException e) {
-      throw new IllegalStateException("Could not convert " + path.normalize() + " to data", e);
+      throw new IllegalStateException("Failed to convert " + path.normalize() + " to data", e);
     }
 
     return data;
-  }
-
-  public ConfigType getConfigType(Path dataSourcePath) {
-    File dataSource = dataSourcePath.toFile();
-    if (dataSource.isFile()) {
-      return ConfigType.FILE;
-    }
-    if (dataSource.isDirectory()) {
-      return ConfigType.DIR;
-    }
-    throw new IllegalStateException(
-        "Config source " + dataSource + " provided in mesh should be file or directory.");
   }
 }

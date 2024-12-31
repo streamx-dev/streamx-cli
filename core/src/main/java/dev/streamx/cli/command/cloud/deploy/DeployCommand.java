@@ -4,10 +4,8 @@ import static dev.streamx.cli.util.Output.printf;
 
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.cloud.KubernetesNamespace;
-import dev.streamx.cli.command.cloud.ProjectPathsService;
 import dev.streamx.cli.command.cloud.ServiceMeshService;
 import dev.streamx.cli.command.cloud.ServiceMeshService.ConfigSourcesPaths;
-import dev.streamx.cli.command.cloud.deploy.DataService.ConfigType;
 import dev.streamx.cli.command.run.MeshDefinitionResolver;
 import dev.streamx.cli.command.run.RunCommand.MeshSource;
 import dev.streamx.operator.crd.ServiceMesh;
@@ -17,7 +15,6 @@ import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -47,10 +44,7 @@ public class DeployCommand implements Runnable {
   KubernetesService kubernetesService;
 
   @Inject
-  DataService dataService;
-
-  @Inject
-  ProjectPathsService projectPathsService;
+  ConfigService configService;
 
   @Override
   public void run() {
@@ -67,45 +61,32 @@ public class DeployCommand implements Runnable {
     List<Secret> secrets = new ArrayList<>();
     String serviceMeshName = serviceMesh.getMetadata().getName();
 
-    fromSourcesPaths.configEnvPaths().forEach(path -> {
-      Path resolvedPath = projectPathsService.resolveConfigPath(projectPath, path);
-      Map<String, String> data = dataService.loadDataFromProperties(resolvedPath);
-      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data,
-          ConfigType.FILE);
-      configMaps.add(configMap);
-    });
+    fromSourcesPaths.configEnvPaths().stream()
+        .map(path -> configService.getConfigEnv(projectPath, path))
+        .map(config -> kubernetesService.buildConfigMap(serviceMeshName, config))
+        .forEach(configMaps::add);
 
-    fromSourcesPaths.secretEnvPaths().forEach(path -> {
-      Path resolvedPath = projectPathsService.resolveSecretPath(projectPath, path);
-      Map<String, String> data = dataService.loadDataFromProperties(resolvedPath);
-      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data, ConfigType.FILE);
-      secrets.add(secret);
-    });
+    fromSourcesPaths.secretEnvPaths().stream()
+        .map(path -> configService.getSecretEnv(projectPath, path))
+        .map(config -> kubernetesService.buildSecret(serviceMeshName, config))
+        .forEach(secrets::add);
 
-    fromSourcesPaths.configVolumePaths().forEach(path -> {
-      Path resolvedPath = projectPathsService.resolveConfigPath(projectPath, path);
-      Map<String, String> data = dataService.loadDataFromFiles(resolvedPath);
-      ConfigType configType = dataService.getConfigType(resolvedPath);
-      ConfigMap configMap = kubernetesService.buildConfigMap(serviceMeshName, path, data,
-          configType);
-      configMaps.add(configMap);
-    });
+    fromSourcesPaths.configVolumePaths().stream()
+        .map(path -> configService.getConfigVolume(projectPath, path))
+        .map(config -> kubernetesService.buildConfigMap(serviceMeshName, config))
+        .forEach(configMaps::add);
 
-    fromSourcesPaths.secretVolumePaths().forEach(path -> {
-      Path resolvedPath = projectPathsService.resolveSecretPath(projectPath, path);
-      Map<String, String> data = dataService.loadDataFromFiles(resolvedPath);
-      ConfigType configType = dataService.getConfigType(resolvedPath);
-      Secret secret = kubernetesService.buildSecret(serviceMeshName, path, data, configType);
-      secrets.add(secret);
-    });
+    fromSourcesPaths.secretVolumePaths().stream()
+        .map(path -> configService.getSecretVolume(projectPath, path))
+        .map(config -> kubernetesService.buildSecret(serviceMeshName, config))
+        .forEach(secrets::add);
 
     String namespace = KubernetesNamespace.getNamespace(namespaceArg);
     kubernetesService.deploy(configMaps, namespace);
     kubernetesService.deploy(secrets, namespace);
     kubernetesService.deploy(serviceMesh, namespace);
 
-    printf("%s successfully deployed to '%s' namespace.",
-        projectPath.toAbsolutePath().normalize(),
+    printf("%s successfully deployed to '%s' namespace.", projectPath.toAbsolutePath().normalize(),
         namespace);
   }
 }

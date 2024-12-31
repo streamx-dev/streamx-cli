@@ -32,12 +32,11 @@ import org.jetbrains.annotations.NotNull;
 @ApplicationScoped
 public class ServiceMeshService {
 
-  @Inject
-  ProjectPathsService projectPathsService;
-
   public static final String SERVICE_MESH_NAME = "sx";
   final ObjectMapper objectMapper = (new ObjectMapper(
       new YAMLFactory())).setSerializationInclusion(Include.NON_NULL);
+  @Inject
+  ProjectPathsService projectPathsService;
 
   public record ConfigSourcesPaths(Set<String> configEnvPaths, Set<String> secretEnvPaths,
                                    Set<String> configVolumePaths,
@@ -112,9 +111,9 @@ public class ServiceMeshService {
           getConfigSourcesPaths(environmentFrom, AbstractFromSource::getSecrets, null));
       VolumesFrom volumesFrom = container.getVolumesFrom();
       configVolumePaths.addAll(getConfigSourcesPaths(volumesFrom, AbstractFromSource::getConfigs,
-          ServiceMeshService::mapToHostPath));
+          this::mapToHostPath));
       secretVolumePaths.addAll(getConfigSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
-          ServiceMeshService::mapToHostPath));
+          this::mapToHostPath));
     });
 
     return new ConfigSourcesPaths(configEnvPaths, secretEnvPaths, configVolumePaths,
@@ -122,7 +121,7 @@ public class ServiceMeshService {
   }
 
   @NotNull
-  private static List<String> getConfigSourcesPaths(AbstractFromSource fromSource,
+  private List<String> getConfigSourcesPaths(AbstractFromSource fromSource,
       Function<AbstractFromSource, List<String>> pathsExtractor, Function<String, String> mapper) {
     List<String> configsPaths = Collections.emptyList();
     if (fromSource != null) {
@@ -137,7 +136,7 @@ public class ServiceMeshService {
     return configsPaths;
   }
 
-  private static void processGlobalEnvSources(ServiceMesh serviceMesh, Set<String> envConfigsPaths,
+  private void processGlobalEnvSources(ServiceMesh serviceMesh, Set<String> envConfigsPaths,
       Set<String> envSecretsPaths) {
     EnvironmentFrom globalEnvironmentFrom = serviceMesh.getSpec().getEnvironmentFrom();
     if (globalEnvironmentFrom != null) {
@@ -152,7 +151,7 @@ public class ServiceMeshService {
     }
   }
 
-  private static String mapToHostPath(String volumeConf) {
+  private String mapToHostPath(String volumeConf) {
     return volumeConf.split(":")[0];
   }
 }

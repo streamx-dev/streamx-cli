@@ -14,11 +14,13 @@ import io.quarkus.test.junit.main.QuarkusMainTest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 @QuarkusMainTest
 @TestProfile(KubernetesClientProfile.class)
 public class DeployCommandIT {
+
 
   @ApplicationScoped
   @IfBuildProperty(name = "%test.quarkus.kubernetes-client.devservices.enabled",
@@ -29,8 +31,7 @@ public class DeployCommandIT {
     KubernetesClient kubernetesClient;
 
     void onStart(@Observes StartupEvent ev) {
-      kubernetesClient.apiextensions().v1()
-          .customResourceDefinitions()
+      kubernetesClient.apiextensions().v1().customResourceDefinitions()
           .load(DeployCommandIT.class.getResourceAsStream("servicemeshes.streamx.dev-v1.yml"))
           .createOr(NonDeletingOperation::update);
     }
@@ -38,9 +39,8 @@ public class DeployCommandIT {
 
   @Test
   void shouldDeployProject(QuarkusMainLauncher launcher) {
-    String meshPath = ProjectUtils.getResourcePath("with-configs.yaml").toString();
+    String meshPath = ProjectUtils.getResourcePath(Path.of("with-configs.yaml")).toString();
     LaunchResult result = launcher.launch("cloud", "deploy", "-f=" + meshPath);
-
     assertThat(result.getOutput()).contains("successfully deployed to 'default' namespace.");
   }
 

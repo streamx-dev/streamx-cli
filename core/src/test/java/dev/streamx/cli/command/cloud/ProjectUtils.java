@@ -11,11 +11,15 @@ public final class ProjectUtils {
 
   private static final String PROJECT_PATH = "project/";
 
-  public static Path getResourcePath(String name) {
+  public static Path getResourcePath(Path resourcePath) {
+    return getProjectPath().resolve(resourcePath);
+  }
+
+  public static Path getProjectPath() {
     try {
-      return Paths.get(ProjectUtils.class.getResource(PROJECT_PATH + name).toURI());
+      return Paths.get(ProjectUtils.class.getResource(PROJECT_PATH).toURI());
     } catch (URISyntaxException e) {
-      throw new RuntimeException("Could not map resource to URI", e);
+      throw new RuntimeException("Could not map project path to URI", e);
     }
   }
 

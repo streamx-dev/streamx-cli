@@ -11,8 +11,8 @@ public class ProjectPathsService {
 
   public static final String CONFIGS_DIRECTORY = "configs";
   public static final String SECRETS_DIRECTORY = "secrets";
-  static final String DEPLOYMENT = "deployment";
   protected static final String YAML_EXT = ".yaml";
+  static final String DEPLOYMENT = "deployment";
   static final String DEPLOYMENT_FILE_NAME = DEPLOYMENT + YAML_EXT;
 
   @NotNull
