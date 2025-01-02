@@ -35,8 +35,8 @@ import org.jetbrains.annotations.Nullable;
 public class ServiceMeshService {
 
   public static final String SERVICE_MESH_NAME = "sx";
-  final static ObjectMapper objectMapper = (new ObjectMapper(
-      new YAMLFactory())).setSerializationInclusion(Include.NON_NULL);
+  static final ObjectMapper objectMapper = new ObjectMapper(
+      new YAMLFactory()).setSerializationInclusion(Include.NON_NULL);
 
   @Inject
   ProjectPathsService projectPathsService;

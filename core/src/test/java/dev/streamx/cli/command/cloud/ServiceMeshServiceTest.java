@@ -64,7 +64,7 @@ class ServiceMeshServiceTest {
   void shouldReturnMessageAboutInvalidMeshPath() {
     RuntimeException runtimeException = assertThrowsExactly(RuntimeException.class,
         () -> cut.getServiceMesh(Path.of("nonexisting.mesh.yaml")));
-    assertEquals("File with provided path 'nonexisting.mesh.yaml' does not exist.",
+    assertEquals("Mesh file with provided path 'nonexisting.mesh.yaml' does not exist.",
         runtimeException.getMessage());
   }
 

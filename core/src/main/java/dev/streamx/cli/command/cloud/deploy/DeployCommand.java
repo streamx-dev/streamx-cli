@@ -3,7 +3,8 @@ package dev.streamx.cli.command.cloud.deploy;
 import static dev.streamx.cli.util.Output.printf;
 
 import dev.streamx.cli.VersionProvider;
-import dev.streamx.cli.command.cloud.KubernetesNamespace;
+import dev.streamx.cli.command.cloud.KubernetesArguments;
+import dev.streamx.cli.command.cloud.KubernetesService;
 import dev.streamx.cli.command.cloud.ServiceMeshService;
 import dev.streamx.cli.command.cloud.ServiceMeshService.ConfigSourcesPaths;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
@@ -22,17 +23,36 @@ import picocli.CommandLine.Command;
     name = DeployCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    description = "Deploy StreamX project to the cloud."
+    description = "Deploys the StreamX project to the cloud. "
+        + DeployCommand.CLOUD_COMMAND_DESCRIPTION
 )
 public class DeployCommand implements Runnable {
 
   public static final String COMMAND_NAME = "deploy";
 
+  public static final String CLOUD_COMMAND_DESCRIPTION = """
+      The command automatically uses the cluster connection and namespace settings from the \
+      current context in your kubeconfig file. Ensure that your kubeconfig is configured correctly \
+      and pointing to the desired cluster and namespace. You can verify your current context \
+      and namespace by running:
+              
+        kubectl config current-context
+        kubectl config view --minify | grep namespace
+              
+      If necessary, switch to the correct context using:
+              
+        kubectl config use-context <context-name>
+              
+      This command assumes the StreamX Operator is installed and the required CRDs are available \
+      on the target cluster. If not, please install the operator and ensure the cluster meets \
+      the prerequisites before running this command.
+      """;
+
   @ArgGroup
   MeshSource meshSource;
 
   @ArgGroup
-  KubernetesNamespace namespaceArg;
+  KubernetesArguments namespaceArg;
 
   @Inject
   MeshResolver meshResolver;
@@ -56,6 +76,7 @@ public class DeployCommand implements Runnable {
   }
 
   private void deploy(ServiceMesh serviceMesh, Path projectPath) {
+    kubernetesService.validateCrdInstallation();
     ConfigSourcesPaths fromSourcesPaths = serviceMeshService.getConfigSourcesPaths(serviceMesh);
     List<ConfigMap> configMaps = new ArrayList<>();
     List<Secret> secrets = new ArrayList<>();
@@ -81,12 +102,11 @@ public class DeployCommand implements Runnable {
         .map(config -> kubernetesService.buildSecret(serviceMeshName, config))
         .forEach(secrets::add);
 
-    String namespace = KubernetesNamespace.getNamespace(namespaceArg);
-    kubernetesService.deploy(configMaps, namespace);
-    kubernetesService.deploy(secrets, namespace);
-    kubernetesService.deploy(serviceMesh, namespace);
+    kubernetesService.deploy(configMaps);
+    kubernetesService.deploy(secrets);
+    kubernetesService.deploy(serviceMesh);
 
-    printf("%s successfully deployed to '%s' namespace.", projectPath.toAbsolutePath().normalize(),
-        namespace);
+    printf("Project %s successfully deployed to '%s' namespace.",
+        projectPath.toAbsolutePath().normalize(), kubernetesService.getNamespace());
   }
 }

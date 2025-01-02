@@ -40,7 +40,7 @@ public class DeployCommandIT {
   @Test
   void shouldDeployProject(QuarkusMainLauncher launcher) {
     String meshPath = ProjectUtils.getResourcePath(Path.of("with-configs.yaml")).toString();
-    LaunchResult result = launcher.launch("cloud", "deploy", "-f=" + meshPath);
+    LaunchResult result = launcher.launch("deploy", "-f=" + meshPath);
     assertThat(result.getOutput()).contains("successfully deployed to 'default' namespace.");
   }
 
