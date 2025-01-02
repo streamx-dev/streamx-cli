@@ -121,6 +121,6 @@ class ServiceMeshServiceTest {
   @NotNull
   private String mapDeploymentConfigToYaml(ServiceMesh serviceMesh) throws JsonProcessingException {
     ServiceMeshDeploymentConfig deploymentConfig = serviceMesh.getSpec().getDeploymentConfig();
-    return cut.objectMapper.writeValueAsString(deploymentConfig);
+    return ServiceMeshService.objectMapper.writeValueAsString(deploymentConfig);
   }
 }
