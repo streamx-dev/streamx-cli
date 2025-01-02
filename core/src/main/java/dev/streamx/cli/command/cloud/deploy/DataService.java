@@ -9,10 +9,14 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @ApplicationScoped
 public final class DataService {
+
+  private static final Pattern validKeyPattern = Pattern.compile("[-._a-zA-Z0-9]+");
 
   public Map<String, String> loadDataFromProperties(Path propertiesFilePath) {
     File propertiesFile = propertiesFilePath.toFile();
@@ -25,7 +29,9 @@ public final class DataService {
       properties.load(fis);
       Map<String, String> data = new HashMap<>();
       for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-        data.put(entry.getKey().toString(), entry.getValue().toString());
+        String propertyKey = entry.getKey().toString();
+        validatePropertyKey(propertiesFilePath.toString(), propertyKey);
+        data.put(propertyKey, entry.getValue().toString());
       }
       return data;
     } catch (IOException e) {
@@ -38,7 +44,9 @@ public final class DataService {
     try {
       if (Files.isRegularFile(path)) {
         String content = Files.readString(path);
-        data.put(path.getFileName().toString(), content);
+        String fileName = path.getFileName().toString();
+        validateFileName(path.toString(), fileName);
+        data.put(fileName, content);
       } else if (Files.isDirectory(path)) {
         try (Stream<Path> walk = Files.walk(path, 1)) {
           walk
@@ -46,8 +54,9 @@ public final class DataService {
               .forEach(file -> {
                 try {
                   String content = Files.readString(file);
-                  String relativePath = path.relativize(file).toString();
-                  data.put(relativePath, content);
+                  String fileName = file.getFileName().toString();
+                  validateFileName(path.toString(), fileName);
+                  data.put(fileName, content);
                 } catch (IOException e) {
                   throw new RuntimeException("Failed to read data file: " + file.toAbsolutePath(),
                       e);
@@ -63,5 +72,26 @@ public final class DataService {
     }
 
     return data;
+  }
+
+  private void validateFileName(String configPath, String fileName) {
+    if (isConfigDataKeyInvalid(fileName)) {
+      throw new IllegalArgumentException(
+          "Invalid file name: " + fileName + " in volumesFrom: " + configPath
+              + ". Valid file name must consist of alphanumeric characters, '-', '_' or '.'.");
+    }
+  }
+
+  private void validatePropertyKey(String configPath, String key) {
+    if (isConfigDataKeyInvalid(key)) {
+      throw new IllegalArgumentException(
+          "Invalid properties key: " + key + " in environmentFrom: " + configPath
+              + ". Valid property key must consist of alphanumeric characters, '-', '_' or '.'.");
+    }
+  }
+
+  private boolean isConfigDataKeyInvalid(String key) {
+    Matcher matcher = validKeyPattern.matcher(key);
+    return !matcher.matches();
   }
 }

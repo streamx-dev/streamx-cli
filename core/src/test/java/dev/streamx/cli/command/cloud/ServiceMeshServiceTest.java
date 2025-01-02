@@ -27,6 +27,15 @@ class ServiceMeshServiceTest {
   ServiceMeshService cut;
 
   @Test
+  void shouldThrowExceptionForEmptyMeshFile() {
+    Path meshPath = ProjectUtils.getResourcePath(Path.of("empty-mesh.yaml"));
+    RuntimeException runtimeException = assertThrowsExactly(RuntimeException.class,
+        () -> cut.getServiceMesh(meshPath));
+    assertThat(runtimeException.getMessage()).isEqualTo(
+        "Mesh file with provided path '" + meshPath + "' is empty.");
+  }
+
+  @Test
   void shouldReturnServiceMeshWithDefaultDeploymentName() throws IOException {
     ServiceMesh serviceMesh = getServiceMesh("mesh.yaml");
     assertNotNull(serviceMesh);
@@ -53,9 +62,10 @@ class ServiceMeshServiceTest {
 
   @Test
   void shouldReturnMessageAboutInvalidMeshPath() {
-    assertThrowsExactly(RuntimeException.class,
-        () -> cut.getServiceMesh(Path.of("nonexisting.mesh.yaml")),
-        "File with provided path 'nonexisting.mesh.yaml' does not exist.");
+    RuntimeException runtimeException = assertThrowsExactly(RuntimeException.class,
+        () -> cut.getServiceMesh(Path.of("nonexisting.mesh.yaml")));
+    assertEquals("File with provided path 'nonexisting.mesh.yaml' does not exist.",
+        runtimeException.getMessage());
   }
 
   @Test
@@ -93,6 +103,13 @@ class ServiceMeshServiceTest {
         expectedVolumesPaths);
     assertThat(configSourcesPaths.secretVolumePaths()).containsExactlyInAnyOrderElementsOf(
         expectedVolumesPaths);
+  }
+
+  @Test
+  void shouldMapEmptyDeploymentFileToNull() {
+    Path meshPath = ProjectUtils.getResourcePath(Path.of("empty-deployment.yaml"));
+    ServiceMesh serviceMesh = cut.getServiceMesh(meshPath);
+    assertThat(serviceMesh.getSpec().getDeploymentConfig()).isNull();
   }
 
   @NotNull

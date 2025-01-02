@@ -1,7 +1,7 @@
 package dev.streamx.cli.command.cloud.deploy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import dev.streamx.cli.command.cloud.ProjectUtils;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,15 +30,48 @@ class DataServiceTest {
   void shouldThrowExceptionAboutInvalidPropertiesFile() {
     Path propertiesPath = ProjectUtils.getResourcePath(
         Path.of("configs", "nonexistent.properties"));
-    RuntimeException nonexistentFileException = assertThrows(RuntimeException.class,
+    RuntimeException nonexistentFileException = assertThrowsExactly(IllegalStateException.class,
         () -> cut.loadDataFromProperties(propertiesPath));
     assertThat(nonexistentFileException.getMessage()).isEqualTo("Path " + propertiesPath
         + " provided in Mesh must be a valid properties file.");
     Path dirPath = ProjectUtils.getResourcePath(Path.of("configs"));
-    RuntimeException dirIsNotValidPropertiesFileException = assertThrows(RuntimeException.class,
-        () -> cut.loadDataFromProperties(dirPath));
+    RuntimeException dirIsNotValidPropertiesFileException = assertThrowsExactly(
+        IllegalStateException.class, () -> cut.loadDataFromProperties(dirPath));
     assertThat(dirIsNotValidPropertiesFileException.getMessage()).isEqualTo("Path " + dirPath
         + " provided in Mesh must be a valid properties file.");
+  }
+
+  @Test
+  void shouldThrowExceptionAboutInvalidPropertyKey() {
+    Path propertiesPath = ProjectUtils.getResourcePath(
+        Path.of("configs", "invalid", "invalid_prop_key.properties"));
+    RuntimeException nonexistentFileException = assertThrowsExactly(IllegalArgumentException.class,
+        () -> cut.loadDataFromProperties(propertiesPath));
+    assertThat(nonexistentFileException.getMessage()).isEqualTo(
+        "Invalid properties key: invalid[]key in environmentFrom: " + propertiesPath
+            + ". Valid property key must consist of alphanumeric characters, '-', '_' or '.'.");
+  }
+
+  @Test
+  void shouldThrowExceptionAboutInvalidFileName() {
+    Path configPath = ProjectUtils.getResourcePath(
+        Path.of("configs", "invalid", "invalid[]name.txt"));
+    RuntimeException nonexistentFileException = assertThrowsExactly(IllegalArgumentException.class,
+        () -> cut.loadDataFromFiles(configPath));
+    assertThat(nonexistentFileException.getMessage()).isEqualTo(
+        "Invalid file name: invalid[]name.txt in volumesFrom: " + configPath
+            + ". Valid file name must consist of alphanumeric characters, '-', '_' or '.'.");
+  }
+
+  @Test
+  void shouldThrowExceptionAboutInvalidFileNameInDir() {
+    Path configPath = ProjectUtils.getResourcePath(
+        Path.of("configs", "invalid"));
+    RuntimeException nonexistentFileException = assertThrowsExactly(IllegalArgumentException.class,
+        () -> cut.loadDataFromFiles(configPath));
+    assertThat(nonexistentFileException.getMessage()).isEqualTo(
+        "Invalid file name: invalid[]name.txt in volumesFrom: " + configPath
+            + ". Valid file name must consist of alphanumeric characters, '-', '_' or '.'.");
   }
 
   @Test

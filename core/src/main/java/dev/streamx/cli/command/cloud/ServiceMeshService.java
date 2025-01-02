@@ -1,6 +1,7 @@
 package dev.streamx.cli.command.cloud;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dev.streamx.cli.util.ExceptionUtils;
@@ -14,6 +15,7 @@ import dev.streamx.operator.crd.ServiceMeshSpec;
 import dev.streamx.operator.crd.deployment.ServiceMeshDeploymentConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -28,13 +30,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @ApplicationScoped
 public class ServiceMeshService {
 
   public static final String SERVICE_MESH_NAME = "sx";
-  final ObjectMapper objectMapper = (new ObjectMapper(
+  final static ObjectMapper objectMapper = (new ObjectMapper(
       new YAMLFactory())).setSerializationInclusion(Include.NON_NULL);
+
   @Inject
   ProjectPathsService projectPathsService;
 
@@ -45,19 +49,19 @@ public class ServiceMeshService {
 
   @NotNull
   public ServiceMesh getServiceMesh(Path meshPath) {
-    if (!meshPath.toFile().exists()) {
-      throw new RuntimeException("File with provided path '" + meshPath + "' does not exist.");
+    File meshPathFile = meshPath.toFile();
+    if (!meshPathFile.exists()) {
+      throw new RuntimeException("Mesh file with provided path '" + meshPath + "' does not exist.");
     }
-    Path deploymentPath = projectPathsService.resolveDeploymentPath(meshPath);
+    if (meshPathFile.length() < 1) {
+      throw new RuntimeException("Mesh file with provided path '" + meshPath + "' is empty.");
+    }
     ServiceMesh serviceMesh = new ServiceMesh();
     try {
-      ServiceMeshSpec spec = objectMapper.readValue(meshPath.toFile(),
+      ServiceMeshSpec spec = objectMapper.readValue(meshPathFile,
           ServiceMeshSpec.class);
-      if (deploymentPath.toFile().exists()) {
-        ServiceMeshDeploymentConfig serviceMeshDeploymentConfig = objectMapper.readValue(
-            deploymentPath.toFile(), ServiceMeshDeploymentConfig.class);
-        spec.setDeploymentConfig(serviceMeshDeploymentConfig);
-      }
+      ServiceMeshDeploymentConfig serviceMeshDeploymentConfig = readDeploymentConfig(meshPath);
+      spec.setDeploymentConfig(serviceMeshDeploymentConfig);
       serviceMesh.setSpec(spec);
       serviceMesh.getMetadata().setName(SERVICE_MESH_NAME);
     } catch (IOException e) {
@@ -69,6 +73,27 @@ public class ServiceMeshService {
                   + e.getMessage()), e);
     }
     return serviceMesh;
+  }
+
+  @Nullable
+  private ServiceMeshDeploymentConfig readDeploymentConfig(Path meshPath) {
+    Path deploymentPath = projectPathsService.resolveDeploymentPath(meshPath);
+    ServiceMeshDeploymentConfig serviceMeshDeploymentConfig = null;
+    File deploymentFile = deploymentPath.toFile();
+    if (deploymentFile.exists() && deploymentFile.length() > 0) {
+      try {
+        serviceMeshDeploymentConfig = objectMapper.readValue(deploymentFile,
+            ServiceMeshDeploymentConfig.class);
+      } catch (IOException e) {
+        throw new RuntimeException(
+            ExceptionUtils.appendLogSuggestion(
+                "Unable to read deployment from '" + deploymentPath + "'.\n"
+                    + "\n"
+                    + "Details:\n"
+                    + e.getMessage()), e);
+      }
+    }
+    return serviceMeshDeploymentConfig;
   }
 
   @NotNull
