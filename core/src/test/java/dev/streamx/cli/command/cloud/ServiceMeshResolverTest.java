@@ -30,7 +30,7 @@ class ServiceMeshResolverTest {
   void shouldThrowExceptionForEmptyMeshFile() {
     Path meshPath = ProjectUtils.getResourcePath(Path.of("empty-mesh.yaml"));
     RuntimeException runtimeException = assertThrowsExactly(RuntimeException.class,
-        () -> cut.getServiceMesh(meshPath));
+        () -> cut.resolveMesh(meshPath));
     assertThat(runtimeException.getMessage()).isEqualTo(
         "Mesh file with provided path '" + meshPath + "' is empty.");
   }
@@ -63,7 +63,7 @@ class ServiceMeshResolverTest {
   @Test
   void shouldReturnMessageAboutInvalidMeshPath() {
     RuntimeException runtimeException = assertThrowsExactly(RuntimeException.class,
-        () -> cut.getServiceMesh(Path.of("nonexisting.mesh.yaml")));
+        () -> cut.resolveMesh(Path.of("nonexisting.mesh.yaml")));
     assertEquals("Mesh file with provided path 'nonexisting.mesh.yaml' does not exist.",
         runtimeException.getMessage());
   }
@@ -78,7 +78,7 @@ class ServiceMeshResolverTest {
   @Test
   void shouldReturnAllConfigSourcesPaths() {
     ServiceMesh serviceMesh = getServiceMesh("with-configs.yaml");
-    ConfigSourcesPaths configSourcesPaths = cut.getConfigSourcesPaths(serviceMesh);
+    ConfigSourcesPaths configSourcesPaths = cut.extractConfigSourcesPaths(serviceMesh);
     Set<String> expectedEnvsPaths = Set.of(
         "global.properties",
         "ingestion/rest.properties",
@@ -108,14 +108,14 @@ class ServiceMeshResolverTest {
   @Test
   void shouldMapEmptyDeploymentFileToNull() {
     Path meshPath = ProjectUtils.getResourcePath(Path.of("empty-deployment.yaml"));
-    ServiceMesh serviceMesh = cut.getServiceMesh(meshPath);
+    ServiceMesh serviceMesh = cut.resolveMesh(meshPath);
     assertThat(serviceMesh.getSpec().getDeploymentConfig()).isNull();
   }
 
   @NotNull
   private ServiceMesh getServiceMesh(String meshName) {
     Path meshPath = ProjectUtils.getResourcePath(Path.of(meshName));
-    return cut.getServiceMesh(meshPath);
+    return cut.resolveMesh(meshPath);
   }
 
   @NotNull

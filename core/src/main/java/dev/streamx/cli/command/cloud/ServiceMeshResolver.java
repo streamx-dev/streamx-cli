@@ -42,7 +42,7 @@ public class ServiceMeshResolver {
   ProjectPathsResolver projectPathsResolver;
 
   @NotNull
-  public ServiceMesh getServiceMesh(Path meshPath) {
+  public ServiceMesh resolveMesh(Path meshPath) {
     File meshPathFile = meshPath.toFile();
     if (!meshPathFile.exists()) {
       throw new RuntimeException("Mesh file with provided path '" + meshPath + "' does not exist.");
@@ -69,6 +69,47 @@ public class ServiceMeshResolver {
     return serviceMesh;
   }
 
+  @NotNull
+  public ConfigSourcesPaths extractConfigSourcesPaths(ServiceMesh serviceMesh) {
+    Set<String> configEnvPaths = new HashSet<>();
+    Set<String> secretEnvPaths = new HashSet<>();
+    Set<String> configVolumePaths = new HashSet<>();
+    Set<String> secretVolumePaths = new HashSet<>();
+    processGlobalEnvSources(serviceMesh, configEnvPaths, secretEnvPaths);
+    List<AbstractContainer> containers = getContainers(serviceMesh);
+    containers.forEach(container -> {
+      EnvironmentFrom environmentFrom = container.getEnvironmentFrom();
+      configEnvPaths.addAll(
+          extractConfigSourcesPaths(environmentFrom, AbstractFromSource::getConfigs, null));
+      secretEnvPaths.addAll(
+          extractConfigSourcesPaths(environmentFrom, AbstractFromSource::getSecrets, null));
+      VolumesFrom volumesFrom = container.getVolumesFrom();
+      configVolumePaths.addAll(extractConfigSourcesPaths(volumesFrom, AbstractFromSource::getConfigs,
+          this::mapToHostPath));
+      secretVolumePaths.addAll(extractConfigSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
+          this::mapToHostPath));
+    });
+
+    return new ConfigSourcesPaths(configEnvPaths, secretEnvPaths, configVolumePaths,
+        secretVolumePaths);
+  }
+
+  @NotNull
+  private List<String> extractConfigSourcesPaths(AbstractFromSource fromSource,
+      Function<AbstractFromSource, List<String>> pathsExtractor, Function<String, String> mapper) {
+    List<String> configsPaths = Collections.emptyList();
+    if (fromSource != null) {
+      List<String> extractedPaths = pathsExtractor.apply(fromSource);
+      if (extractedPaths != null) {
+        configsPaths = extractedPaths.stream().filter(Objects::nonNull).toList();
+        if (mapper != null) {
+          configsPaths = configsPaths.stream().map(mapper).collect(Collectors.toList());
+        }
+      }
+    }
+    return configsPaths;
+  }
+
   @Nullable
   private ServiceMeshDeploymentConfig readDeploymentConfig(Path meshPath) {
     Path deploymentPath = projectPathsResolver.resolveDeploymentPath(meshPath);
@@ -88,47 +129,6 @@ public class ServiceMeshResolver {
       }
     }
     return serviceMeshDeploymentConfig;
-  }
-
-  @NotNull
-  public ConfigSourcesPaths getConfigSourcesPaths(ServiceMesh serviceMesh) {
-    Set<String> configEnvPaths = new HashSet<>();
-    Set<String> secretEnvPaths = new HashSet<>();
-    Set<String> configVolumePaths = new HashSet<>();
-    Set<String> secretVolumePaths = new HashSet<>();
-    processGlobalEnvSources(serviceMesh, configEnvPaths, secretEnvPaths);
-    List<AbstractContainer> containers = getContainers(serviceMesh);
-    containers.forEach(container -> {
-      EnvironmentFrom environmentFrom = container.getEnvironmentFrom();
-      configEnvPaths.addAll(
-          getConfigSourcesPaths(environmentFrom, AbstractFromSource::getConfigs, null));
-      secretEnvPaths.addAll(
-          getConfigSourcesPaths(environmentFrom, AbstractFromSource::getSecrets, null));
-      VolumesFrom volumesFrom = container.getVolumesFrom();
-      configVolumePaths.addAll(getConfigSourcesPaths(volumesFrom, AbstractFromSource::getConfigs,
-          this::mapToHostPath));
-      secretVolumePaths.addAll(getConfigSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
-          this::mapToHostPath));
-    });
-
-    return new ConfigSourcesPaths(configEnvPaths, secretEnvPaths, configVolumePaths,
-        secretVolumePaths);
-  }
-
-  @NotNull
-  private List<String> getConfigSourcesPaths(AbstractFromSource fromSource,
-      Function<AbstractFromSource, List<String>> pathsExtractor, Function<String, String> mapper) {
-    List<String> configsPaths = Collections.emptyList();
-    if (fromSource != null) {
-      List<String> extractedPaths = pathsExtractor.apply(fromSource);
-      if (extractedPaths != null) {
-        configsPaths = extractedPaths.stream().filter(Objects::nonNull).toList();
-        if (mapper != null) {
-          configsPaths = configsPaths.stream().map(mapper).collect(Collectors.toList());
-        }
-      }
-    }
-    return configsPaths;
   }
 
   @NotNull

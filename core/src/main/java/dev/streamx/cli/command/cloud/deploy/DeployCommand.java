@@ -69,14 +69,14 @@ public class DeployCommand implements Runnable {
   public void run() {
     Path meshPath = meshResolver.resolveMeshPath(meshSource);
     meshPath = meshPath.toAbsolutePath();
-    ServiceMesh serviceMesh = serviceMeshResolver.getServiceMesh(meshPath);
+    ServiceMesh serviceMesh = serviceMeshResolver.resolveMesh(meshPath);
     Path projectPath = meshPath.getParent();
     deploy(serviceMesh, projectPath);
   }
 
   private void deploy(ServiceMesh serviceMesh, Path projectPath) {
     kubernetesService.validateCrdInstallation();
-    ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.getConfigSourcesPaths(serviceMesh);
+    ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.extractConfigSourcesPaths(serviceMesh);
     String serviceMeshName = serviceMesh.getMetadata().getName();
     deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
     deploySecrets(projectPath, configSourcesPaths, serviceMeshName);
