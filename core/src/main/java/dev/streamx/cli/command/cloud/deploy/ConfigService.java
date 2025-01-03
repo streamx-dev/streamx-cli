@@ -39,13 +39,8 @@ public class ConfigService {
   }
 
   @NotNull
-  private Function<String, Path> getSecretConfigPathMapper(Path projectPath) {
-    return (path) -> projectPathsService.resolveSecretPath(projectPath, path);
-  }
-
-  @NotNull
   public Config getConfigVolume(Path projectPath, String configPath) {
-    return getConfig(configPath, (path) -> projectPathsService.resolveConfigPath(projectPath, path),
+    return getConfig(configPath, getConfigPathMapper(projectPath),
         dataService::loadDataFromFiles, this::getConfigType);
   }
 
@@ -57,8 +52,18 @@ public class ConfigService {
 
   @NotNull
   public Config getConfigEnv(Path projectPath, String configPath) {
-    return getConfig(configPath, (path) -> projectPathsService.resolveConfigPath(projectPath, path),
+    return getConfig(configPath, getConfigPathMapper(projectPath),
         dataService::loadDataFromProperties, (path) -> ConfigType.FILE);
+  }
+
+  @NotNull
+  private Function<String, Path> getSecretConfigPathMapper(Path projectPath) {
+    return (path) -> projectPathsService.resolveSecretPath(projectPath, path);
+  }
+
+  @NotNull
+  private Function<String, Path> getConfigPathMapper(Path projectPath) {
+    return (path) -> projectPathsService.resolveConfigPath(projectPath, path);
   }
 
   @NotNull

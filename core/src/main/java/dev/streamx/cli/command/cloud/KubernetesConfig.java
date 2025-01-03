@@ -7,7 +7,7 @@ import java.util.Optional;
 @ConfigMapping
 public interface KubernetesConfig {
 
-  String STREAMX_K8S_NAMESPACE = "namespace";
+  String STREAMX_K8S_NAMESPACE = "streamx.cloud.namespace";
 
   @WithName(STREAMX_K8S_NAMESPACE)
   Optional<String> namespace();
