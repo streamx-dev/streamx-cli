@@ -13,6 +13,7 @@ class UndeployCommandIT {
   @Test
   void shouldUndeployProject(QuarkusMainLauncher launcher) {
     LaunchResult result = launcher.launch("undeploy");
-    assertThat(result.getOutput()).contains("StreamX project successfully undeployed from 'default' namespace.");
+    assertThat(result.getOutput()).contains(
+        "StreamX project successfully undeployed from 'default' namespace.");
   }
 }
