@@ -40,7 +40,7 @@
     <quarkus.platform.version>3.13.3</quarkus.platform.version>
 
     <streamx.version>1.0.1</streamx.version>
-    <streamx-operator.version>0.0.1-SNAPSHOT</streamx-operator.version>
+    <streamx-operator.version>0.0.2</streamx-operator.version>
     <json-path.version>2.9.0</json-path.version>
     <assertj-core.version>3.24.2</assertj-core.version>
     <wiremock.version>3.10.0</wiremock.version>
