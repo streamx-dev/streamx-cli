@@ -30,6 +30,7 @@ public class DeployCommand implements Runnable {
   public static final String COMMAND_NAME = "deploy";
 
   public static final String CLOUD_COMMAND_FOOTER = """
+            
       The command automatically uses the cluster connection and namespace settings from the \
       current context in your kubeconfig file. Ensure that your kubeconfig is configured correctly \
       and pointing to the desired cluster and namespace. You can verify your current context \
@@ -76,7 +77,8 @@ public class DeployCommand implements Runnable {
 
   private void deploy(ServiceMesh serviceMesh, Path projectPath) {
     kubernetesService.validateCrdInstallation();
-    ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.extractConfigSourcesPaths(serviceMesh);
+    ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.extractConfigSourcesPaths(
+        serviceMesh);
     String serviceMeshName = serviceMesh.getMetadata().getName();
     deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
     deploySecrets(projectPath, configSourcesPaths, serviceMeshName);

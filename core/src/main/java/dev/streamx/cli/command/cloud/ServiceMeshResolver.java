@@ -84,10 +84,12 @@ public class ServiceMeshResolver {
       secretEnvPaths.addAll(
           extractConfigSourcesPaths(environmentFrom, AbstractFromSource::getSecrets, null));
       VolumesFrom volumesFrom = container.getVolumesFrom();
-      configVolumePaths.addAll(extractConfigSourcesPaths(volumesFrom, AbstractFromSource::getConfigs,
-          this::mapToHostPath));
-      secretVolumePaths.addAll(extractConfigSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
-          this::mapToHostPath));
+      configVolumePaths.addAll(
+          extractConfigSourcesPaths(volumesFrom, AbstractFromSource::getConfigs,
+              this::mapToHostPath));
+      secretVolumePaths.addAll(
+          extractConfigSourcesPaths(volumesFrom, AbstractFromSource::getSecrets,
+              this::mapToHostPath));
     });
 
     return new ConfigSourcesPaths(configEnvPaths, secretEnvPaths, configVolumePaths,
