@@ -21,6 +21,7 @@ import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
@@ -38,6 +39,7 @@ public class KubernetesService {
       PART_OF_LABEL, SERVICE_MESH_NAME,
       MANAGED_BY_LABEL, MANAGED_BY_LABEL_VALUE
   );
+  private static final String DEFAULT_K8S_NAMESPACE = "default";
   @Inject
   KubernetesClient kubernetesClient;
   @Inject
@@ -82,8 +84,10 @@ public class KubernetesService {
     try {
       kubernetesClient.resources(ServiceMesh.class).inNamespace(getNamespace())
           .withName(SERVICE_MESH_NAME).delete();
-      kubernetesClient.resources(ConfigMap.class).withLabels(CONFIG_SELECTOR_LABELS).delete();
-      kubernetesClient.resources(Secret.class).withLabels(CONFIG_SELECTOR_LABELS).delete();
+      kubernetesClient.resources(ConfigMap.class).inNamespace(getNamespace())
+          .withLabels(CONFIG_SELECTOR_LABELS).delete();
+      kubernetesClient.resources(Secret.class).inNamespace(getNamespace())
+          .withLabels(CONFIG_SELECTOR_LABELS).delete();
     } catch (KubernetesClientException e) {
       throw KubernetesException.kubernetesClientException(e);
     }
@@ -130,7 +134,8 @@ public class KubernetesService {
   }
 
   public String getNamespace() {
-    return kubernetesConfig.namespace().orElse(kubernetesClient.getNamespace());
+    return kubernetesConfig.namespace()
+        .orElse(Optional.ofNullable(kubernetesClient.getNamespace()).orElse(DEFAULT_K8S_NAMESPACE));
   }
 
 }
