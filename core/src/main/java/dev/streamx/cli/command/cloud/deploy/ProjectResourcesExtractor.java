@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
-public class ProjectResourcesService {
+public class ProjectResourcesExtractor {
 
   @Inject
   ConfigService configService;

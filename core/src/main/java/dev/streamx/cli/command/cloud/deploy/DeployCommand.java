@@ -63,7 +63,7 @@ public class DeployCommand implements Runnable {
   KubernetesService kubernetesService;
 
   @Inject
-  ProjectResourcesService projectResourcesService;
+  ProjectResourcesExtractor projectResourcesExtractor;
 
   @Override
   public void run() {
@@ -87,14 +87,14 @@ public class DeployCommand implements Runnable {
 
   private void deploySecrets(Path projectPath, ConfigSourcesPaths configSourcesPaths,
       String serviceMeshName) {
-    List<Secret> secrets = projectResourcesService.getSecrets(projectPath, configSourcesPaths,
+    List<Secret> secrets = projectResourcesExtractor.getSecrets(projectPath, configSourcesPaths,
         serviceMeshName);
     kubernetesService.deploy(secrets);
   }
 
   private void deployConfigMaps(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
       String serviceMeshName) {
-    List<ConfigMap> configMaps = projectResourcesService.getConfigMaps(projectPath,
+    List<ConfigMap> configMaps = projectResourcesExtractor.getConfigMaps(projectPath,
         fromSourcesPaths, serviceMeshName);
     kubernetesService.deploy(configMaps);
   }
