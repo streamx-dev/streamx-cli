@@ -90,15 +90,28 @@ public class DeployCommand implements Runnable {
 
   private void deploySecrets(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
       String serviceMeshName) {
-    List<@NotNull Secret> envSecrets = getEnvSecrets(projectPath, fromSourcesPaths.secretEnvPaths(),
-        serviceMeshName);
-    List<@NotNull Secret> volumeSecrets = getVolumeSecrets(projectPath,
-        fromSourcesPaths.secretVolumePaths(), serviceMeshName);
-    List<Secret> secrets = Stream.concat(envSecrets.stream(), volumeSecrets.stream()).toList();
+    List<Secret> secrets = getSecrets(projectPath, fromSourcesPaths, serviceMeshName);
     kubernetesService.deploy(secrets);
   }
 
   private void deployConfigMaps(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
+      String serviceMeshName) {
+    List<ConfigMap> configMaps = getConfigMaps(projectPath, fromSourcesPaths, serviceMeshName);
+    kubernetesService.deploy(configMaps);
+  }
+
+  @NotNull
+  private List<Secret> getSecrets(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
+      String serviceMeshName) {
+    List<@NotNull Secret> envSecrets = getEnvSecrets(projectPath, fromSourcesPaths.secretEnvPaths(),
+        serviceMeshName);
+    List<@NotNull Secret> volumeSecrets = getVolumeSecrets(projectPath,
+        fromSourcesPaths.secretVolumePaths(), serviceMeshName);
+    return Stream.concat(envSecrets.stream(), volumeSecrets.stream()).toList();
+  }
+
+  @NotNull
+  private List<ConfigMap> getConfigMaps(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
       String serviceMeshName) {
     List<@NotNull ConfigMap> envConfigMaps = getEnvConfigMaps(projectPath,
         fromSourcesPaths.configEnvPaths(), serviceMeshName);
@@ -106,7 +119,7 @@ public class DeployCommand implements Runnable {
         fromSourcesPaths.configVolumePaths(), serviceMeshName);
     List<ConfigMap> configMaps = Stream.concat(envConfigMaps.stream(), volumeConfigMaps.stream())
         .toList();
-    kubernetesService.deploy(configMaps);
+    return configMaps;
   }
 
   @NotNull
