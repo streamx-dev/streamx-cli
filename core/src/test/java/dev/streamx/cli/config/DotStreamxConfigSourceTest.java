@@ -7,10 +7,24 @@ import io.quarkus.test.junit.QuarkusTest;
 import java.nio.file.Path;
 import org.assertj.core.api.Assertions;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 class DotStreamxConfigSourceTest {
+
+  private static String USER_HOME;
+
+  @BeforeAll
+  static void beforeAll() {
+    USER_HOME = System.getProperty("user.home");
+  }
+
+  @AfterAll
+  static void afterAll() {
+    System.setProperty("user.home", USER_HOME);
+  }
 
   @Test
   void shouldReadPropsFromDotStreamx() {

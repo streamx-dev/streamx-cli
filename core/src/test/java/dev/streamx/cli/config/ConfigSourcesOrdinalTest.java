@@ -8,7 +8,9 @@ import io.quarkus.test.junit.QuarkusTest;
 import java.nio.file.Path;
 import org.assertj.core.api.Assertions;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -19,6 +21,18 @@ class ConfigSourcesOrdinalTest {
   public static final String TESTED_PROPERTY = "propertySource";
   public static final String ARGUMENT_PROPERTY = "argumentProperty";
   public static final String STREAMX_HOME_PROPERTY = "streamxHome";
+
+  private static String USER_HOME;
+
+  @BeforeAll
+  static void beforeAll() {
+    USER_HOME = System.getProperty("user.home");
+  }
+
+  @AfterAll
+  static void afterAll() {
+    System.setProperty("user.home", USER_HOME);
+  }
 
   @BeforeEach
   void setup() {
