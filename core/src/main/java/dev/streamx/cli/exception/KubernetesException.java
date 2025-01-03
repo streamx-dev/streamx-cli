@@ -14,26 +14,25 @@ public class KubernetesException extends RuntimeException {
       * You are connected to the correct Kubernetes cluster. You can verify your current cluster \
       context by running:
             
-        kubectl config current-context
+          kubectl config current-context
             
-      * StreamX Operator Custom Resource Definitions are installed on the cluster.
-      """.formatted(SERVICEMESH_CRD_NAME);
+      * StreamX Operator Custom Resource Definitions are installed on the cluster.""".formatted(
+      SERVICEMESH_CRD_NAME);
   private static final String K8S_CLIENT_EXCEPTION_MESSAGE = """
       Encountered an error while attempting to communicate with the cluster:
       %s
-      
+            
       Make sure that:
       * Your kubeconfig file is properly configured. You can verify the setup by running:
             
-        kubectl config view
+          kubectl config view
             
       * You are connected to the correct Kubernetes cluster. You can verify your current \
       cluster context by running:
             
-        kubectl config current-context
+          kubectl config current-context
             
-      * The kubeconfig file is accessible and points to a valid cluster configuration.
-      """;
+      * The kubeconfig file is accessible and points to a valid cluster configuration.""";
 
   private KubernetesException(String message, Exception exception) {
     super(message, exception);

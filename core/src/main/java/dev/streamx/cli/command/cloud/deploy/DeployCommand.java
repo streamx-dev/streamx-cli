@@ -36,17 +36,16 @@ public class DeployCommand implements Runnable {
       and pointing to the desired cluster and namespace. You can verify your current context \
       and namespace by running:
               
-        kubectl config current-context
-        kubectl config view --minify | grep namespace
+          kubectl config current-context
+          kubectl config view --minify | grep namespace
               
       If necessary, switch to the correct context using:
               
-        kubectl config use-context <context-name>
+          kubectl config use-context <context-name>
               
       This command assumes the StreamX Operator is installed and the required CRDs are available \
       on the target cluster. If not, please install the operator and ensure the cluster meets \
-      the prerequisites before running this command.
-      """;
+      the prerequisites before running this command.""";
 
   @ArgGroup
   MeshSource meshSource;
