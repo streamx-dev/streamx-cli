@@ -76,7 +76,7 @@ public class ServiceMeshResolver {
     Set<String> configVolumePaths = new HashSet<>();
     Set<String> secretVolumePaths = new HashSet<>();
     processGlobalEnvSources(serviceMesh, configEnvPaths, secretEnvPaths);
-    List<AbstractContainer> containers = getContainers(serviceMesh);
+    List<AbstractContainer> containers = extractContainers(serviceMesh);
     containers.forEach(container -> {
       EnvironmentFrom environmentFrom = container.getEnvironmentFrom();
       configEnvPaths.addAll(
@@ -132,7 +132,7 @@ public class ServiceMeshResolver {
   }
 
   @NotNull
-  List<AbstractContainer> getContainers(ServiceMesh serviceMesh) {
+  List<AbstractContainer> extractContainers(ServiceMesh serviceMesh) {
     ServiceMeshSpec serviceMeshSpec = serviceMesh.getSpec();
     List<AbstractContainer> containers = Stream.of(
             serviceMeshSpec.getIngestion(),

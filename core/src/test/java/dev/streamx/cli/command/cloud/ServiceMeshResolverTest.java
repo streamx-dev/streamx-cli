@@ -71,7 +71,7 @@ class ServiceMeshResolverTest {
   @Test
   void shouldReturnAllConfigurableContainers() {
     ServiceMesh serviceMesh = getServiceMesh("with-configs.yaml");
-    List<AbstractContainer> containers = cut.getContainers(serviceMesh);
+    List<AbstractContainer> containers = cut.extractContainers(serviceMesh);
     assertEquals(4, containers.size());
   }
 
