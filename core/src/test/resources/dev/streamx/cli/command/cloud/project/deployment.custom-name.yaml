@@ -1,0 +1,19 @@
+---
+tenantConfig:
+  inboxesPartitions: 2
+  relaysPartitions: 2
+  outboxesPartitions: 2
+  inboxesCompactionThresholdBytes: 10240
+  outboxesCompactionThresholdBytes: 10240
+  storesCompactionThresholdBytes: 10240
+  subscriptionExpirationTimeMinutes: 240
+ingestion:
+  rest:
+    replicas: 2
+processing:
+  relay:
+    replicas: 2
+delivery:
+  web-delivery-service:
+    replicas: 2
+    stateful: false

@@ -1,0 +1,91 @@
+defaultRegistry: ghcr.io/streamx-dev/streamx
+defaultImageTag: latest-jvm
+environmentFrom:
+  configs:
+    - "global.properties"
+  secrets:
+    - "global.properties"
+
+sources:
+  cli:
+    outgoing:
+      - "pages"
+
+ingestion:
+  rest:
+    environmentFrom:
+      configs:
+        - "ingestion/rest.properties"
+      secrets:
+        - "ingestion/rest.properties"
+    volumesFrom:
+      configs:
+        - "ingestion/rest/file.txt"
+        - "shared"
+      secrets:
+        - "ingestion/rest/file.txt"
+        - "shared"
+
+processing:
+  relay:
+    image: sample-relay-processing-service
+    incoming:
+      incoming-pages:
+        topic: inboxes/pages
+    outgoing:
+      outgoing-pages:
+        topic: outboxes/pages
+    environmentFrom:
+      configs:
+        - "processing/relay.properties"
+        - "shared.properties"
+      secrets:
+        - "processing/relay.properties"
+        - "shared.properties"
+    volumesFrom:
+      configs:
+        - "processing/relay/file.txt"
+        - "shared"
+      secrets:
+        - "processing/relay/file.txt"
+        - "shared"
+
+delivery:
+  web-delivery-service:
+    image: sample-web-delivery-service
+    incoming:
+      pages:
+        topic: outboxes/pages
+    port: 8081
+    environmentFrom:
+      configs:
+        - "delivery/wds.properties"
+        - "shared.properties"
+      secrets:
+        - "delivery/wds.properties"
+        - "shared.properties"
+    volumesFrom:
+      configs:
+        - "delivery/wds/file.txt"
+        - "delivery/wds/dir"
+      secrets:
+        - "delivery/wds/file.txt"
+        - "delivery/wds/dir"
+    components:
+      nginx:
+        image: "docker.io/library/nginx:1.26.0"
+        ports:
+          - 8082:80
+        repositoryVolume: "/usr/share/nginx/html"
+        environmentFrom:
+          configs:
+            - "delivery/wds/nginx.properties"
+          secrets:
+            - "delivery/wds/nginx.properties"
+        volumesFrom:
+          configs:
+            - "delivery/wds/nginx/file.txt"
+            - "shared"
+          secrets:
+            - "delivery/wds/nginx/file.txt"
+            - "shared"
