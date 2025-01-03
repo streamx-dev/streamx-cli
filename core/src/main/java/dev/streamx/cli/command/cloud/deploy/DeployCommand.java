@@ -22,14 +22,14 @@ import picocli.CommandLine.Command;
     name = DeployCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    description = "Deploy the StreamX project to the cloud. "
-        + DeployCommand.CLOUD_COMMAND_DESCRIPTION
+    description = "Deploy the StreamX project to the cloud.",
+    footer = DeployCommand.CLOUD_COMMAND_FOOTER
 )
 public class DeployCommand implements Runnable {
 
   public static final String COMMAND_NAME = "deploy";
 
-  public static final String CLOUD_COMMAND_DESCRIPTION = """
+  public static final String CLOUD_COMMAND_FOOTER = """
       The command automatically uses the cluster connection and namespace settings from the \
       current context in your kubeconfig file. Ensure that your kubeconfig is configured correctly \
       and pointing to the desired cluster and namespace. You can verify your current context \

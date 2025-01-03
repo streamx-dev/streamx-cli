@@ -14,8 +14,8 @@ import picocli.CommandLine.Command;
     name = UndeployCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    description = "Undeploy the StreamX Project from the cloud. "
-        + DeployCommand.CLOUD_COMMAND_DESCRIPTION
+    description = "Undeploy the StreamX Project from the cloud.",
+    footer = DeployCommand.CLOUD_COMMAND_FOOTER
 )
 public class UndeployCommand implements Runnable {
 
