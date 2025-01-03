@@ -3,24 +3,24 @@ package dev.streamx.cli.command.cloud.deploy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import dev.streamx.cli.command.cloud.ProjectPathsService;
+import dev.streamx.cli.command.cloud.ProjectPathsResolver;
 import dev.streamx.cli.command.cloud.ProjectUtils;
 import dev.streamx.cli.command.cloud.deploy.Config.ConfigType;
 import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.component.QuarkusComponentTest;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-@QuarkusTest
+@QuarkusComponentTest
 class ConfigServiceTest {
 
   @Inject
   ConfigService cut;
 
   @InjectMock
-  ProjectPathsService projectPathsService;
+  ProjectPathsResolver projectPathsResolver;
 
   @InjectMock
   DataService dataService;
@@ -50,7 +50,7 @@ class ConfigServiceTest {
     Path projectPath = ProjectUtils.getProjectPath();
     String configName = "global.properties";
     Path configPath = ProjectUtils.getResourcePath(Path.of("configs", configName));
-    when(projectPathsService.resolveConfigPath(projectPath, configName)).thenReturn(configPath);
+    when(projectPathsResolver.resolveConfigPath(projectPath, configName)).thenReturn(configPath);
     Map<String, String> data = Map.of("key", "value");
     when(dataService.loadDataFromProperties(configPath)).thenReturn(data);
     Config configEnv = cut.getConfigEnv(projectPath, configName);
@@ -64,7 +64,7 @@ class ConfigServiceTest {
     Path projectPath = ProjectUtils.getProjectPath();
     String configName = "shared.properties";
     Path configPath = ProjectUtils.getResourcePath(Path.of("secrets", configName));
-    when(projectPathsService.resolveSecretPath(projectPath, configName)).thenReturn(configPath);
+    when(projectPathsResolver.resolveSecretPath(projectPath, configName)).thenReturn(configPath);
     Map<String, String> data = Map.of("secretKey", "secretValue");
     when(dataService.loadDataFromProperties(configPath)).thenReturn(data);
     Config configEnv = cut.getSecretEnv(projectPath, configName);
@@ -78,7 +78,7 @@ class ConfigServiceTest {
     Path projectPath = ProjectUtils.getProjectPath();
     String configName = "delivery/wds/file.txt";
     Path configPath = ProjectUtils.getResourcePath(Path.of("configs", configName));
-    when(projectPathsService.resolveConfigPath(projectPath, configName)).thenReturn(configPath);
+    when(projectPathsResolver.resolveConfigPath(projectPath, configName)).thenReturn(configPath);
     Map<String, String> data = Map.of("file.txt", "File content");
     when(dataService.loadDataFromFiles(configPath)).thenReturn(data);
     Config configEnv = cut.getConfigVolume(projectPath, configName);
@@ -92,7 +92,7 @@ class ConfigServiceTest {
     Path projectPath = ProjectUtils.getProjectPath();
     String configName = "delivery/wds/dir";
     Path configPath = ProjectUtils.getResourcePath(Path.of("configs", configName));
-    when(projectPathsService.resolveConfigPath(projectPath, configName)).thenReturn(configPath);
+    when(projectPathsResolver.resolveConfigPath(projectPath, configName)).thenReturn(configPath);
     Map<String, String> data = Map.of("file.txt", "File content", "file1.txt", "File1 content");
     when(dataService.loadDataFromFiles(configPath)).thenReturn(data);
     Config configEnv = cut.getConfigVolume(projectPath, configName);
@@ -106,7 +106,7 @@ class ConfigServiceTest {
     Path projectPath = ProjectUtils.getProjectPath();
     String configName = "delivery/wds/file.txt";
     Path configPath = ProjectUtils.getResourcePath(Path.of("secrets", configName));
-    when(projectPathsService.resolveSecretPath(projectPath, configName)).thenReturn(configPath);
+    when(projectPathsResolver.resolveSecretPath(projectPath, configName)).thenReturn(configPath);
     Map<String, String> data = Map.of("secret-file.txt", "File content");
     when(dataService.loadDataFromFiles(configPath)).thenReturn(data);
     Config configEnv = cut.getSecretVolume(projectPath, configName);
@@ -120,7 +120,7 @@ class ConfigServiceTest {
     Path projectPath = ProjectUtils.getProjectPath();
     String configName = "delivery/wds/dir";
     Path configPath = ProjectUtils.getResourcePath(Path.of("secrets", configName));
-    when(projectPathsService.resolveSecretPath(projectPath, configName)).thenReturn(configPath);
+    when(projectPathsResolver.resolveSecretPath(projectPath, configName)).thenReturn(configPath);
     Map<String, String> data = Map.of("secret-file.txt", "File content", "secret-file1.txt",
         "File1 content");
     when(dataService.loadDataFromFiles(configPath)).thenReturn(data);

@@ -32,14 +32,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ApplicationScoped
-public class ServiceMeshService {
+public class ServiceMeshResolver {
 
   public static final String SERVICE_MESH_NAME = "sx";
   static final ObjectMapper objectMapper = new ObjectMapper(
       new YAMLFactory()).setSerializationInclusion(Include.NON_NULL);
 
   @Inject
-  ProjectPathsService projectPathsService;
+  ProjectPathsResolver projectPathsResolver;
 
   @NotNull
   public ServiceMesh getServiceMesh(Path meshPath) {
@@ -71,7 +71,7 @@ public class ServiceMeshService {
 
   @Nullable
   private ServiceMeshDeploymentConfig readDeploymentConfig(Path meshPath) {
-    Path deploymentPath = projectPathsService.resolveDeploymentPath(meshPath);
+    Path deploymentPath = projectPathsResolver.resolveDeploymentPath(meshPath);
     ServiceMeshDeploymentConfig serviceMeshDeploymentConfig = null;
     File deploymentFile = deploymentPath.toFile();
     if (deploymentFile.exists() && deploymentFile.length() > 0) {
@@ -88,29 +88,6 @@ public class ServiceMeshService {
       }
     }
     return serviceMeshDeploymentConfig;
-  }
-
-  @NotNull
-  List<AbstractContainer> getContainers(ServiceMesh serviceMesh) {
-    ServiceMeshSpec serviceMeshSpec = serviceMesh.getSpec();
-    List<AbstractContainer> containers = Stream.of(
-            serviceMeshSpec.getIngestion(),
-            serviceMeshSpec.getProcessing(),
-            serviceMeshSpec.getDelivery()
-        ).filter(Objects::nonNull).map(Map::values)
-        .flatMap(Collection::stream).collect(Collectors.toList());
-    containers.addAll(
-        Optional.ofNullable(serviceMeshSpec.getDelivery())
-            .orElse(Collections.emptyMap())
-            .values()
-            .stream()
-            .map(DeliveryService::getComponents)
-            .filter(Objects::nonNull)
-            .map(Map::values)
-            .flatMap(Collection::stream)
-            .toList()
-    );
-    return containers;
   }
 
   @NotNull
@@ -145,13 +122,36 @@ public class ServiceMeshService {
     if (fromSource != null) {
       List<String> extractedPaths = pathsExtractor.apply(fromSource);
       if (extractedPaths != null) {
-        configsPaths = extractedPaths;
+        configsPaths = extractedPaths.stream().filter(Objects::nonNull).toList();
         if (mapper != null) {
           configsPaths = configsPaths.stream().map(mapper).collect(Collectors.toList());
         }
       }
     }
     return configsPaths;
+  }
+
+  @NotNull
+  List<AbstractContainer> getContainers(ServiceMesh serviceMesh) {
+    ServiceMeshSpec serviceMeshSpec = serviceMesh.getSpec();
+    List<AbstractContainer> containers = Stream.of(
+            serviceMeshSpec.getIngestion(),
+            serviceMeshSpec.getProcessing(),
+            serviceMeshSpec.getDelivery()
+        ).filter(Objects::nonNull).map(Map::values)
+        .flatMap(Collection::stream).collect(Collectors.toList());
+    containers.addAll(
+        Optional.ofNullable(serviceMeshSpec.getDelivery())
+            .orElse(Collections.emptyMap())
+            .values()
+            .stream()
+            .map(DeliveryService::getComponents)
+            .filter(Objects::nonNull)
+            .map(Map::values)
+            .flatMap(Collection::stream)
+            .toList()
+    );
+    return containers;
   }
 
   private void processGlobalEnvSources(ServiceMesh serviceMesh, Set<String> envConfigsPaths,

@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @ApplicationScoped
-public final class DataService {
+public class DataService {
 
   private static final Pattern validKeyPattern = Pattern.compile("[-._a-zA-Z0-9]+");
 
@@ -43,20 +43,14 @@ public final class DataService {
     Map<String, String> data = new HashMap<>();
     try {
       if (Files.isRegularFile(path)) {
-        String content = Files.readString(path);
-        String fileName = path.getFileName().toString();
-        validateFileName(path.toString(), fileName);
-        data.put(fileName, content);
+        loadDataFromFile(path.toString(), path, data);
       } else if (Files.isDirectory(path)) {
         try (Stream<Path> walk = Files.walk(path, 1)) {
           walk
               .filter(Files::isRegularFile)
               .forEach(file -> {
                 try {
-                  String content = Files.readString(file);
-                  String fileName = file.getFileName().toString();
-                  validateFileName(path.toString(), fileName);
-                  data.put(fileName, content);
+                  loadDataFromFile(path.toString(), file, data);
                 } catch (IOException e) {
                   throw new RuntimeException("Failed to read data file: " + file.toAbsolutePath(),
                       e);
@@ -72,6 +66,14 @@ public final class DataService {
     }
 
     return data;
+  }
+
+  private void loadDataFromFile(String configPath, Path filePath, Map<String, String> data)
+      throws IOException {
+    String content = Files.readString(filePath);
+    String fileName = filePath.getFileName().toString();
+    validateFileName(configPath, fileName);
+    data.put(fileName, content);
   }
 
   private void validateFileName(String configPath, String fileName) {

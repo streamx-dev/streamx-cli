@@ -10,27 +10,28 @@ public class KubernetesException extends RuntimeException {
   private static final String MISSING_CRD_MESSAGE = """
       The required CustomResourceDefinition (CRD) "%s" is not installed on the cluster.
                 
-      Make sure that:\s
-      * You are connected to the correct Kubernetes cluster. You can verify your current cluster
-       context by running:
-       \s
+      Make sure that:
+      * You are connected to the correct Kubernetes cluster. You can verify your current cluster \
+      context by running:
+            
         kubectl config current-context
+            
       * StreamX Operator Custom Resource Definitions are installed on the cluster.
       """.formatted(SERVICEMESH_CRD_NAME);
   private static final String K8S_CLIENT_EXCEPTION_MESSAGE = """
       Encountered an error while attempting to communicate with the cluster:
       %s
-      \s
+      
       Make sure that:
       * Your kubeconfig file is properly configured. You can verify the setup by running:
-              
+            
         kubectl config view
-        
+            
       * You are connected to the correct Kubernetes cluster. You can verify your current \
       cluster context by running:
-
+            
         kubectl config current-context
-        
+            
       * The kubeconfig file is accessible and points to a valid cluster configuration.
       """;
 

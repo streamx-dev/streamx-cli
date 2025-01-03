@@ -4,17 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import dev.streamx.cli.command.cloud.ProjectUtils;
-import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-@QuarkusTest
 class DataServiceTest {
 
-  @Inject
-  DataService cut;
+  DataService cut = new DataService();
 
   @Test
   void shouldReturnDataWithAllProperties() {

@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
-public class ProjectPathsService {
+public class ProjectPathsResolver {
 
   public static final String CONFIGS_DIRECTORY = "configs";
   public static final String SECRETS_DIRECTORY = "secrets";

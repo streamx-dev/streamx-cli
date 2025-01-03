@@ -1,6 +1,6 @@
 package dev.streamx.cli.command.cloud.deploy;
 
-import dev.streamx.cli.command.cloud.ProjectPathsService;
+import dev.streamx.cli.command.cloud.ProjectPathsResolver;
 import dev.streamx.cli.command.cloud.deploy.Config.ConfigType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,20 +17,7 @@ public class ConfigService {
   DataService dataService;
 
   @Inject
-  ProjectPathsService projectPathsService;
-
-  @NotNull
-  ConfigType getConfigType(Path dataSourcePath) {
-    File dataSource = dataSourcePath.toFile();
-    if (dataSource.isFile()) {
-      return ConfigType.FILE;
-    }
-    if (dataSource.isDirectory()) {
-      return ConfigType.DIR;
-    }
-    throw new IllegalStateException(
-        "Config source " + dataSource + " provided in Mesh should be file or directory.");
-  }
+  ProjectPathsResolver projectPathsResolver;
 
   @NotNull
   public Config getSecretVolume(Path projectPath, String configPath) {
@@ -47,23 +34,23 @@ public class ConfigService {
   @NotNull
   public Config getSecretEnv(Path projectPath, String configPath) {
     return getConfig(configPath, getSecretConfigPathMapper(projectPath),
-        dataService::loadDataFromProperties, (path -> ConfigType.FILE));
+        dataService::loadDataFromProperties, path -> ConfigType.FILE);
   }
 
   @NotNull
   public Config getConfigEnv(Path projectPath, String configPath) {
     return getConfig(configPath, getConfigPathMapper(projectPath),
-        dataService::loadDataFromProperties, (path) -> ConfigType.FILE);
+        dataService::loadDataFromProperties, path -> ConfigType.FILE);
   }
 
   @NotNull
   private Function<String, Path> getSecretConfigPathMapper(Path projectPath) {
-    return (path) -> projectPathsService.resolveSecretPath(projectPath, path);
+    return (path) -> projectPathsResolver.resolveSecretPath(projectPath, path);
   }
 
   @NotNull
   private Function<String, Path> getConfigPathMapper(Path projectPath) {
-    return (path) -> projectPathsService.resolveConfigPath(projectPath, path);
+    return (path) -> projectPathsResolver.resolveConfigPath(projectPath, path);
   }
 
   @NotNull
@@ -73,5 +60,18 @@ public class ConfigService {
     Map<String, String> data = dataMapper.apply(mappedPath);
     ConfigType configType = configTypeMapper.apply(mappedPath);
     return new Config(configPath, data, configType);
+  }
+
+  @NotNull
+  ConfigType getConfigType(Path dataSourcePath) {
+    File dataSource = dataSourcePath.toFile();
+    if (dataSource.isFile()) {
+      return ConfigType.FILE;
+    }
+    if (dataSource.isDirectory()) {
+      return ConfigType.DIR;
+    }
+    throw new IllegalStateException(
+        "Config source " + dataSource + " provided in Mesh should be file or directory.");
   }
 }

@@ -1,6 +1,6 @@
 package dev.streamx.cli.command.cloud;
 
-import static dev.streamx.cli.command.cloud.ServiceMeshService.SERVICE_MESH_NAME;
+import static dev.streamx.cli.command.cloud.ServiceMeshResolver.SERVICE_MESH_NAME;
 
 import dev.streamx.cli.command.cloud.deploy.Config;
 import dev.streamx.cli.exception.KubernetesException;

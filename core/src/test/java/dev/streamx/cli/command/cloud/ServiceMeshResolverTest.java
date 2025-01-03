@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import dev.streamx.cli.command.cloud.ServiceMeshService.ConfigSourcesPaths;
+import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
 import dev.streamx.mesh.model.AbstractContainer;
 import dev.streamx.operator.crd.ServiceMesh;
 import dev.streamx.operator.crd.deployment.ServiceMeshDeploymentConfig;
@@ -21,10 +21,10 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-class ServiceMeshServiceTest {
+class ServiceMeshResolverTest {
 
   @Inject
-  ServiceMeshService cut;
+  ServiceMeshResolver cut;
 
   @Test
   void shouldThrowExceptionForEmptyMeshFile() {
@@ -121,6 +121,6 @@ class ServiceMeshServiceTest {
   @NotNull
   private String mapDeploymentConfigToYaml(ServiceMesh serviceMesh) throws JsonProcessingException {
     ServiceMeshDeploymentConfig deploymentConfig = serviceMesh.getSpec().getDeploymentConfig();
-    return ServiceMeshService.objectMapper.writeValueAsString(deploymentConfig);
+    return ServiceMeshResolver.objectMapper.writeValueAsString(deploymentConfig);
   }
 }

@@ -1,7 +1,7 @@
 package dev.streamx.cli.command.cloud.deploy;
 
 import dev.streamx.cli.command.cloud.KubernetesService;
-import dev.streamx.cli.command.cloud.ServiceMeshService.ConfigSourcesPaths;
+import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.enterprise.context.ApplicationScoped;

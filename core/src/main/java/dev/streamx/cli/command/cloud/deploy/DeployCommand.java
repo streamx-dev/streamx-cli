@@ -5,8 +5,8 @@ import static dev.streamx.cli.util.Output.printf;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.cloud.KubernetesArguments;
 import dev.streamx.cli.command.cloud.KubernetesService;
-import dev.streamx.cli.command.cloud.ServiceMeshService;
-import dev.streamx.cli.command.cloud.ServiceMeshService.ConfigSourcesPaths;
+import dev.streamx.cli.command.cloud.ServiceMeshResolver;
+import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.operator.crd.ServiceMesh;
@@ -57,7 +57,7 @@ public class DeployCommand implements Runnable {
   MeshResolver meshResolver;
 
   @Inject
-  ServiceMeshService serviceMeshService;
+  ServiceMeshResolver serviceMeshResolver;
 
   @Inject
   KubernetesService kubernetesService;
@@ -69,14 +69,14 @@ public class DeployCommand implements Runnable {
   public void run() {
     Path meshPath = meshResolver.resolveMeshPath(meshSource);
     meshPath = meshPath.toAbsolutePath();
-    ServiceMesh serviceMesh = serviceMeshService.getServiceMesh(meshPath);
+    ServiceMesh serviceMesh = serviceMeshResolver.getServiceMesh(meshPath);
     Path projectPath = meshPath.getParent();
     deploy(serviceMesh, projectPath);
   }
 
   private void deploy(ServiceMesh serviceMesh, Path projectPath) {
     kubernetesService.validateCrdInstallation();
-    ConfigSourcesPaths configSourcesPaths = serviceMeshService.getConfigSourcesPaths(serviceMesh);
+    ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.getConfigSourcesPaths(serviceMesh);
     String serviceMeshName = serviceMesh.getMetadata().getName();
     deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
     deploySecrets(projectPath, configSourcesPaths, serviceMeshName);

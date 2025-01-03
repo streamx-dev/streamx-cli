@@ -8,10 +8,10 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-class ProjectPathsServiceTest {
+class ProjectPathsResolverTest {
 
   @Inject
-  ProjectPathsService cut;
+  ProjectPathsResolver cut;
 
   @Test
   void shouldReturnDefaultDeploymentPath() {

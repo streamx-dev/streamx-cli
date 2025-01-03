@@ -15,12 +15,12 @@ import dev.streamx.operator.Component;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Secret;
-import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.component.QuarkusComponentTest;
 import jakarta.inject.Inject;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-@QuarkusTest
+@QuarkusComponentTest
 class KubernetesServiceTest {
 
   private static final String MESH_NAME = "sx";
