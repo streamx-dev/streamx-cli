@@ -8,6 +8,6 @@ public class KubernetesArguments {
   @Option(names = {"-n", "--namespace"}, paramLabel = "<kubernetesNamespace>",
       description = "Forces provided namespace.")
   void namespace(String namespace) {
-    ArgumentConfigSource.registerValue(KubernetesConfig.STREAMX_K8S_NAMESPACE, namespace);
+    ArgumentConfigSource.registerValue(KubernetesConfig.STREAMX_CLOUD_NAMESPACE, namespace);
   }
 }
