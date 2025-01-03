@@ -61,13 +61,6 @@
         <scope>import</scope>
       </dependency>
 
-      <!-- To be removed once https://github.com/quarkusio/quarkus/issues/42796 is resolved -->
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bootstrap-maven-resolver</artifactId>
-        <version>3.11.3</version>
-      </dependency>
-
       <dependency>
         <groupId>dev.streamx.cli</groupId>
         <artifactId>streamx-cli-entrypoint</artifactId>
