@@ -41,11 +41,6 @@ public class ServiceMeshService {
   @Inject
   ProjectPathsService projectPathsService;
 
-  public record ConfigSourcesPaths(Set<String> configEnvPaths, Set<String> secretEnvPaths,
-                                   Set<String> configVolumePaths, Set<String> secretVolumePaths) {
-
-  }
-
   @NotNull
   public ServiceMesh getServiceMesh(Path meshPath) {
     File meshPathFile = meshPath.toFile();
@@ -176,5 +171,10 @@ public class ServiceMeshService {
 
   private String mapToHostPath(String volumeConf) {
     return volumeConf.split(":")[0];
+  }
+
+  public record ConfigSourcesPaths(Set<String> configEnvPaths, Set<String> secretEnvPaths,
+                                   Set<String> configVolumePaths, Set<String> secretVolumePaths) {
+
   }
 }

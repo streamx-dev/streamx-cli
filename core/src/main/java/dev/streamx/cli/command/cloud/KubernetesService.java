@@ -34,17 +34,14 @@ public class KubernetesService {
   public static final String CONFIG_TYPE_LABEL = "mesh.streamx.dev/config-type";
   public static final String PART_OF_LABEL = "app.kubernetes.io/part-of";
   public static final String SERVICEMESH_CRD_NAME = "servicemeshes.streamx.dev";
-
-  @Inject
-  KubernetesClient kubernetesClient;
-
-  @Inject
-  KubernetesConfig kubernetesConfig;
-
   private static final Map<String, String> CONFIG_SELECTOR_LABELS = Map.of(
       PART_OF_LABEL, SERVICE_MESH_NAME,
       MANAGED_BY_LABEL, MANAGED_BY_LABEL_VALUE
   );
+  @Inject
+  KubernetesClient kubernetesClient;
+  @Inject
+  KubernetesConfig kubernetesConfig;
 
   private static void setMetadata(String meshName, Component component, String name,
       HasMetadata resource) {
