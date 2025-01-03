@@ -15,9 +15,6 @@ import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
@@ -66,7 +63,7 @@ public class DeployCommand implements Runnable {
   KubernetesService kubernetesService;
 
   @Inject
-  ConfigService configService;
+  ProjectResourcesService projectResourcesService;
 
   @Override
   public void run() {
@@ -79,82 +76,26 @@ public class DeployCommand implements Runnable {
 
   private void deploy(ServiceMesh serviceMesh, Path projectPath) {
     kubernetesService.validateCrdInstallation();
-    ConfigSourcesPaths fromSourcesPaths = serviceMeshService.getConfigSourcesPaths(serviceMesh);
+    ConfigSourcesPaths configSourcesPaths = serviceMeshService.getConfigSourcesPaths(serviceMesh);
     String serviceMeshName = serviceMesh.getMetadata().getName();
-    deployConfigMaps(projectPath, fromSourcesPaths, serviceMeshName);
-    deploySecrets(projectPath, fromSourcesPaths, serviceMeshName);
+    deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
+    deploySecrets(projectPath, configSourcesPaths, serviceMeshName);
     kubernetesService.deploy(serviceMesh);
     printf("Project %s successfully deployed to '%s' namespace.",
         projectPath.toAbsolutePath().normalize(), kubernetesService.getNamespace());
   }
 
-  private void deploySecrets(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
+  private void deploySecrets(Path projectPath, ConfigSourcesPaths configSourcesPaths,
       String serviceMeshName) {
-    List<Secret> secrets = getSecrets(projectPath, fromSourcesPaths, serviceMeshName);
+    List<Secret> secrets = projectResourcesService.getSecrets(projectPath, configSourcesPaths,
+        serviceMeshName);
     kubernetesService.deploy(secrets);
   }
 
   private void deployConfigMaps(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
       String serviceMeshName) {
-    List<ConfigMap> configMaps = getConfigMaps(projectPath, fromSourcesPaths, serviceMeshName);
+    List<ConfigMap> configMaps = projectResourcesService.getConfigMaps(projectPath,
+        fromSourcesPaths, serviceMeshName);
     kubernetesService.deploy(configMaps);
-  }
-
-  @NotNull
-  private List<Secret> getSecrets(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
-      String serviceMeshName) {
-    List<@NotNull Secret> envSecrets = getEnvSecrets(projectPath, fromSourcesPaths.secretEnvPaths(),
-        serviceMeshName);
-    List<@NotNull Secret> volumeSecrets = getVolumeSecrets(projectPath,
-        fromSourcesPaths.secretVolumePaths(), serviceMeshName);
-    return Stream.concat(envSecrets.stream(), volumeSecrets.stream()).toList();
-  }
-
-  @NotNull
-  private List<ConfigMap> getConfigMaps(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
-      String serviceMeshName) {
-    List<@NotNull ConfigMap> envConfigMaps = getEnvConfigMaps(projectPath,
-        fromSourcesPaths.configEnvPaths(), serviceMeshName);
-    List<@NotNull ConfigMap> volumeConfigMaps = getVolumeConfigMaps(projectPath,
-        fromSourcesPaths.configVolumePaths(), serviceMeshName);
-    List<ConfigMap> configMaps = Stream.concat(envConfigMaps.stream(), volumeConfigMaps.stream())
-        .toList();
-    return configMaps;
-  }
-
-  @NotNull
-  private List<@NotNull Secret> getVolumeSecrets(Path projectPath, Set<String> volumePaths,
-      String serviceMeshName) {
-    return volumePaths.stream()
-        .map(path -> configService.getSecretVolume(projectPath, path))
-        .map(config -> kubernetesService.buildSecret(serviceMeshName, config))
-        .toList();
-  }
-
-  @NotNull
-  private List<@NotNull Secret> getEnvSecrets(Path projectPath, Set<String> envPaths,
-      String serviceMeshName) {
-    return envPaths.stream()
-        .map(path -> configService.getSecretEnv(projectPath, path))
-        .map(config -> kubernetesService.buildSecret(serviceMeshName, config))
-        .toList();
-  }
-
-  @NotNull
-  private List<@NotNull ConfigMap> getEnvConfigMaps(Path projectPath, Set<String> envPaths,
-      String serviceMeshName) {
-    return envPaths.stream()
-        .map(path -> configService.getConfigEnv(projectPath, path))
-        .map(config -> kubernetesService.buildConfigMap(serviceMeshName, config))
-        .toList();
-  }
-
-  @NotNull
-  private List<@NotNull ConfigMap> getVolumeConfigMaps(Path projectPath, Set<String> volumePaths,
-      String serviceMeshName) {
-    return volumePaths.stream()
-        .map(path -> configService.getConfigVolume(projectPath, path))
-        .map(config -> kubernetesService.buildConfigMap(serviceMeshName, config))
-        .toList();
   }
 }
