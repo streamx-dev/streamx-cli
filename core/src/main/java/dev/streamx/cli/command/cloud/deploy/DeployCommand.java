@@ -32,16 +32,16 @@ public class DeployCommand implements Runnable {
   public static final String CLOUD_COMMAND_FOOTER = """
             
       The command automatically uses the cluster connection and namespace settings from the \
-      current context in your kubeconfig file. Ensure that your kubeconfig is configured correctly \
-      and pointing to the desired cluster and namespace. You can verify your current context \
-      and namespace by running:
+      current context in your @|italic kubeconfig|@ file. Ensure that your @|italic kubeconfig|@ \
+      is configured correctly and pointing to the desired cluster and namespace. You can verify \
+      your current context and namespace by running:
               
-          kubectl config current-context
-          kubectl config view --minify | grep namespace
+          @|yellow kubectl config current-context|@
+          @|yellow kubectl config view --minify | grep namespace|@
               
       If necessary, switch to the correct context using:
               
-          kubectl config use-context <context-name>
+          @|yellow kubectl config use-context <context-name>|@
               
       This command assumes the StreamX Operator is installed and the required CRDs are available \
       on the target cluster. If not, please install the operator and ensure the cluster meets \

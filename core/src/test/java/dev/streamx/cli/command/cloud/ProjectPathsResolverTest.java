@@ -2,12 +2,12 @@ package dev.streamx.cli.command.cloud;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.component.QuarkusComponentTest;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
-@QuarkusTest
+@QuarkusComponentTest
 class ProjectPathsResolverTest {
 
   @Inject
