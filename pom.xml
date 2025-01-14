@@ -39,7 +39,7 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.17.5</quarkus.platform.version>
 
-    <streamx.version>1.0.1</streamx.version>
+    <streamx.version>1.0.3</streamx.version>
     <streamx-operator.version>0.0.4</streamx-operator.version>
     <json-path.version>2.9.0</json-path.version>
     <assertj-core.version>3.24.2</assertj-core.version>
