@@ -41,6 +41,7 @@
 
     <streamx.version>1.0.3</streamx.version>
     <streamx-operator.version>0.0.4</streamx-operator.version>
+    <avro.version>1.11.3</avro.version>
     <json-path.version>2.9.0</json-path.version>
     <assertj-core.version>3.24.2</assertj-core.version>
     <wiremock.version>3.10.0</wiremock.version>
@@ -82,6 +83,13 @@
         <artifactId>ingestion-client</artifactId>
         <version>${streamx.version}</version>
       </dependency>
+      <!-- This version needs to be same as in ingestion-client -->
+      <dependency>
+        <groupId>org.apache.avro</groupId>
+        <artifactId>avro</artifactId>
+        <version>${avro.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>dev.streamx</groupId>
         <artifactId>streamx-operator-api</artifactId>
