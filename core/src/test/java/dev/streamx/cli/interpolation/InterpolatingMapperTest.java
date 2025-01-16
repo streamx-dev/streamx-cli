@@ -58,7 +58,7 @@ public class InterpolatingMapperTest {
         {
           "bool": true,
           "string": "${test.string}",
-          "aLong": "${test.int}",
+          "longField": "${test.int}",
           "integer": "${test.int}",
           "url": "http://${test.string}"
         }
@@ -66,7 +66,7 @@ public class InterpolatingMapperTest {
     MixedTypesTestClass result = mapper.readValue(json, MixedTypesTestClass.class);
     assertTrue(result.isBool());
     assertEquals("interpolatedValue", result.getString());
-    assertEquals(-1, result.getaLong());
+    assertEquals(-1, result.getLongField());
     assertEquals(-1, result.getInteger());
     assertEquals("http://interpolatedValue", result.getUrl().getUrl());
   }
@@ -77,7 +77,7 @@ public class InterpolatingMapperTest {
     private boolean bool;
     private String string;
     private Integer integer;
-    private Long aLong;
+    private Long longField;
     private Url url;
 
     public boolean isBool() {
@@ -104,12 +104,12 @@ public class InterpolatingMapperTest {
       this.integer = integer;
     }
 
-    public Long getaLong() {
-      return aLong;
+    public Long getLongField() {
+      return longField;
     }
 
-    public void setaLong(Long aLong) {
-      this.aLong = aLong;
+    public void setLongField(Long longField) {
+      this.longField = longField;
     }
 
     public Url getUrl() {
