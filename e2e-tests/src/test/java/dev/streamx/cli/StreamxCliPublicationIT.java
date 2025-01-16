@@ -106,6 +106,11 @@ public class StreamxCliPublicationIT {
             "json_path_file_param_page.html",
             "-s content.bytes=file://" + absolutePath("json_path_file_param_page.txt"),
             "json_path_file_param_page"
+        ),
+        arguments(
+            "json_path_file_param_page.html",
+            "-b content.bytes=file://" + absolutePath("json_path_file_param_page.txt"),
+            "json_path_file_param_page"
         )
     );
   }
