@@ -19,9 +19,10 @@ public class InterpolatingMapperTest {
   @Test
   void testInterpolateStringFields() throws Exception {
     System.setProperty("test.interpolatedValue", "interpolatedValue");
-    String json = "{\"field\":\"${test.interpolatedValue}\"}";
-
-    TestClass result = mapper.readValue(json, TestClass.class);
+    String yaml = """
+        field: ${test.interpolatedValue}
+        """;
+    TestClass result = mapper.readValue(yaml, TestClass.class);
 
     assertEquals("interpolatedValue", result.getField());
   }
@@ -29,9 +30,12 @@ public class InterpolatingMapperTest {
   @Test
   void testNestedInterpolation() throws Exception {
     System.setProperty("test.nestedValue", "nestedValue");
-    String json = "{\"nested\": {\"field\": \"${test.nestedValue}\"}}";
+    String yaml = """
+        nested:
+          field: ${test.nestedValue}
+        """;
 
-    NestedTestClass result = mapper.readValue(json, NestedTestClass.class);
+    NestedTestClass result = mapper.readValue(yaml, NestedTestClass.class);
 
     assertEquals("nestedValue", result.getNested().getField());
   }
@@ -40,9 +44,12 @@ public class InterpolatingMapperTest {
   void testArrayInterpolation() throws Exception {
     System.setProperty("test.arrayValue1", "interpolatedValue1");
     System.setProperty("test.arrayValue2", "interpolatedValue2");
-    String json = "[\"${test.arrayValue1}\", \"${test.arrayValue2}\"]";
 
-    String[] result = mapper.readValue(json, String[].class);
+    String yaml = """
+        - "${test.arrayValue1}"
+        - "${test.arrayValue2}"
+        """;
+    String[] result = mapper.readValue(yaml, String[].class);
 
     assertEquals("interpolatedValue1", result[0]);
     assertEquals("interpolatedValue2", result[1]);
@@ -54,16 +61,14 @@ public class InterpolatingMapperTest {
     System.setProperty("test.int", "-1");
     System.setProperty("test.boolean", "true");
 
-    String json = """
-        {
-          "bool": true,
-          "string": "${test.string}",
-          "longField": "${test.int}",
-          "integer": "${test.int}",
-          "url": "http://${test.string}"
-        }
+    String yaml = """
+          bool: true
+          string: ${test.string}
+          longField: ${test.int}
+          integer: ${test.int}
+          url: http://${test.string}
         """;
-    MixedTypesTestClass result = mapper.readValue(json, MixedTypesTestClass.class);
+    MixedTypesTestClass result = mapper.readValue(yaml, MixedTypesTestClass.class);
     assertTrue(result.isBool());
     assertEquals("interpolatedValue", result.getString());
     assertEquals(-1, result.getLongField());

@@ -1,16 +1,20 @@
 package dev.streamx.cli.interpolation;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.util.JsonParserDelegate;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import java.io.IOException;
+import java.io.Reader;
+import org.yaml.snakeyaml.LoaderOptions;
 
-public class InterpolatingJsonParser extends JsonParserDelegate {
+public class InterpolatingYamlParser extends YAMLParser {
 
   private final InterpolationSupport interpolationSupport;
 
-  public InterpolatingJsonParser(final JsonParser delegate,
+  public InterpolatingYamlParser(IOContext context, int parserFeatures, int formatFeatures,
+      LoaderOptions loaderOptions, ObjectCodec codec, Reader reader,
       InterpolationSupport interpolationSupport) {
-    super(delegate);
+    super(context, parserFeatures, formatFeatures, loaderOptions, codec, reader);
     this.interpolationSupport = interpolationSupport;
   }
 
@@ -20,7 +24,7 @@ public class InterpolatingJsonParser extends JsonParserDelegate {
     if (value != null) {
       return interpolationSupport.expand(value);
     }
-    return value;
+    return null;
   }
 
   @Override

@@ -16,7 +16,7 @@ public class ObjectMapperProducer {
   @Interpolating
   @ApplicationScoped
   ObjectMapper produce(@All List<ObjectMapperCustomizer> customizers) {
-    ObjectMapper mapper = new ObjectMapper(new InterpolatingJsonFactory(interpolationSupport));
+    ObjectMapper mapper = new ObjectMapper(new InterpolatingYamlFactory(interpolationSupport));
 
     // Apply all ObjectMapperCustomizer beans (incl. Quarkus)
     for (ObjectMapperCustomizer customizer : customizers) {
