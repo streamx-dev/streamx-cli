@@ -1,8 +1,7 @@
 package dev.streamx.cli.command.cloud;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import dev.streamx.cli.interpolation.Interpolating;
 import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.mesh.model.AbstractContainer;
 import dev.streamx.mesh.model.AbstractFromSource;
@@ -35,8 +34,9 @@ import org.jetbrains.annotations.Nullable;
 public class ServiceMeshResolver {
 
   public static final String SERVICE_MESH_NAME = "sx";
-  static final ObjectMapper objectMapper = new ObjectMapper(
-      new YAMLFactory()).setSerializationInclusion(Include.NON_NULL);
+  @Inject
+  @Interpolating
+  ObjectMapper objectMapper;
 
   @Inject
   ProjectPathsResolver projectPathsResolver;
