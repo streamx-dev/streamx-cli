@@ -50,11 +50,11 @@ jobs:
         run: |
           ./mvnw -B release:perform -P release
 
-#     - name: Jira release
-#       uses: streamx-dev/streamx-common-github-actions/.github/actions/jira-release@main
-#       with:
-#         atlassianCloudUser: ${{ secrets.ATLASSIAN_CLOUD_USER }}
-#         atlassianCloudApiKey: ${{ secrets.ATLASSIAN_CLOUD_APIKEY }}
-#         atlassianCloudDomain: ${{ secrets.ATLASSIAN_CLOUD_DOMAIN }}
-#         atlassianCloudJiraProject: ${{ vars.ATLASSIAN_CLOUD_JIRA_PROJECT }}
-#         releaseNamePrefix: ${{ github.event.repository.name }}
+      - name: Jira release
+        uses: streamx-dev/streamx-common-github-actions/.github/actions/jira-release@main
+        with:
+          atlassianCloudUser: ${{ secrets.ATLASSIAN_CLOUD_USER }}
+          atlassianCloudApiKey: ${{ secrets.ATLASSIAN_CLOUD_APIKEY }}
+          atlassianCloudDomain: ${{ secrets.ATLASSIAN_CLOUD_DOMAIN }}
+          atlassianCloudJiraProject: ${{ vars.ATLASSIAN_CLOUD_JIRA_PROJECT }}
+          releaseNamePrefix: ${{ github.event.repository.name }}
