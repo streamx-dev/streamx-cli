@@ -1,0 +1,25 @@
+defaultRegistry: ghcr.io/streamx-dev/streamx
+defaultImageTag: ${streamx.version}-jvm
+
+sources:
+  cli:
+    outgoing:
+      - "pages"
+
+processing:
+  relay:
+    image: ${config.image.interpolated}
+    incoming:
+      incoming-pages:
+        topic: inboxes/pages
+    outgoing:
+      outgoing-pages:
+        topic: outboxes/pages
+
+delivery:
+  web-delivery-service:
+    image: sample-web-delivery-service
+    incoming:
+      pages:
+        topic: outboxes/pages
+    port: 8081
