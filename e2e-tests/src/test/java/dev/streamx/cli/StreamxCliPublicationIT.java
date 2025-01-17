@@ -98,6 +98,11 @@ public class StreamxCliPublicationIT {
             "Json exact page"
         ),
         arguments(
+            "json_path_exact_param_page.html",
+            "-b content.bytes='Json exact page'",
+            "Json exact page"
+        ),
+        arguments(
             "file_param_page.html",
             "-j file://" + absolutePath("file_param_page.json"),
             "file_param_page"
@@ -105,6 +110,11 @@ public class StreamxCliPublicationIT {
         arguments(
             "json_path_file_param_page.html",
             "-s content.bytes=file://" + absolutePath("json_path_file_param_page.txt"),
+            "json_path_file_param_page"
+        ),
+        arguments(
+            "json_path_file_param_page.html",
+            "-b content.bytes=file://" + absolutePath("json_path_file_param_page.txt"),
             "json_path_file_param_page"
         )
     );

@@ -135,11 +135,28 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
       // when
       LaunchResult result = launcher.launch("publish",
           "--ingestion-url=" + getIngestionUrl(),
-          "-b=content='<h1>Hello World!</h1>'",
+          "-b=content.bytes=<h1>Hello!</h1>",
           CHANNEL, KEY);
 
       // then
       expectSuccess(result);
+      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          .withRequestBody(equalToJson("""
+              {
+                "key" : "index.html",
+                "action" : "publish",
+                "eventTime" : null,
+                "properties" : { },
+                "payload" : {
+                  "dev.streamx.blueprints.data.Page" : {
+                    "content" : {
+                      "bytes" : "<h1>Hello!</h1>"
+                    }
+                  }
+                }
+              }
+              """))
+          .withoutHeader("Authorization"));
     }
 
     @Test
