@@ -1,6 +1,7 @@
 package dev.streamx.cli.command.meshprocessing;
 
-import dev.streamx.mesh.mapper.MeshConfigMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.streamx.cli.interpolation.Interpolating;
 import dev.streamx.mesh.model.ServiceMesh;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,9 +12,10 @@ import java.nio.file.Path;
 public class MeshDefinitionResolver {
 
   @Inject
-  MeshConfigMapper meshConfigMapper;
+  @Interpolating
+  ObjectMapper objectMapper;
 
   public ServiceMesh resolve(Path meshPath) throws IOException {
-    return this.meshConfigMapper.read(meshPath);
+    return objectMapper.readValue(meshPath.toFile(), ServiceMesh.class);
   }
 }
