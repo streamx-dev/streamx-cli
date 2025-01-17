@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import io.quarkus.test.component.QuarkusComponentTest;
 import jakarta.inject.Inject;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusComponentTest
@@ -13,6 +15,14 @@ public class InterpolationSupportTest {
 
   @Inject
   InterpolationSupport interpolationSupport;
+
+  @AfterEach
+  void cleanup() {
+    var propertiesToClear = Set.of(
+        "this.is.a.property", "prop1", "prop2", "nested","inner", "whitespace.property");
+
+    propertiesToClear.forEach(System::clearProperty);
+  }
 
   @Test
   void testExpandWithValidProperty() {

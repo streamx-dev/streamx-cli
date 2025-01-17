@@ -1,11 +1,14 @@
 package dev.streamx.cli.interpolation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.org.bouncycastle.oer.its.etsi102941.Url;
 
@@ -16,6 +19,14 @@ public class InterpolatingMapperTest {
   @Interpolating
   ObjectMapper mapper;
 
+  @AfterEach
+  void cleanup() {
+    var propertiesToClear = Set.of("test.interpolatedValue", "test.nestedValue",
+        "test.arrayValue1", "test.arrayValue2", "test.string", "test.int", "test.boolean");
+
+    propertiesToClear.forEach(System::clearProperty);
+  }
+
   @Test
   void testInterpolateStringFields() throws Exception {
     System.setProperty("test.interpolatedValue", "interpolatedValue");
@@ -25,6 +36,36 @@ public class InterpolatingMapperTest {
     TestClass result = mapper.readValue(yaml, TestClass.class);
 
     assertEquals("interpolatedValue", result.getField());
+  }
+
+  @Test
+  void testInterpolateFieldWithDefault() throws Exception {
+    String yaml = """
+        field: ${test.interpolatedValue:default}
+        """;
+    TestClass result = mapper.readValue(yaml, TestClass.class);
+
+    assertEquals("default", result.getField());
+  }
+
+  @Test
+  void testNotInterpolatingNullField() throws Exception {
+    String yaml = """
+        field: null
+        """;
+    TestClass result = mapper.readValue(yaml, TestClass.class);
+
+    assertNull(result.getField());
+  }
+
+  @Test
+  void testNotInterpolatingFieldWithoutPlaceholder() throws Exception {
+    String yaml = """
+        field: "field"
+        """;
+    TestClass result = mapper.readValue(yaml, TestClass.class);
+
+    assertEquals("field", result.getField());
   }
 
   @Test

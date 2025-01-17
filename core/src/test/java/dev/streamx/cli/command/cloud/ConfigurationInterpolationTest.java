@@ -9,6 +9,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -16,6 +18,14 @@ class ConfigurationInterpolationTest {
 
   @Inject
   ServiceMeshResolver cut;
+
+  @AfterEach
+  void cleanup() {
+    var propertiesToClear = Set.of(
+        "string.array.property", "string.property", "integer.property", "boolean.property");
+
+    propertiesToClear.forEach(System::clearProperty);
+  }
 
   @Test
   void shouldConfigurationBeInterpolatedFromProperties() {
