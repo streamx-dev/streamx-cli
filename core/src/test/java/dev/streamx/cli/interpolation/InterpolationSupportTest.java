@@ -19,7 +19,7 @@ public class InterpolationSupportTest {
   @AfterEach
   void cleanup() {
     var propertiesToClear = Set.of(
-        "this.is.a.property", "prop1", "prop2", "nested","inner", "whitespace.property");
+        "this.is.a.property", "prop1", "prop2", "nested", "inner", "whitespace.property");
 
     propertiesToClear.forEach(System::clearProperty);
   }
