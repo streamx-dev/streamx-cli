@@ -36,7 +36,7 @@ delivery:
       webserver:
         image: "docker.io/library/nginx:1.26.0"
         ports:
-          - 8089:80
+          - ${streamx.cli.e2e.port}:80
         repositoryVolume: "/usr/share/nginx/html"
         volumesFrom:
           configs:
