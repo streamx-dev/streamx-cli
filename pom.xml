@@ -37,7 +37,7 @@
 
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.17.5</quarkus.platform.version>
+    <quarkus.platform.version>3.18.1</quarkus.platform.version>
 
     <streamx.version>1.0.4</streamx.version>
     <streamx-operator.version>0.0.4</streamx-operator.version>
