@@ -7,7 +7,8 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommand;
 import dev.streamx.cli.command.ingestion.IngestionMessageJsonFactory;
 import dev.streamx.cli.command.ingestion.batch.BatchIngestionArguments.ActionType;
-import dev.streamx.cli.command.ingestion.batch.payload.BatchFilePayloadResolver;
+import dev.streamx.cli.command.ingestion.batch.resolver.BatchPayloadResolver;
+import dev.streamx.cli.command.ingestion.batch.resolver.substitutor.Substitutor;
 import dev.streamx.cli.command.ingestion.batch.walker.EventSourceFileTreeWalker;
 import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.cli.util.FileUtils;
@@ -39,7 +40,9 @@ public class BatchCommand extends BaseIngestionCommand {
   @ArgGroup(exclusive = false, multiplicity = "1")
   BatchIngestionArguments batchIngestionArguments;
   @Inject
-  BatchFilePayloadResolver payloadResolver;
+  BatchPayloadResolver payloadResolver;
+  @Inject
+  Substitutor substitutor;
   @Inject
   IngestionMessageJsonFactory ingestionMessageJsonFactory;
   private State state;
@@ -84,12 +87,6 @@ public class BatchCommand extends BaseIngestionCommand {
 
   @Override
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
-    // DONE: Ignore .eventsource.yaml
-    // DONE: Add calculation of relativePath based on defined root Level
-    // DONE: Add Ignoring on pattern
-    // TODO: Add support for publishing data from JSONs
-    // TODO: Add support for publishing data from streams
-
     String schemaType = schemaTypesCache.computeIfAbsent(getChannel(),
         c -> getPayloadPropertyName());
     SuccessResult result = publisher.send(ingestionMessageJsonFactory.from(
@@ -109,9 +106,9 @@ public class BatchCommand extends BaseIngestionCommand {
 
     String relativePath = calculateRelativePath(file, eventSource);
 
-    Map<String, String> variables = payloadResolver.createSubstitutionVariables(file, eventSource,
-        relativePath);
-    String key = payloadResolver.substitute(variables, eventSource.getKey());
+    Map<String, String> variables = substitutor.createSubstitutionVariables(
+        file.toString(), eventSource.getChannel(), relativePath);
+    String key = substitutor.substitute(variables, eventSource.getKey());
 
     JsonNode message = payloadResolver.createPayload(eventSource, variables);
 
@@ -128,7 +125,7 @@ public class BatchCommand extends BaseIngestionCommand {
           .toString();
     } else {
       relativePath = FileUtils.getNthParent(eventSource.getSource(),
-              eventSource.getRelativePathLevel()).relativize(file).toString();
+          eventSource.getRelativePathLevel()).relativize(file).toString();
     }
     return relativePath;
   }
