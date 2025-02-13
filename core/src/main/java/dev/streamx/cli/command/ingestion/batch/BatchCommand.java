@@ -85,8 +85,8 @@ public class BatchCommand extends BaseIngestionCommand {
   @Override
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
     // DONE: Ignore .eventsource.yaml
-    // TODO: Add calculation of relativePath based on defined root Level
-    // TODO: Add Ignoring on pattern
+    // DONE: Add calculation of relativePath based on defined root Level
+    // DONE: Add Ignoring on pattern
     // TODO: Add support for publishing data from JSONs
     // TODO: Add support for publishing data from streams
 

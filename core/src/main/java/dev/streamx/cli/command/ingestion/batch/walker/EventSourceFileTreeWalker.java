@@ -3,6 +3,7 @@ package dev.streamx.cli.command.ingestion.batch.walker;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dev.streamx.cli.command.ingestion.batch.EventSourceDescriptor;
+import dev.streamx.cli.util.FileUtils;
 import io.quarkus.logging.Log;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Stack;
 
 public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
@@ -68,7 +70,8 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
         for (Path entry : stream) {
           if (Files.isRegularFile(entry)
               // Skip .eventsource.yaml files
-              && !EventSourceDescriptor.FILENAME.equals(entry.getFileName().toString())) {
+              && !EventSourceDescriptor.FILENAME.equals(entry.getFileName().toString())
+              && noIgnorePatternMatches(entry, currentDescriptor)) {
             processor.apply(entry, currentDescriptor);
           }
         }
@@ -77,5 +80,24 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
     } else {
       Log.debugf("No active event source.");
     }
+  }
+
+  private boolean noIgnorePatternMatches(Path payloadFile, EventSourceDescriptor descriptor) {
+    List<String> patterns = descriptor.getIgnorePatterns();
+    if (patterns == null || patterns.isEmpty()) {
+      return true;
+    }
+
+    int level = descriptor.getRelativePathLevel() == null ? 0 : descriptor.getRelativePathLevel();
+    String relativePath = FileUtils.getNthParent(descriptor.getSource(), level)
+        .relativize(payloadFile).toString();
+
+    // Check against each ignore pattern.
+    for (String regex : patterns) {
+      if (relativePath.matches(regex)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
