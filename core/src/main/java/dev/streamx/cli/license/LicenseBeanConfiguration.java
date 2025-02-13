@@ -15,20 +15,19 @@ import dev.streamx.cli.license.source.ProdLicenseSource;
 import io.quarkus.arc.DefaultBean;
 import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.arc.properties.IfBuildProperty;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Dependent
 class LicenseBeanConfiguration {
 
-  @ApplicationScoped
+  @Produces
+  @Singleton
   @LicenseProcessing
   ObjectMapper licensesProcessingObjectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
-
-    return objectMapper;
+    return new ObjectMapper(new YAMLFactory());
   }
 
   @Produces

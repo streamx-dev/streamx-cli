@@ -25,4 +25,21 @@ public class FileUtils {
 
     return file;
   }
+
+  @NotNull
+  public static Path getNthParent(Path path, int n) {
+    if (path == null) {
+      throw new IllegalArgumentException("Input path must not be null.");
+    }
+    Path current = path.normalize();
+    for (int i = 0; i <= n; i++) {
+      current = current.getParent();
+      if (current == null) {
+        throw new IllegalArgumentException(
+            "Path " + path + " does not have " + n + " parent levels."
+        );
+      }
+    }
+    return current;
+  }
 }

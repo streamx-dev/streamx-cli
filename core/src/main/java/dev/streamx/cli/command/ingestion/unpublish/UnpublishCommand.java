@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
 @Command(name = UnpublishCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    description = "Send unpublication trigger"
+    description = "Send unpublication data"
 )
 public class UnpublishCommand extends BaseIngestionCommand {
 
@@ -33,7 +33,7 @@ public class UnpublishCommand extends BaseIngestionCommand {
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
     SuccessResult result = publisher.unpublish(ingestionTargetArguments.getKey());
 
-    printf("Registered unpublish trigger on '%s' with key '%s' at %d%n",
+    printf("Sent data unpublication message to '%s' with key '%s' at %d%n",
         ingestionTargetArguments.getChannel(), result.getKey(),  result.getEventTime());
   }
 }
