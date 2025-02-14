@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 @ApplicationScoped
 public class JsonResolverStep implements ResolverStep {
 
-  private static final ObjectMapper JSON_SERIALIZATION_OBJECT_MAPPER = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override
   public JsonNode resolve(JsonNode payload, Map<String, String> variables) {
@@ -59,7 +59,7 @@ public class JsonResolverStep implements ResolverStep {
       return null;
     }
     try {
-      return JSON_SERIALIZATION_OBJECT_MAPPER.readTree(jsonPath.toFile());
+      return OBJECT_MAPPER.readTree(jsonPath.toFile());
     } catch (IOException e) {
       throw PayloadException.ioException(e);
     }

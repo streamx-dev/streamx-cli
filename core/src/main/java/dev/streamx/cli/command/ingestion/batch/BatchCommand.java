@@ -53,7 +53,7 @@ public class BatchCommand extends BaseIngestionCommand {
   }
 
   protected void doRun(StreamxClient client) throws StreamxClientException {
-    Path startDir = Paths.get(batchIngestionArguments.sourceDirectory);
+    Path startDir = Paths.get(batchIngestionArguments.getSourceDirectory());
 
     try {
       Files.walkFileTree(startDir, new EventSourceFileTreeWalker((file, eventSource) -> {
