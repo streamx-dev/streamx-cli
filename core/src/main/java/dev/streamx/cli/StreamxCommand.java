@@ -2,7 +2,9 @@ package dev.streamx.cli;
 
 import dev.streamx.cli.command.cloud.deploy.DeployCommand;
 import dev.streamx.cli.command.cloud.undeploy.UndeployCommand;
+import dev.streamx.cli.command.ingestion.batch.BatchCommand;
 import dev.streamx.cli.command.ingestion.publish.PublishCommand;
+import dev.streamx.cli.command.ingestion.stream.StreamCommand;
 import dev.streamx.cli.command.ingestion.unpublish.UnpublishCommand;
 import dev.streamx.cli.command.manager.ManagerCommand;
 import dev.streamx.cli.command.run.RunCommand;
@@ -26,8 +28,10 @@ import picocli.CommandLine.ParseResult;
 @TopCommand
 @Command(mixinStandardHelpOptions = true,
     name = "streamx",
-    subcommands = { RunCommand.class,
+    subcommands = {
+        RunCommand.class,
         PublishCommand.class, UnpublishCommand.class,
+        BatchCommand.class, StreamCommand.class,
         DeployCommand.class, UndeployCommand.class,
         ManagerCommand.class,
         HelpCommand.class

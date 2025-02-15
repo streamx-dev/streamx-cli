@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.ingestion.publish;
+package dev.streamx.cli.command.ingestion;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,7 +15,7 @@ public class IngestionMessageJsonFactory {
    * @param key of resource
    * @param action publish or unpublish
    * @param payloadContent to include as a payload in returned JsonNode
-   * @param nameOfObjectToWrapPayload
+   * @param payloadType type matching registered ingestion API schema
    * @return JsonNode representation of {@link dev.streamx.clients.ingestion.publisher.Message}
    */
 
@@ -23,7 +23,7 @@ public class IngestionMessageJsonFactory {
       String key,
       String action,
       JsonNode payloadContent,
-      String nameOfObjectToWrapPayload
+      String payloadType
   ) {
     ObjectNode root = mapper.createObjectNode();
 
@@ -32,7 +32,7 @@ public class IngestionMessageJsonFactory {
     root.putNull("eventTime");
     root.putObject("properties");
     ObjectNode payload = root.putObject("payload");
-    payload.set(nameOfObjectToWrapPayload, payloadContent);
+    payload.set(payloadType, payloadContent);
     return root;
   }
 }

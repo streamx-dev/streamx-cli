@@ -3,7 +3,7 @@ package dev.streamx.cli.command.ingestion.publish;
 import dev.streamx.cli.command.ingestion.IngestionTargetArguments;
 import picocli.CommandLine.Parameters;
 
-public class PublishTargetArguments extends IngestionTargetArguments {
+public class PublishArguments extends IngestionTargetArguments {
 
   @Parameters(index = "2", arity = "0..1",
       paramLabel = "payloadFile",
