@@ -26,7 +26,6 @@ import picocli.CommandLine.Command;
 @Command(name = ManagerCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    hidden = true, // FIXME change after official release of StreamX Mesh Manager
     description = "Serve StreamX Mesh Manager locally.")
 public class ManagerCommand implements Runnable {
 
