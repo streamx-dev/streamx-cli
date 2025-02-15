@@ -6,6 +6,8 @@
   <version>1.0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <name>StreamX Cli : Parent</name>
+
   <modules>
     <module>entrypoint</module>
     <module>core</module>
