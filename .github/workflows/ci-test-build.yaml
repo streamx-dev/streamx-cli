@@ -23,9 +23,6 @@ jobs:
         run: |
           git config --global user.email "github.actions@streamx.dev"
           git config --global user.name "${GITHUB_ACTOR}"
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_SECRET_KEY }}" > ~/.ssh/id_rsa
-          chmod 0600 ~/.ssh/id_rsa
 
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
