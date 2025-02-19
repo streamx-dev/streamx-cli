@@ -6,7 +6,7 @@ import picocli.CommandLine.Option;
 
 public class KubernetesResourcesArguments {
 
-  @Option(names = {"-p", "--resources-directories"}, paramLabel = "<resourcesDirectories>",
+  @Option(names = {"-d", "--resources-directories"}, paramLabel = "<resourcesDirectories>",
       description = "Specifies one or more comma-separated relative directory paths (from the "
           + "mesh.yaml directory) where managed Kubernetes resource definitions are located.")
   void resourcesDirectories(String resourcesDirectories) {
