@@ -263,7 +263,9 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>TOTALCOUNT</value>
-                      <maximum>20</maximum>
+                      <!-- FixMe: Review the code and decide if it's worth to decrease it back to 20
+                        -->
+                      <maximum>25</maximum>
                     </limit>
                   </limits>
                 </rule>

@@ -3,7 +3,8 @@ package dev.streamx.cli.command.cloud.deploy;
 import static dev.streamx.cli.util.Output.printf;
 
 import dev.streamx.cli.VersionProvider;
-import dev.streamx.cli.command.cloud.KubernetesArguments;
+import dev.streamx.cli.command.cloud.KubernetesNamespaceArguments;
+import dev.streamx.cli.command.cloud.KubernetesResourcesArguments;
 import dev.streamx.cli.command.cloud.KubernetesService;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
@@ -11,6 +12,7 @@ import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.operator.crd.ServiceMesh;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
@@ -51,7 +53,10 @@ public class DeployCommand implements Runnable {
   MeshSource meshSource;
 
   @ArgGroup
-  KubernetesArguments namespaceArg;
+  KubernetesNamespaceArguments kubernetesNamespaceArguments;
+
+  @ArgGroup
+  KubernetesResourcesArguments kubernetesResourcesArguments;
 
   @Inject
   MeshResolver meshResolver;
@@ -79,11 +84,21 @@ public class DeployCommand implements Runnable {
     ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.extractConfigSourcesPaths(
         serviceMesh);
     String serviceMeshName = serviceMesh.getMetadata().getName();
+
+    deployKubernetesResources(projectPath, serviceMeshName);
     deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
     deploySecrets(projectPath, configSourcesPaths, serviceMeshName);
     kubernetesService.deploy(serviceMesh);
     printf("Project %s successfully deployed to '%s' namespace.",
         projectPath.toAbsolutePath().normalize(), kubernetesService.getNamespace());
+  }
+
+  private void deployKubernetesResources(Path projectPath, String serviceMeshName) {
+    List<String> resourcesDirectory = kubernetesService.getResourcesPaths();
+    List<HasMetadata> resources = projectResourcesExtractor.getResources(resourcesDirectory,
+        projectPath, serviceMeshName);
+
+    kubernetesService.deploy(resources);
   }
 
   private void deploySecrets(Path projectPath, ConfigSourcesPaths configSourcesPaths,

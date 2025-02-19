@@ -3,6 +3,7 @@ package dev.streamx.cli.command.cloud.deploy;
 import dev.streamx.cli.command.cloud.KubernetesService;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -76,5 +77,13 @@ public class ProjectResourcesExtractor {
         .map(path -> configService.getConfigVolume(projectPath, path))
         .map(config -> kubernetesService.buildConfigMap(serviceMeshName, config))
         .toList();
+  }
+
+  @NotNull
+  public List<@NotNull HasMetadata> getResources(List<String> resourcesDirectories,
+      Path projectPath, String serviceMeshName) {
+    return resourcesDirectories.stream().flatMap(dir ->
+        kubernetesService.buildResourcesFromDirectory(dir, projectPath, serviceMeshName).stream()
+    ).toList();
   }
 }
