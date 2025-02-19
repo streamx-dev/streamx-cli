@@ -82,7 +82,7 @@ public class DeployCommand implements Runnable {
     deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
     deploySecrets(projectPath, configSourcesPaths, serviceMeshName);
     kubernetesService.deploy(serviceMesh);
-    printf("Project %s successfully deployed to '%s' namespace.",
+    printf("Project %s successfully deployed to '%s' namespace.%n",
         projectPath.toAbsolutePath().normalize(), kubernetesService.getNamespace());
   }
 
