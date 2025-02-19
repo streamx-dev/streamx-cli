@@ -19,11 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure Git
-        run: |
-          git config --global user.email "github.actions@streamx.dev"
-          git config --global user.name "${GITHUB_ACTOR}"
-
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'

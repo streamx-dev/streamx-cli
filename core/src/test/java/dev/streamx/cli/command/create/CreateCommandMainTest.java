@@ -27,6 +27,7 @@ import org.junit.jupiter.api.io.TempDir;
 class CreateCommandMainTest {
 
   public static final String PN_SAMPLE_GIT_REPOSITORY = "sampleGitRepository";
+  public static final String GIT_NOT_INSTALLED = "gitNotInstalled";
   private static Path localRepoDirectory;
 
   @TempDir
@@ -57,7 +58,7 @@ class CreateCommandMainTest {
         .toString();
   }
 
-  private void assumeGitIsInstalled() {
+  private static void assumeGitIsInstalled() {
     GitClient gitClient = new GitClient();
     gitClient.strategy = getOsCommandStrategy();
 
@@ -76,11 +77,18 @@ class CreateCommandMainTest {
 
     @Override
     public Map<String, String> start() {
-      String sampleGitRepository = initializeLocalGitRepository();
-      prepareSampleLocalRepository();
+      GitClient gitClient = new GitClient();
+      gitClient.strategy = getOsCommandStrategy();
 
-      System.setProperty(PN_SAMPLE_GIT_REPOSITORY, sampleGitRepository);
-      return Map.of("streamx.cli.create.project.template.repo-url", sampleGitRepository);
+      if (gitClient.isGitInstalled()) {
+        String sampleGitRepository = initializeLocalGitRepository();
+        prepareSampleLocalRepository();
+
+        System.setProperty(PN_SAMPLE_GIT_REPOSITORY, sampleGitRepository);
+        return Map.of("streamx.cli.create.project.template.repo-url", sampleGitRepository);
+      } else {
+        return Map.of("streamx.cli.create.project.template.repo-url", GIT_NOT_INSTALLED);
+      }
     }
 
     private static String initializeLocalGitRepository() {
@@ -99,6 +107,8 @@ class CreateCommandMainTest {
         String command = "git init " + localRepoDirectory.toAbsolutePath().normalize();
         exec(command, cloneDirFile);
         Files.writeString(localRepoDirectory.resolve("file.txt"), "test");
+        exec("git config user.name \"test\"", cloneDirFile);
+        exec("git config user.email \"test@test.dev\"", cloneDirFile);
         exec("git add -A && git commit -m 'testCommit'", cloneDirFile);
       } catch (Exception e) {
         throw new RuntimeException(e);
