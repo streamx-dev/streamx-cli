@@ -3,8 +3,7 @@ package dev.streamx.cli.command.cloud.deploy;
 import static dev.streamx.cli.util.Output.printf;
 
 import dev.streamx.cli.VersionProvider;
-import dev.streamx.cli.command.cloud.KubernetesNamespaceArguments;
-import dev.streamx.cli.command.cloud.KubernetesResourcesArguments;
+import dev.streamx.cli.command.cloud.KubernetesArguments;
 import dev.streamx.cli.command.cloud.KubernetesService;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
@@ -52,11 +51,8 @@ public class DeployCommand implements Runnable {
   @ArgGroup
   MeshSource meshSource;
 
-  @ArgGroup
-  KubernetesNamespaceArguments kubernetesNamespaceArguments;
-
-  @ArgGroup
-  KubernetesResourcesArguments kubernetesResourcesArguments;
+  @ArgGroup(exclusive = false)
+  KubernetesArguments kubernetesArguments;
 
   @Inject
   MeshResolver meshResolver;
@@ -94,9 +90,9 @@ public class DeployCommand implements Runnable {
   }
 
   private void deployKubernetesResources(Path projectPath, String serviceMeshName) {
-    List<String> resourcesDirectory = kubernetesService.getResourcesPaths();
-    List<HasMetadata> resources = projectResourcesExtractor.getResources(resourcesDirectory,
-        projectPath, serviceMeshName);
+    List<String> resourcesDirectory = kubernetesService.getResourcePaths();
+    List<HasMetadata> resources = projectResourcesExtractor
+        .getResourcesFromResourcesDirectories(resourcesDirectory, projectPath, serviceMeshName);
 
     kubernetesService.deploy(resources);
   }

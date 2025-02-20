@@ -3,6 +3,7 @@ package dev.streamx.cli.command.cloud;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.command.cloud.deploy.Config;
+import dev.streamx.cli.command.cloud.undeploy.ResourceDeleter;
 import dev.streamx.cli.exception.KubernetesException;
 import dev.streamx.cli.interpolation.Interpolating;
 import dev.streamx.operator.Component;
@@ -114,6 +115,10 @@ public class KubernetesService {
       kubernetesClient.resources(Secret.class).inNamespace(getNamespace())
           .withLabels(selector).delete();
 
+      ResourceDeleter deleter = new ResourceDeleter(kubernetesClient,
+          createPartOfAndManagedByLabels(meshName), getNamespace());
+      deleter.deleteResourcesFromProperties(getControlledResourceDefinitions());
+
     } catch (KubernetesClientException e) {
       throw KubernetesException.kubernetesClientException(e);
     }
@@ -164,10 +169,19 @@ public class KubernetesService {
         .orElse(Optional.ofNullable(kubernetesClient.getNamespace()).orElse(DEFAULT_K8S_NAMESPACE));
   }
 
-  public List<String> getResourcesPaths() {
-    return kubernetesConfig.resourcesDirectories().map(paths -> Arrays.stream(paths.split(","))
+  public List<String> getResourcePaths() {
+    return kubernetesConfig.resourceDirectories().map(paths -> Arrays.stream(paths.split(","))
         .map(String::trim)
+        .filter(s -> !s.isEmpty())
         .collect(Collectors.toList())).orElse(List.of());
+  }
+
+  public List<String> getControlledResourceDefinitions() {
+    return kubernetesConfig.controlledResourceDefinitions()
+        .map(paths -> Arrays.stream(paths.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList())).orElse(List.of());
   }
 
   public List<HasMetadata> buildResourcesFromDirectory(String resourcesDirectory, Path projectPath,

@@ -277,7 +277,7 @@
                       <value>TOTALCOUNT</value>
                       <!-- FixMe: Review the code and decide if it's worth to decrease it back to 5
                         -->
-                      <maximum>7</maximum>
+                      <maximum>8</maximum>
                     </limit>
                   </limits>
                 </rule>

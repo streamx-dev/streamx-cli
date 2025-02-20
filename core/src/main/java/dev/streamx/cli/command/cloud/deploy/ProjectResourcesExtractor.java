@@ -80,7 +80,8 @@ public class ProjectResourcesExtractor {
   }
 
   @NotNull
-  public List<@NotNull HasMetadata> getResources(List<String> resourcesDirectories,
+  public List<@NotNull HasMetadata> getResourcesFromResourcesDirectories(
+      List<String> resourcesDirectories,
       Path projectPath, String serviceMeshName) {
     return resourcesDirectories.stream().flatMap(dir ->
         kubernetesService.buildResourcesFromDirectory(dir, projectPath, serviceMeshName).stream()

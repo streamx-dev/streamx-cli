@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 @ApplicationScoped
 public class ServiceMeshResolver {
 
-  private static final String SERVICE_MESH_NAME = "sx";
+  public static final String SERVICE_MESH_NAME = "sx";
   @Inject
   @Interpolating
   ObjectMapper objectMapper;
