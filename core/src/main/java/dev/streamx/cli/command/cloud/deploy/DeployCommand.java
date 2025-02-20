@@ -11,6 +11,7 @@ import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.operator.crd.ServiceMesh;
 import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
@@ -50,8 +51,8 @@ public class DeployCommand implements Runnable {
   @ArgGroup
   MeshSource meshSource;
 
-  @ArgGroup
-  KubernetesArguments namespaceArg;
+  @ArgGroup(exclusive = false)
+  KubernetesArguments kubernetesArguments;
 
   @Inject
   MeshResolver meshResolver;
@@ -79,11 +80,21 @@ public class DeployCommand implements Runnable {
     ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.extractConfigSourcesPaths(
         serviceMesh);
     String serviceMeshName = serviceMesh.getMetadata().getName();
+
+    deployKubernetesResources(projectPath, serviceMeshName);
     deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
     deploySecrets(projectPath, configSourcesPaths, serviceMeshName);
     kubernetesService.deploy(serviceMesh);
     printf("Project %s successfully deployed to '%s' namespace.",
         projectPath.toAbsolutePath().normalize(), kubernetesService.getNamespace());
+  }
+
+  private void deployKubernetesResources(Path projectPath, String serviceMeshName) {
+    List<String> resourcesDirectory = kubernetesService.getResourcePaths();
+    List<HasMetadata> resources = projectResourcesExtractor
+        .getResourcesFromResourcesDirectories(resourcesDirectory, projectPath, serviceMeshName);
+
+    kubernetesService.deploy(resources);
   }
 
   private void deploySecrets(Path projectPath, ConfigSourcesPaths configSourcesPaths,
