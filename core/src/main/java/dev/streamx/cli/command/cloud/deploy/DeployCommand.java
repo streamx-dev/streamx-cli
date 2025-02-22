@@ -2,19 +2,22 @@ package dev.streamx.cli.command.cloud.deploy;
 
 import static dev.streamx.cli.util.Output.printf;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.cloud.KubernetesArguments;
 import dev.streamx.cli.command.cloud.KubernetesService;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
+import dev.streamx.cli.command.cloud.collector.DirectoryResourcesCollector;
+import dev.streamx.cli.command.cloud.collector.KubernetesResourcesCollector;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
+import dev.streamx.cli.interpolation.Interpolating;
 import dev.streamx.operator.crd.ServiceMesh;
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.Secret;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -66,6 +69,10 @@ public class DeployCommand implements Runnable {
   @Inject
   ProjectResourcesExtractor projectResourcesExtractor;
 
+  @Inject
+  @Interpolating
+  ObjectMapper objectMapper;
+
   @Override
   public void run() {
     Path meshPath = meshResolver.resolveMeshPath(meshSource);
@@ -77,37 +84,36 @@ public class DeployCommand implements Runnable {
 
   private void deploy(ServiceMesh serviceMesh, Path projectPath) {
     kubernetesService.validateCrdInstallation();
-    ConfigSourcesPaths configSourcesPaths = serviceMeshResolver.extractConfigSourcesPaths(
-        serviceMesh);
+    ConfigSourcesPaths configPaths = serviceMeshResolver.extractConfigSourcesPaths(serviceMesh);
     String serviceMeshName = serviceMesh.getMetadata().getName();
 
-    deployKubernetesResources(projectPath, serviceMeshName);
-    deployConfigMaps(projectPath, configSourcesPaths, serviceMeshName);
-    deploySecrets(projectPath, configSourcesPaths, serviceMeshName);
-    kubernetesService.deploy(serviceMesh);
-    printf("Project %s successfully deployed to '%s' namespace.",
+    List<HasMetadata> resourcesToDeploy = new ArrayList<>();
+    List<HasMetadata> managedResources = kubernetesService.collectManagedResources(serviceMeshName);
+
+    // Collect all resources to deploy
+    resourcesToDeploy.addAll(collectKubernetesResources(projectPath, serviceMeshName));
+    resourcesToDeploy.addAll(
+        projectResourcesExtractor.getSecrets(projectPath, configPaths, serviceMeshName));
+    resourcesToDeploy.addAll(
+        projectResourcesExtractor.getConfigMaps(projectPath, configPaths, serviceMeshName));
+    resourcesToDeploy.add(serviceMesh);
+
+    // Collect all resources to delete
+    ResourceCleaner cleaner = new ResourceCleaner(resourcesToDeploy, managedResources);
+    kubernetesService.deploy(resourcesToDeploy);
+    printf("Project %s successfully deployed to '%s' namespace.\n",
         projectPath.toAbsolutePath().normalize(), kubernetesService.getNamespace());
+    List<HasMetadata> orphanedResources = cleaner.getOrphanedResources();
+    printf("Deleting %d orphaned resources.\n", orphanedResources.size());
+    kubernetesService.undeploy(orphanedResources);
+
   }
 
-  private void deployKubernetesResources(Path projectPath, String serviceMeshName) {
-    List<String> resourcesDirectory = kubernetesService.getResourcePaths();
-    List<HasMetadata> resources = projectResourcesExtractor
-        .getResourcesFromResourcesDirectories(resourcesDirectory, projectPath, serviceMeshName);
+  private List<HasMetadata> collectKubernetesResources(Path projectPath, String serviceMeshName) {
+    List<String> resourcesDirectories = kubernetesService.getResourcePaths();
 
-    kubernetesService.deploy(resources);
-  }
-
-  private void deploySecrets(Path projectPath, ConfigSourcesPaths configSourcesPaths,
-      String serviceMeshName) {
-    List<Secret> secrets = projectResourcesExtractor.getSecrets(projectPath, configSourcesPaths,
-        serviceMeshName);
-    kubernetesService.deploy(secrets);
-  }
-
-  private void deployConfigMaps(Path projectPath, ConfigSourcesPaths fromSourcesPaths,
-      String serviceMeshName) {
-    List<ConfigMap> configMaps = projectResourcesExtractor.getConfigMaps(projectPath,
-        fromSourcesPaths, serviceMeshName);
-    kubernetesService.deploy(configMaps);
+    KubernetesResourcesCollector collector = new DirectoryResourcesCollector(objectMapper,
+        projectPath, resourcesDirectories);
+    return collector.collect(serviceMeshName);
   }
 }

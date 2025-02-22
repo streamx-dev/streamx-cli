@@ -1,6 +1,6 @@
 package dev.streamx.cli.exception;
 
-import static dev.streamx.cli.command.cloud.KubernetesService.SERVICEMESH_CRD_NAME;
+import static dev.streamx.cli.command.cloud.MetadataUtils.SERVICEMESH_CRD_NAME;
 
 import dev.streamx.cli.util.ExceptionUtils;
 import io.fabric8.kubernetes.client.KubernetesClientException;
