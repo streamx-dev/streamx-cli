@@ -54,7 +54,7 @@ public class DirectoryResourcesCollector implements KubernetesResourcesCollector
 
   private void processResourceFile(Path file, List<HasMetadata> resources) {
     String fileName = file.getFileName().toString();
-    if (!fileName.endsWith("yaml") && !fileName.endsWith("yml")) {
+    if (!fileName.endsWith(".yaml") && !fileName.endsWith(".yml")) {
       return;
     }
     try (MappingIterator<HasMetadata> iterator =

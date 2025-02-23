@@ -40,7 +40,7 @@ public class ResourceCleaner {
   }
 
   private String keyFor(HasMetadata resource) {
-    String api = resource.getApiVersion() + "/" + resource.getKind() + "/";
+    String api = resource.getApiVersion() + "/" + resource.getKind();
     String name = resource.getMetadata().getName();
     return api + "/" + name;
   }
