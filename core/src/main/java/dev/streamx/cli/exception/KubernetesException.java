@@ -18,7 +18,7 @@ public class KubernetesException extends RuntimeException {
             
       * StreamX Operator Custom Resource Definitions are installed on the cluster.""".formatted(
       SERVICEMESH_CRD_NAME);
-  private static final String K8S_CLIENT_EXCEPTION_MESSAGE = """
+  private static final String K8S_CLIENT_CONNECTION_EXCEPTION_MESSAGE = """
       Encountered an error while attempting to communicate with the cluster:
       %s
             
@@ -33,6 +33,8 @@ public class KubernetesException extends RuntimeException {
           kubectl config current-context
             
       * The kubeconfig file is accessible and points to a valid cluster configuration.""";
+  public static final String K8S_CLIENT_METHOD_EXCEPTION_MESSAGE
+      = "Error updating resource %s [%s] in namespace '%s': HTTP %d (%s)";
 
   private KubernetesException(String message, Exception exception) {
     super(message, exception);
@@ -47,8 +49,16 @@ public class KubernetesException extends RuntimeException {
   }
 
   public static KubernetesException kubernetesClientException(KubernetesClientException e) {
+    if (e.getStatus() != null) {
+      // We are able to communicate with the cluster, Kubernetes returned error response
+      return new KubernetesException(
+          ExceptionUtils.appendLogSuggestion(K8S_CLIENT_METHOD_EXCEPTION_MESSAGE.formatted(
+              e.getName(), e.getResourcePlural(), e.getNamespace(), e.getCode(),
+              e.getStatus().getReason())),
+          e);
+    }
     return new KubernetesException(
-        ExceptionUtils.appendLogSuggestion(K8S_CLIENT_EXCEPTION_MESSAGE.formatted(e.getMessage())),
-        e);
+        ExceptionUtils.appendLogSuggestion(K8S_CLIENT_CONNECTION_EXCEPTION_MESSAGE.formatted(
+            e.getMessage())), e);
   }
 }
