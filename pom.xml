@@ -263,9 +263,7 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>TOTALCOUNT</value>
-                      <!-- FixMe: Review the code and decide if it's worth to decrease it back to 20
-                        -->
-                      <maximum>35</maximum>
+                      <maximum>20</maximum>
                     </limit>
                   </limits>
                 </rule>
@@ -275,9 +273,7 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>TOTALCOUNT</value>
-                      <!-- FixMe: Review the code and decide if it's worth to decrease it back to 5
-                        -->
-                      <maximum>8</maximum>
+                      <maximum>5</maximum>
                     </limit>
                   </limits>
                 </rule>
