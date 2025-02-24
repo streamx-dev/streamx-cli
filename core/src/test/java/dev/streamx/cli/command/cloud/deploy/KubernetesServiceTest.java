@@ -1,12 +1,12 @@
 package dev.streamx.cli.command.cloud.deploy;
 
-import static dev.streamx.cli.command.cloud.KubernetesService.COMPONENT_LABEL;
-import static dev.streamx.cli.command.cloud.KubernetesService.CONFIG_TYPE_LABEL;
-import static dev.streamx.cli.command.cloud.KubernetesService.INSTANCE_LABEL;
-import static dev.streamx.cli.command.cloud.KubernetesService.MANAGED_BY_LABEL;
-import static dev.streamx.cli.command.cloud.KubernetesService.MANAGED_BY_LABEL_VALUE;
-import static dev.streamx.cli.command.cloud.KubernetesService.NAME_LABEL;
-import static dev.streamx.cli.command.cloud.KubernetesService.PART_OF_LABEL;
+import static dev.streamx.cli.command.cloud.MetadataUtils.COMPONENT_LABEL;
+import static dev.streamx.cli.command.cloud.MetadataUtils.CONFIG_TYPE_LABEL;
+import static dev.streamx.cli.command.cloud.MetadataUtils.INSTANCE_LABEL;
+import static dev.streamx.cli.command.cloud.MetadataUtils.MANAGED_BY_LABEL;
+import static dev.streamx.cli.command.cloud.MetadataUtils.MANAGED_BY_LABEL_VALUE;
+import static dev.streamx.cli.command.cloud.MetadataUtils.NAME_LABEL;
+import static dev.streamx.cli.command.cloud.MetadataUtils.PART_OF_LABEL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.streamx.cli.command.cloud.KubernetesService;

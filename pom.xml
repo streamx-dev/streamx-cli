@@ -265,7 +265,7 @@
                       <value>TOTALCOUNT</value>
                       <!-- FixMe: Review the code and decide if it's worth to decrease it back to 20
                         -->
-                      <maximum>35</maximum>
+                      <maximum>21</maximum>
                     </limit>
                   </limits>
                 </rule>

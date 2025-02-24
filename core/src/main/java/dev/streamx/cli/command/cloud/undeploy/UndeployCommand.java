@@ -6,14 +6,8 @@ import static dev.streamx.cli.util.Output.printf;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.cloud.KubernetesArguments;
 import dev.streamx.cli.command.cloud.KubernetesService;
-import dev.streamx.cli.command.cloud.ServiceMeshResolver;
 import dev.streamx.cli.command.cloud.deploy.DeployCommand;
-import dev.streamx.cli.command.cloud.deploy.ProjectResourcesExtractor;
-import dev.streamx.cli.command.meshprocessing.MeshResolver;
-import dev.streamx.cli.command.meshprocessing.MeshSource;
-import dev.streamx.operator.crd.ServiceMesh;
 import jakarta.inject.Inject;
-import java.nio.file.Path;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
