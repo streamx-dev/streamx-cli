@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -93,6 +94,7 @@ public class BatchCommand extends BaseIngestionCommand {
         state.key(),
         state.action().toString(),
         state.message(),
+        state.properties(),
         schemaType
     ));
 
@@ -108,12 +110,19 @@ public class BatchCommand extends BaseIngestionCommand {
 
     Map<String, String> variables = substitutor.createSubstitutionVariables(
         file.toString(), eventSource.getChannel(), relativePath);
-    String key = substitutor.substitute(variables, eventSource.getKey());
 
-    JsonNode message = payloadResolver.createPayload(eventSource, variables);
+    final String key = substitutor.substitute(variables, eventSource.getKey());
+    final Map<String, String> properties = new HashMap<>();
+    final JsonNode message = payloadResolver.createPayload(eventSource, variables);
+
+    if (eventSource.getProperties() != null) {
+      for (Entry<String, String> entry : eventSource.getProperties().entrySet()) {
+        properties.put(entry.getKey(), substitutor.substitute(variables, entry.getValue()));
+      }
+    }
 
     this.state = new State(
-        eventSource.getChannel(), key, message, batchIngestionArguments.getAction()
+        eventSource.getChannel(), key, properties, message, batchIngestionArguments.getAction()
     );
   }
 
@@ -130,7 +139,8 @@ public class BatchCommand extends BaseIngestionCommand {
     return relativePath;
   }
 
-  private record State(String channel, String key, JsonNode message, ActionType action) {
+  private record State(String channel, String key, Map<String, String> properties, JsonNode message,
+                       ActionType action) {
 
   }
 
