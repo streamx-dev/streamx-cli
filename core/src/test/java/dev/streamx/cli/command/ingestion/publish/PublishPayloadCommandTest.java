@@ -14,7 +14,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommandTest;
-import dev.streamx.clients.ingestion.impl.MessageStatus;
+import dev.streamx.clients.ingestion.publisher.IngestionResult;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
@@ -267,7 +267,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
 
   @Override
   protected void initializeWiremock() {
-    var result = MessageStatus.of(new SuccessResult(123456L, KEY));
+    var result = IngestionResult.of(new SuccessResult(123456L, KEY));
     wm.stubFor(
         post(getPublicationPath(CHANNEL))
             .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))

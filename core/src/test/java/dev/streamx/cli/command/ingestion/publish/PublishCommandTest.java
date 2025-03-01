@@ -18,8 +18,8 @@ import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import dev.streamx.cli.command.ingestion.AuthorizedProfile;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.command.ingestion.UnauthorizedProfile;
-import dev.streamx.clients.ingestion.impl.FailureResponse;
-import dev.streamx.clients.ingestion.impl.MessageStatus;
+import dev.streamx.clients.ingestion.publisher.FailureResult;
+import dev.streamx.clients.ingestion.publisher.IngestionResult;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
@@ -235,19 +235,19 @@ public class PublishCommandTest extends BaseIngestionCommandTest {
     setupMockPublicationResponse(
         CHANNEL,
         SC_ACCEPTED,
-        MessageStatus.of(new SuccessResult(123456L, KEY))
+        IngestionResult.of(new SuccessResult(123456L, KEY))
     );
 
     setupMockPublicationResponse(
         INVALID_PAYLOAD_REQUEST_CHANNEL,
         SC_BAD_REQUEST,
-        MessageStatus.of(new FailureResponse("INVALID_PUBLICATION_PAYLOAD", "Error message"))
+        IngestionResult.of(new FailureResult("INVALID_PUBLICATION_PAYLOAD", "Error message"))
     );
 
     setupMockPublicationResponse(
         UNSUPPORTED_CHANNEL,
         SC_BAD_REQUEST,
-        new FailureResponse("UNSUPPORTED_CHANNEL",
+        new FailureResult("UNSUPPORTED_CHANNEL",
             "Channel " + UNSUPPORTED_CHANNEL + " is unsupported. Supported channels: " + CHANNEL
         )
     );
