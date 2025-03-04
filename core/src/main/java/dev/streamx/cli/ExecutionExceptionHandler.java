@@ -25,6 +25,11 @@ public class ExecutionExceptionHandler implements IExecutionExceptionHandler {
         : cmd.getExitCodeExceptionMapper().getExitCode(ex);
   }
 
+  public void handleExecutionException(Exception ex, CommandLine cmd) {
+    printErrorMessage(ex, cmd);
+    log.error("Execution exception occurred.", ex);
+  }
+
   private static void printErrorMessage(Exception ex, CommandLine cmd) {
     Throwable exceptionCause = unwrapExceptionCauseIfPossible(ex);
 

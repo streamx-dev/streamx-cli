@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.manager;
+package dev.streamx.cli.command.dev;
 
 import static dev.streamx.runner.StreamxRunner.MESH_FILE_PATH_LABEL;
 

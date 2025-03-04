@@ -1,21 +1,21 @@
-package dev.streamx.cli.command.manager;
+package dev.streamx.cli.command.dev;
 
 import java.util.List;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
-public class MeshManagerContainer extends GenericContainer<MeshManagerContainer> {
+public class DashboardContainer extends GenericContainer<DashboardContainer> {
 
-  static final String CONTAINER_NAME = "streamx-mesh-manager";
+  public static final String CONTAINER_NAME = "streamx-dashboard";
 
-  private static final int MESH_MANAGER_CONTAINER_PORT = 8080;
+  private static final int DASHBOARDS_CONTAINER_PORT = 8080;
 
-  MeshManagerContainer(String fullImageName, int exposedPort, String meshPath,
+  public DashboardContainer(String fullImageName, int exposedPort, String meshPath,
       String projectDirectory) {
     super(DockerImageName.parse(fullImageName));
-    setExposedPorts(List.of(MESH_MANAGER_CONTAINER_PORT));
-    addFixedExposedPort(exposedPort, MESH_MANAGER_CONTAINER_PORT);
+    setExposedPorts(List.of(DASHBOARDS_CONTAINER_PORT));
+    addFixedExposedPort(exposedPort, DASHBOARDS_CONTAINER_PORT);
 
     withFileSystemBind(projectDirectory, "/data/project", BindMode.READ_WRITE);
     withFileSystemBind(meshPath, "/data/mesh.yaml", BindMode.READ_WRITE);

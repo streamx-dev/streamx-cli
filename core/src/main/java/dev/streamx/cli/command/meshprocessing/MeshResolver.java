@@ -23,16 +23,22 @@ public class MeshResolver {
   @Inject
   CurrentDirectoryProvider currentDirectoryProvider;
 
+  // FIXME remove meshConfig param? (this should be field?)
   @NotNull
-  public Path resolveMeshPath(MeshSource meshSource) {
-    return Optional.ofNullable(meshSource)
-        .map(source -> source.meshDefinitionFile)
-        .map(Path::of)
-        .orElseGet(this::resolveCurrentDirectoryMeshPath);
+  public Path resolveMeshPath(MeshConfig meshConfig) {
+    return resolveMeshPath(meshConfig, true);
   }
 
   @NotNull
-  private Path resolveCurrentDirectoryMeshPath() {
+  public Path resolveMeshPath(MeshConfig meshConfig, boolean requireMeshExistence) {
+    return Optional.ofNullable(meshConfig)
+        .flatMap(MeshConfig::meshDefinitionFile)
+        .map(Path::of)
+        .orElseGet(() -> resolveCurrentDirectoryMeshPath(requireMeshExistence));
+  }
+
+  @NotNull
+  private Path resolveCurrentDirectoryMeshPath(boolean requireMeshExistence) {
     String currentDirectory = currentDirectoryProvider.provide();
     Path pathToYaml = Path.of(currentDirectory, MESH_YAML);
     Path pathToYml = Path.of(currentDirectory, MESH_YML);
@@ -49,10 +55,14 @@ public class MeshResolver {
       return pathToYaml;
     } else if (ymlExists) {
       return pathToYml;
-    } else {
+    } else if (requireMeshExistence) {
       throw new ParameterException(parseResult.subcommand().commandSpec().commandLine(),
           "Missing mesh definition. Use '-f' to select mesh file or "
           + "make sure 'mesh.yaml' (or 'mesh.yml') exists in current directory.");
+    } else {
+      printf("Warning! Neither '%s' nor '%s' exist. Selecting '%s' as mesh file definition.%n",
+          pathToYaml, pathToYml, pathToYaml);
+      return pathToYaml;
     }
   }
 }

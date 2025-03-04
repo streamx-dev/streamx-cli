@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.manager;
+package dev.streamx.cli.command.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;

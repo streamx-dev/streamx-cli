@@ -10,6 +10,7 @@ import dev.streamx.cli.command.cloud.ServiceMeshResolver;
 import dev.streamx.cli.command.cloud.ServiceMeshResolver.ConfigSourcesPaths;
 import dev.streamx.cli.command.cloud.collector.DirectoryResourcesCollector;
 import dev.streamx.cli.command.cloud.collector.KubernetesResourcesCollector;
+import dev.streamx.cli.command.meshprocessing.MeshConfig;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.interpolation.Interpolating;
@@ -58,6 +59,9 @@ public class DeployCommand implements Runnable {
   KubernetesArguments kubernetesArguments;
 
   @Inject
+  MeshConfig meshConfig;
+
+  @Inject
   MeshResolver meshResolver;
 
   @Inject
@@ -75,7 +79,7 @@ public class DeployCommand implements Runnable {
 
   @Override
   public void run() {
-    Path meshPath = meshResolver.resolveMeshPath(meshSource);
+    Path meshPath = meshResolver.resolveMeshPath(meshConfig);
     meshPath = meshPath.toAbsolutePath();
     ServiceMesh serviceMesh = serviceMeshResolver.resolveMesh(meshPath);
     Path projectPath = meshPath.getParent();
