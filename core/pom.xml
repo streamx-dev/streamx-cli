@@ -71,6 +71,14 @@
       <groupId>org.jboss.logging</groupId>
       <artifactId>commons-logging-jboss-logging</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-model-apiextensions</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>io.quarkus</groupId>
