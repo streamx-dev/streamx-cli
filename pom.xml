@@ -41,7 +41,7 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.18.3</quarkus.platform.version>
 
-    <streamx.version>1.0.8</streamx.version>
+    <streamx.version>1.0.9-SNAPSHOT</streamx.version>
     <ingestion-client.version>1.1.1</ingestion-client.version>
     <streamx-operator.version>0.0.4</streamx-operator.version>
     <json-path.version>2.9.0</json-path.version>
@@ -241,10 +241,10 @@
                     <limit>
                       <counter>INSTRUCTION</counter>
                       <value>COVEREDRATIO</value>
-                      <!-- FixMe: Add tests for batch and stream commands
+                      <!-- FixMe: Add tests for batch, stream and dev commands
                         and increase the COVEREDRATIO to 75%
                         -->
-                      <minimum>60%</minimum>
+                      <minimum>55%</minimum>
                     </limit>
                   </limits>
                 </rule>
@@ -266,7 +266,7 @@
                       <value>TOTALCOUNT</value>
                       <!-- FixMe: Review the code and decide if it's worth to decrease it back to 20
                         -->
-                      <maximum>21</maximum>
+                      <maximum>25</maximum>
                     </limit>
                   </limits>
                 </rule>

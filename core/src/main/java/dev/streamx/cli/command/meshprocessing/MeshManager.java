@@ -8,16 +8,16 @@ import dev.streamx.cli.command.run.RunningMeshPropertiesGenerator;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
 import dev.streamx.mesh.model.ServiceMesh;
-import dev.streamx.runner.MeshContext;
 import dev.streamx.runner.StreamxRunner;
+import dev.streamx.runner.event.MeshReloadUpdate;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import org.jetbrains.annotations.NotNull;
-import org.testcontainers.containers.GenericContainer;
 import picocli.CommandLine;
 
 @ApplicationScoped
@@ -38,6 +38,7 @@ public class MeshManager {
   private Path normalizedMeshPath;
   private CommandLine commandLine;
   private ServiceMesh serviceMesh;
+  private boolean firstStart = true;
 
   public void initializeMesh(Path meshPath) {
     this.meshPath = meshPath;
@@ -78,6 +79,9 @@ public class MeshManager {
   }
 
   public void start() {
+    if (firstStart) {
+      firstStart = false;
+    }
     execute(this::doStart);
   }
 
@@ -121,13 +125,15 @@ public class MeshManager {
   }
 
   public void stop() {
+    this.serviceMesh = null;
+    doStop();
+  }
+
+  private void doStop() {
     try {
-      MeshContext meshContext = this.runner.getMeshContext();
       print("Stopping DX Mesh...");
-      meshContext
-          .getAllContainers()
-          .parallelStream()
-          .forEach(GenericContainer::stop);
+
+      runner.stopMesh();
 
       print("DX Mesh stopped...");
       print("");
@@ -139,21 +145,42 @@ public class MeshManager {
   }
 
   public void reload() {
-    Boolean meshValid = execute(() -> {
+    ServiceMesh newServiceMesh = execute(() -> {
       var serviceMesh = resolveMeshDefinition(meshPath);
       serviceMesh.validate().assertValid();
 
-      return true;
+      return serviceMesh;
     });
 
-    if (meshValid == null || !meshValid) {
-      print("Mesh definition is invalid. Reloading cancelled...");
+    if (newServiceMesh == null) {
+      print("Mesh definition is invalid. Skip reloading...");
       return;
     }
 
-    execute(this::stop);
+    if (firstStart) {
+      firstStart = false;
+      start();
+    } else {
+      try {
+        runner.reloadMesh(newServiceMesh);
+        serviceMesh = newServiceMesh;
+      } catch (Exception e) {
+        serviceMesh = null;
+        print("Mesh reload failed...");
+        throw e;
+      }
+    }
+  }
 
-    start();
+  void onMeshStarted(@Observes MeshReloadUpdate event) {
+    switch (event.getEvent()) {
+      case MESH_UNCHANGED -> print("\nMesh definition is unchanged. Skip reloading...");
+      case FULL_RELOAD_STARTED -> print("\nMesh file changed. Processing full reload...");
+      case INCREMENTAL_RELOAD_STARTED ->
+          print("Mesh file changed. Processing incremental reload...");
+      case FULL_RELOAD_FINISHED, INCREMENTAL_RELOAD_FINISHED -> print("Mesh reloaded.");
+      default -> { }
+    }
   }
 
   private <T> T execute(Callable<T> callable) {

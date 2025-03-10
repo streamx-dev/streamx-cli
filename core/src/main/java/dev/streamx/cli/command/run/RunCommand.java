@@ -4,7 +4,6 @@ import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.meshprocessing.MeshConfig;
 import dev.streamx.cli.command.meshprocessing.MeshManager;
-import dev.streamx.cli.command.meshprocessing.MeshReloader;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.exception.DockerException;
@@ -35,9 +34,6 @@ public class RunCommand implements Runnable {
 
   @Inject
   StreamxRunner runner;
-
-  @Inject
-  MeshReloader meshReloader;
 
   @Inject
   BannerPrinter bannerPrinter;

@@ -7,9 +7,9 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.dev.event.DashboardStarted;
 import dev.streamx.cli.command.meshprocessing.MeshConfig;
 import dev.streamx.cli.command.meshprocessing.MeshManager;
-import dev.streamx.cli.command.meshprocessing.MeshReloader;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
+import dev.streamx.cli.command.meshprocessing.MeshWatcher;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.StreamxMavenPropertiesUtils;
 import dev.streamx.runner.StreamxRunner;
@@ -60,7 +60,7 @@ public class DevCommand implements Runnable {
   StreamxRunner runner;
 
   @Inject
-  MeshReloader meshReloader;
+  MeshWatcher meshWatcher;
 
   @Inject
   BannerPrinter bannerPrinter;
@@ -102,7 +102,7 @@ public class DevCommand implements Runnable {
           meshPathAsString, projectDirectoryAsString);
       startStreamxDashboards(meshPathAsString, projectDirectoryAsString);
 
-      meshReloader.watchMeshChanges(meshPath);
+      meshWatcher.watchMeshChanges(meshPath);
 
       Quarkus.waitForExit();
     } catch (ContainerStartupTimeoutException e) {

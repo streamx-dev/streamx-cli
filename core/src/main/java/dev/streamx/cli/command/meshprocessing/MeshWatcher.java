@@ -16,7 +16,7 @@ import java.nio.file.WatchService;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
-public class MeshReloader {
+public class MeshWatcher {
 
   public static final String MESH_WATCHER_JOB_NAME = "meshWatcher";
 
@@ -44,23 +44,26 @@ public class MeshReloader {
       scheduler.newJob(MESH_WATCHER_JOB_NAME)
           .setConcurrentExecution(ConcurrentExecution.SKIP)
           .setTask(task -> {
-            ActionToPerform action = checkModifications(meshPath, watchService);
-            if (action != null) {
-              switch (action) {
-                case RELOAD -> {
-                  print("");
-                  print("Mesh file changed. Reloading...");
-                  meshManager.reload();
-                }
-                case STOP -> {
-                  print("");
-                  print("Mesh file deleted. Stopping...");
-                  meshManager.stop();
-                }
-                default -> {
-                  print("Unknown action: " + action + ". Skipping...");
+            try {
+              ActionToPerform action = checkModifications(meshPath, watchService);
+              if (action != null) {
+                switch (action) {
+                  case RELOAD -> {
+                    meshManager.reload();
+                  }
+                  case STOP -> {
+                    print("");
+                    print("Mesh file deleted. Stopping...");
+                    meshManager.stop();
+                    print("Mesh stopped.");
+                  }
+                  default -> {
+                    print("Unknown action: " + action + ". Skipping...");
+                  }
                 }
               }
+            } catch (Exception e) {
+              log.error(e);
             }
           })
           .setInterval("500ms")
