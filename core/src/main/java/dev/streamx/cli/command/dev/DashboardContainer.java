@@ -18,6 +18,9 @@ public class DashboardContainer extends GenericContainer<DashboardContainer> {
     addFixedExposedPort(exposedPort, DASHBOARDS_CONTAINER_PORT);
 
     withFileSystemBind(projectDirectory, "/data/project", BindMode.READ_WRITE);
+    String servicesDirectory = projectDirectory + "/services";
+    withFileSystemBind(servicesDirectory, "/services-metadata-registry-root",
+        BindMode.READ_WRITE);
     withFileSystemBind(meshPath, "/data/mesh.yaml", BindMode.READ_WRITE);
 
     withCreateContainerCmdModifier(cmd -> cmd.withName(CONTAINER_NAME));

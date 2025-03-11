@@ -100,7 +100,7 @@ public class DevCommand implements Runnable {
 
       logger.infov("Resolved mesh {0} and project directory {1}",
           meshPathAsString, projectDirectoryAsString);
-      startStreamxDashboards(meshPathAsString, projectDirectoryAsString);
+      startStreamxDashboard(meshPathAsString, projectDirectoryAsString);
 
       meshWatcher.watchMeshChanges(meshPath);
 
@@ -115,7 +115,7 @@ public class DevCommand implements Runnable {
     }
   }
 
-  private void startStreamxDashboards(String meshPathAsString, String projectDirectoryAsString) {
+  private void startStreamxDashboard(String meshPathAsString, String projectDirectoryAsString) {
     var dashboardContainer = new DashboardContainer(
         StreamxMavenPropertiesUtils.getDashboardImage(),
         devConfig.dashboardPort(),
