@@ -4,26 +4,20 @@ import static dev.streamx.cli.util.Output.print;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
-import dev.streamx.cli.command.dev.event.DashboardStarted;
 import dev.streamx.cli.command.meshprocessing.MeshConfig;
 import dev.streamx.cli.command.meshprocessing.MeshManager;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.command.meshprocessing.MeshWatcher;
 import dev.streamx.cli.exception.DockerException;
-import dev.streamx.cli.util.StreamxMavenPropertiesUtils;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.container.PulsarContainer;
 import dev.streamx.runner.exception.ContainerStartupTimeoutException;
 import io.quarkus.runtime.Quarkus;
-import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import java.awt.Desktop;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Set;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
@@ -37,7 +31,6 @@ import picocli.CommandLine.Spec;
     description = "Develop a StreamX Mesh locally.")
 public class DevCommand implements Runnable {
 
-  private static final long CONTAINER_TIMEOUT_IN_SECS = 60_000L;
   public static final String COMMAND_NAME = "dev";
 
   @Inject
@@ -71,10 +64,7 @@ public class DevCommand implements Runnable {
   MeshManager meshManager;
 
   @Inject
-  DevConfig devConfig;
-
-  @Inject
-  Event<DashboardStarted> dashboardStartedEvent;
+  DashboardRunner dashboardRunner;
 
   @Override
   public void run() {
@@ -118,35 +108,6 @@ public class DevCommand implements Runnable {
 
     logger.infov("Resolved mesh {0} and project directory {1}",
         meshPathAsString, projectDirectoryAsString);
-    startStreamxDashboard(meshPathAsString, projectDirectoryAsString);
-  }
-
-  private void startStreamxDashboard(String meshPathAsString, String projectDirectoryAsString) {
-    var dashboardContainer = new DashboardContainer(
-        StreamxMavenPropertiesUtils.getDashboardImage(),
-        devConfig.dashboardPort(),
-        meshPathAsString,
-        projectDirectoryAsString
-    ).withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS));
-    dashboardContainer.start();
-
-    print("StreamX Dashboard started on http://localhost:" + devConfig.dashboardPort());
-
-    tryOpenBrowser();
-    dashboardStartedEvent.fire(new DashboardStarted());
-  }
-
-  private void tryOpenBrowser() {
-    try {
-      if (Desktop.isDesktopSupported()) {
-        Desktop desktop = Desktop.getDesktop();
-        URI meshManagerUri = new URI("http://localhost:" + devConfig.dashboardPort() + "/manager");
-        desktop.browse(meshManagerUri);
-      } else {
-        logger.warn("Opening browser is not supported");
-      }
-    } catch (Exception e) {
-      logger.error("Opening browser failed", e);
-    }
+    dashboardRunner.startStreamxDashboard(meshPathAsString, projectDirectoryAsString);
   }
 }

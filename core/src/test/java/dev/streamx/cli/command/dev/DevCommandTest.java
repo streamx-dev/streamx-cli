@@ -3,13 +3,19 @@ package dev.streamx.cli.command.dev;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.dockerjava.api.DockerClient;
+import dev.streamx.cli.command.MeshStopper;
+import dev.streamx.cli.command.dev.DevCommandTest.DevCommandProfile;
 import dev.streamx.cli.command.dev.event.DashboardStarted;
-import io.quarkus.runtime.ApplicationLifecycleManager;
+import dev.streamx.runner.event.MeshStarted;
+import io.quarkus.arc.properties.IfBuildProperty;
+import io.quarkus.test.junit.QuarkusTestProfile;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -18,8 +24,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -28,13 +36,14 @@ import org.testcontainers.shaded.com.github.dockerjava.core.command.ExecStartRes
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
 
-//@QuarkusMainTest
+@QuarkusMainTest
+@TestProfile(DevCommandProfile.class)
 class DevCommandTest {
 
   public static final String HOST_DIRECTORY = "target/test-classes";
   public static final String HOST_MESH_PATH = HOST_DIRECTORY + "/mesh.yaml";
 
-  //  @Test
+  @Test
   void shouldServeExampleDashboard(QuarkusMainLauncher launcher) {
     // given
     var meshPath = Paths.get(HOST_MESH_PATH);
@@ -67,19 +76,38 @@ class DevCommandTest {
   }
 
   @ApplicationScoped
+  @IfBuildProperty(name = "streamx.dev.test.profile", stringValue = "true")
   public static class StateVerifier {
     private static final String PROJECT_DIR_DIFFERENT =
         "Provided project directory contend is different than container project.";
+    private static final String DASHBOARD_NOT_STARTED =
+        "Dashboard did not start";
     private static final String MESH_CONTENT_DIFFERENT =
         "Provided mesh and container mesh have different content.";
 
     private final DockerClient client = DockerClientFactory.instance().client();
 
-    void onMeshStarted(@Observes DashboardStarted event) throws Exception {
+    private AtomicBoolean dashboardStarted = new AtomicBoolean(false);
+
+    @Inject
+    MeshStopper meshStopper;
+
+    @Inject
+    DashboardRunner dashboardRunner;
+
+    void onMeshStarted(@Observes MeshStarted event) throws Exception {
       compareMeshContent();
       compareProjectDirectoryContent();
 
-      ApplicationLifecycleManager.exit();
+      if (!dashboardStarted.get()) {
+        System.err.println(DASHBOARD_NOT_STARTED);
+      }
+      dashboardRunner.stopStreamxDashboard();
+      meshStopper.scheduleStop();
+    }
+
+    void onDashboardStarted(@Observes DashboardStarted event) {
+      dashboardStarted.set(true);
     }
 
     private void compareProjectDirectoryContent() throws InterruptedException {
@@ -142,4 +170,13 @@ class DevCommandTest {
       return outputStream.toByteArray();
     }
   }
+
+  public static class DevCommandProfile implements QuarkusTestProfile {
+
+    @Override
+    public Map<String, String> getConfigOverrides() {
+      return Map.of("streamx.dev.test.profile", "true");
+    }
+  }
+
 }
