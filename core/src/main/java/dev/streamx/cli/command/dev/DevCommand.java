@@ -18,7 +18,9 @@ import dev.streamx.runner.exception.ContainerStartupTimeoutException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -85,24 +87,17 @@ public class DevCommand implements Runnable {
       ));
 
       bannerPrinter.printBanner();
+
+      startDashboard(meshPath);
+
       meshManager.initializeDevMode(meshPath, spec.commandLine());
+      meshWatcher.watchMeshChanges(meshPath);
       if (meshPath.toFile().exists()) {
         meshManager.start();
       } else {
         Files.createFile(meshPath);
       }
 
-      print("Setting up StreamX Dashboards...");
-
-      var meshPathAsString = meshPath.toAbsolutePath().normalize().toString();
-      var projectDirectory = meshPath.resolve("..");
-      var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
-
-      logger.infov("Resolved mesh {0} and project directory {1}",
-          meshPathAsString, projectDirectoryAsString);
-      startStreamxDashboard(meshPathAsString, projectDirectoryAsString);
-
-      meshWatcher.watchMeshChanges(meshPath);
 
       Quarkus.waitForExit();
     } catch (ContainerStartupTimeoutException e) {
@@ -115,6 +110,17 @@ public class DevCommand implements Runnable {
     }
   }
 
+  private void startDashboard(Path meshPath) {
+    print("Setting up StreamX Dashboard...");
+    var meshPathAsString = meshPath.toAbsolutePath().normalize().toString();
+    var projectDirectory = meshPath.resolve("..");
+    var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
+
+    logger.infov("Resolved mesh {0} and project directory {1}",
+        meshPathAsString, projectDirectoryAsString);
+    startStreamxDashboard(meshPathAsString, projectDirectoryAsString);
+  }
+
   private void startStreamxDashboard(String meshPathAsString, String projectDirectoryAsString) {
     var dashboardContainer = new DashboardContainer(
         StreamxMavenPropertiesUtils.getDashboardImage(),
@@ -124,8 +130,23 @@ public class DevCommand implements Runnable {
     ).withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS));
     dashboardContainer.start();
 
-    print("StreamX Dashboards started on http://localhost:" + devConfig.dashboardPort());
+    print("StreamX Dashboard started on http://localhost:" + devConfig.dashboardPort());
 
+    tryOpenBrowser();
     dashboardStartedEvent.fire(new DashboardStarted());
+  }
+
+  private void tryOpenBrowser() {
+    try {
+      if (Desktop.isDesktopSupported()) {
+        Desktop desktop = Desktop.getDesktop();
+        URI meshManagerUri = new URI("http://localhost:" + devConfig.dashboardPort() + "/manager");
+        desktop.browse(meshManagerUri);
+      } else {
+        logger.warn("Opening browser is not supported");
+      }
+    } catch (Exception e) {
+      logger.error("Opening browser failed", e);
+    }
   }
 }

@@ -39,8 +39,8 @@ class DevCommandTest {
     // given
     var meshPath = Paths.get(HOST_MESH_PATH);
     String s = meshPath
-        .normalize()
         .toAbsolutePath()
+        .normalize()
         .toString();
 
     // when

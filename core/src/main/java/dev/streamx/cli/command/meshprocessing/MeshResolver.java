@@ -23,7 +23,6 @@ public class MeshResolver {
   @Inject
   CurrentDirectoryProvider currentDirectoryProvider;
 
-  // FIXME remove meshConfig param? (this should be field?)
   @NotNull
   public Path resolveMeshPath(MeshConfig meshConfig) {
     return resolveMeshPath(meshConfig, true);

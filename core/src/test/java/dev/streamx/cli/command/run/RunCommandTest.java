@@ -18,8 +18,8 @@ public class RunCommandTest {
   @Test
   void shouldRunStreamxExampleMesh(QuarkusMainLauncher launcher) {
     String s = Paths.get("target/test-classes/mesh.yaml")
-        .normalize()
         .toAbsolutePath()
+        .normalize()
         .toString();
     LaunchResult result = launcher.launch("run", "-f=" + s);
 

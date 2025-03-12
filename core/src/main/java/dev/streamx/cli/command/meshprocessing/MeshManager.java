@@ -42,7 +42,7 @@ public class MeshManager {
 
   public void initializeMesh(Path meshPath) {
     this.meshPath = meshPath;
-    this.normalizedMeshPath = meshPath.normalize().toAbsolutePath();
+    this.normalizedMeshPath = meshPath.toAbsolutePath().normalize();
     this.meshPathAsString = normalizedMeshPath.toString();
 
     this.serviceMesh = resolveMeshDefinition(meshPath);;
@@ -72,7 +72,7 @@ public class MeshManager {
     normalizedMeshPath = meshPath.toAbsolutePath().normalize();
     meshPathAsString = normalizedMeshPath.toString();
 
-    print("Setting up system containers...");
+    print("\nSetting up system containers...");
 
     this.runner.initializeBase();
     this.runner.startBase();
@@ -102,6 +102,7 @@ public class MeshManager {
     print("Starting DX Mesh...");
 
     this.runner.startMesh();
+    print("");
     RunningMeshPropertiesGenerator.generateRootAuthToken(this.runner.getMeshContext());
     printSummary(this.runner, normalizedMeshPath);
   }
@@ -153,7 +154,7 @@ public class MeshManager {
     });
 
     if (newServiceMesh == null) {
-      print("Mesh definition is invalid. Skip reloading...");
+      print("\nMesh definition is invalid. Skip reloading...");
       return;
     }
 
@@ -177,7 +178,7 @@ public class MeshManager {
       case MESH_UNCHANGED -> print("\nMesh definition is unchanged. Skip reloading...");
       case FULL_RELOAD_STARTED -> print("\nMesh file changed. Processing full reload...");
       case INCREMENTAL_RELOAD_STARTED ->
-          print("Mesh file changed. Processing incremental reload...");
+          print("\nMesh file changed. Processing incremental reload...");
       case FULL_RELOAD_FINISHED, INCREMENTAL_RELOAD_FINISHED -> print("Mesh reloaded.");
       default -> { }
     }
