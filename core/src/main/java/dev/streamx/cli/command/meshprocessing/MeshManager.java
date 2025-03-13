@@ -32,7 +32,7 @@ public class MeshManager {
   @Inject
   ExecutionExceptionHandler executionExceptionHandler;
 
-  private boolean exceptionHandlingEnabled = false;
+  private ErrorHandlingExecutor errorHandlingExecutor;
   private Path meshPath;
   private String meshPathAsString;
   private Path normalizedMeshPath;
@@ -50,6 +50,8 @@ public class MeshManager {
 
   public void initializeRunMode(Path meshPath) {
     print("Setting up system containers...");
+    this.errorHandlingExecutor =
+        new ErrorHandlingExecutor(false, executionExceptionHandler, commandLine);
 
     try {
       this.runner.initialize(serviceMesh, meshPathAsString);
@@ -66,7 +68,8 @@ public class MeshManager {
 
   public void initializeDevMode(Path meshPath, CommandLine commandLine) {
     this.meshPath = meshPath;
-    this.exceptionHandlingEnabled = true;
+    this.errorHandlingExecutor =
+        new ErrorHandlingExecutor(true, executionExceptionHandler, commandLine);
     this.commandLine = commandLine;
 
     normalizedMeshPath = meshPath.toAbsolutePath().normalize();
@@ -82,7 +85,7 @@ public class MeshManager {
     if (firstStart) {
       firstStart = false;
     }
-    execute(this::doStart);
+    errorHandlingExecutor.execute(this::doStart);
   }
 
   private void doStart() {
@@ -101,10 +104,13 @@ public class MeshManager {
     print("");
     print("Starting DX Mesh...");
 
-    this.runner.startMesh();
+    boolean failFast = !errorHandlingExecutor.failsafe;
+    boolean started = this.runner.startMesh(failFast);
     print("");
     RunningMeshPropertiesGenerator.generateRootAuthToken(this.runner.getMeshContext());
-    printSummary(this.runner, normalizedMeshPath);
+    if (started) {
+      printSummary(this.runner, normalizedMeshPath);
+    }
   }
 
   @NotNull
@@ -139,14 +145,14 @@ public class MeshManager {
       print("DX Mesh stopped...");
       print("");
     } catch (Exception e) {
-      if (!exceptionHandlingEnabled) {
+      if (!errorHandlingExecutor.failsafe) {
         throw ExceptionUtils.sneakyThrow(e);
       }
     }
   }
 
   public void reload() {
-    ServiceMesh newServiceMesh = execute(() -> {
+    ServiceMesh newServiceMesh = errorHandlingExecutor.execute(() -> {
       var serviceMesh = resolveMeshDefinition(meshPath);
       serviceMesh.validate().assertValid();
 
@@ -179,33 +185,48 @@ public class MeshManager {
       case FULL_RELOAD_STARTED -> print("\nMesh file changed. Processing full reload...");
       case INCREMENTAL_RELOAD_STARTED ->
           print("\nMesh file changed. Processing incremental reload...");
-      case FULL_RELOAD_FINISHED, INCREMENTAL_RELOAD_FINISHED -> print("Mesh reloaded.");
+      case FULL_RELOAD_FINISHED, INCREMENTAL_RELOAD_FINISHED -> print("\nMesh reloaded.");
+      case FULL_RELOAD_FAILED, INCREMENTAL_RELOAD_FAILED -> print("\nMesh reload failed.");
       default -> { }
     }
   }
 
-  private <T> T execute(Callable<T> callable) {
-    try {
-      return callable.call();
-    } catch (Exception e) {
-      if (exceptionHandlingEnabled) {
-        executionExceptionHandler.handleExecutionException(e, commandLine);
+  private static class ErrorHandlingExecutor {
 
-        return null;
-      } else {
-        throw ExceptionUtils.sneakyThrow(e);
+    private final boolean failsafe;
+    private final ExecutionExceptionHandler executionExceptionHandler;
+    private final CommandLine commandLine;
+
+    public ErrorHandlingExecutor(boolean failsafe,
+        ExecutionExceptionHandler executionExceptionHandler, CommandLine commandLine) {
+      this.failsafe = failsafe;
+      this.executionExceptionHandler = executionExceptionHandler;
+      this.commandLine = commandLine;
+    }
+
+    private <T> T execute(Callable<T> callable) {
+      try {
+        return callable.call();
+      } catch (Exception e) {
+        if (failsafe) {
+          executionExceptionHandler.handleExecutionException(e, commandLine);
+
+          return null;
+        } else {
+          throw ExceptionUtils.sneakyThrow(e);
+        }
       }
     }
-  }
 
-  private void execute(Runnable runnable) {
-    try {
-      runnable.run();
-    } catch (Exception e) {
-      if (exceptionHandlingEnabled) {
-        executionExceptionHandler.handleExecutionException(e, commandLine);
-      } else {
-        throw ExceptionUtils.sneakyThrow(e);
+    private void execute(Runnable runnable) {
+      try {
+        runnable.run();
+      } catch (Exception e) {
+        if (failsafe) {
+          executionExceptionHandler.handleExecutionException(e, commandLine);
+        } else {
+          throw ExceptionUtils.sneakyThrow(e);
+        }
       }
     }
   }
