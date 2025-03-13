@@ -1,13 +1,11 @@
 package dev.streamx.cli.command.dev;
 
-import io.quarkus.arc.profile.IfBuildProfile;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.awt.Desktop;
 import java.net.URI;
 import org.jboss.logging.Logger;
 
-@IfBuildProfile
 @ApplicationScoped
 public class BrowserOpener {
 
