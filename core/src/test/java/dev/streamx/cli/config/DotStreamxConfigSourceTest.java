@@ -42,8 +42,8 @@ class DotStreamxConfigSourceTest {
   }
 
   private static void overriddenUserHome() {
-    String overriddenUserDir = Path.of("./target").normalize()
-        .toAbsolutePath().toString();
+    String overriddenUserDir = Path.of("./target")
+        .toAbsolutePath().normalize().toString();
     System.setProperty("user.home", overriddenUserDir);
   }
 }

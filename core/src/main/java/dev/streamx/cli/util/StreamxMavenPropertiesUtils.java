@@ -29,8 +29,8 @@ public class StreamxMavenPropertiesUtils {
     return getProperty("streamx.cli.version");
   }
 
-  public static String getMeshManagerImage() {
-    return getProperty("streamx.manager.mesh-manager.image");
+  public static String getDashboardImage() {
+    return getProperty("streamx.dev.dashboard.image");
   }
 
   private static String getProperty(String key) {

@@ -19,7 +19,8 @@
     <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
 
     <!-- this should not be overridden by user, same as streamx runner dependencies -->
-    <streamx.manager.mesh-manager.image>ghcr.io/streamx-dev/streamx-mesh-manager/streamx-mesh-manager:0.0.1-jvm</streamx.manager.mesh-manager.image>
+    <!-- FIXME use fixed version after streamx dashboard stabilizes -->
+    <streamx.dev.dashboard.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:latest-jvm</streamx.dev.dashboard.image>
   </properties>
 
   <dependencies>
@@ -30,6 +31,10 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-scheduler</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

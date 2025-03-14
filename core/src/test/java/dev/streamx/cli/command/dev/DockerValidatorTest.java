@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.manager;
+package dev.streamx.cli.command.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
@@ -10,6 +10,8 @@ import com.github.dockerjava.api.exception.ConflictException;
 import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
 import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import io.quarkus.arc.impl.Reflections;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterAll;
@@ -21,12 +23,14 @@ import org.mockito.Mockito;
 import org.testcontainers.DockerClientFactory;
 
 
+@QuarkusTest
 class DockerValidatorTest {
 
   public static final String HELLO_WORLD_IMAGE = "hello-world:latest";
   public static final String HELLO_WORLD_CONTAINER_NAME = "dockerValidatorTestContainer";
 
-  private final DockerValidator uut = new DockerValidator();
+  @Inject
+  DockerValidator uut;
 
   @BeforeAll
   static void initialize() throws InterruptedException {

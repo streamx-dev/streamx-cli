@@ -62,9 +62,9 @@ public class ServiceMeshResolver {
       throw new RuntimeException(
           ExceptionUtils.appendLogSuggestion(
               "Unable to read mesh definition from '" + meshPath + "'.\n"
-                  + "\n"
-                  + "Details:\n"
-                  + e.getMessage()), e);
+              + "\n"
+              + "Details:\n"
+              + e.getMessage()), e);
     }
     return serviceMesh;
   }
@@ -125,9 +125,9 @@ public class ServiceMeshResolver {
         throw new RuntimeException(
             ExceptionUtils.appendLogSuggestion(
                 "Unable to read deployment from '" + deploymentPath + "'.\n"
-                    + "\n"
-                    + "Details:\n"
-                    + e.getMessage()), e);
+                + "\n"
+                + "Details:\n"
+                + e.getMessage()), e);
       }
     }
     return serviceMeshDeploymentConfig;
