@@ -28,6 +28,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   private static final String KEY = "index.html";
   private static final String DATA = """
       {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
+  private static final String TEST_RESOURCES = "file://target/test-classes/";
 
   @Test
   public void shouldRejectInvalidJsonPath(QuarkusMainLauncher launcher) {
@@ -68,7 +69,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   public void shouldRejectInvalidFile(QuarkusMainLauncher launcher) {
     // given
     String corruptedPathArg =
-        "file://target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+        TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/invalid-payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -83,7 +84,8 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
         Supplied JSONPath expression:
         $['content']['bytes']
         Supplied replacement:
-        file://target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json
+        file://target/test-classes/dev/streamx/cli/command/ingestion/publish/payload/\
+        invalid-payload.json
                 
         Make sure that:
          * you need a JSON node as replacement
@@ -140,7 +142,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   @Test
   public void shouldPublishReplacedFromFile(QuarkusMainLauncher launcher) {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+    String arg = TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -209,7 +211,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   @Test
   public void shouldPublishReplacedJsonPathWithStringValueFromFile(QuarkusMainLauncher launcher) {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/raw-text.txt";
+    String arg = TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/raw-text.txt";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -229,7 +231,8 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   @Test
   public void shouldPublishReplacedJsonPathWithBinaryValue(QuarkusMainLauncher launcher) {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/example-image.png";
+    String arg =
+        TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/example-image.png";
 
     // when
     LaunchResult result = launcher.launch("publish",

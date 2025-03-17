@@ -244,7 +244,7 @@
                       <!-- FixMe: Add tests for batch and stream commands
                         and increase the COVEREDRATIO to 75%
                         -->
-                      <minimum>60%</minimum>
+                      <minimum>67%</minimum>
                     </limit>
                   </limits>
                 </rule>
