@@ -31,7 +31,7 @@ public class MeshWatcher {
 
   public void watchMeshChanges(Path meshPath) {
     try {
-      Path meshDir = meshPath.getParent();
+      Path meshDir = meshPath.toAbsolutePath().normalize().getParent();
 
       WatchService watchService = FileSystems.getDefault().newWatchService();
       WatchKey watchKey = meshDir.register(watchService,
@@ -100,9 +100,9 @@ public class MeshWatcher {
 
   private static boolean pathsMatches(Path meshPath, WatchEvent<?> event) {
     Path modifiedFile = (Path) event.context();
-    Path normalizedModifiedPath = meshPath.getParent().resolve(modifiedFile)
-        .toAbsolutePath()
-        .normalize();
+    Path normalizedModifiedPath = meshPath.toAbsolutePath().normalize()
+        .getParent().resolve(modifiedFile)
+        .toAbsolutePath().normalize();
 
     Path normalizedMeshPath = meshPath.toAbsolutePath().normalize();
 

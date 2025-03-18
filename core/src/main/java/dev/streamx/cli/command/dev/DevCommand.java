@@ -77,17 +77,19 @@ public class DevCommand implements Runnable {
       ));
 
       bannerPrinter.printBanner();
+      boolean meshFileExists = meshPath.toFile().exists();
+      if (!meshFileExists) {
+        Files.createFile(meshPath);
+      }
 
       startDashboard(meshPath);
 
       meshManager.initializeDevMode(meshPath, spec.commandLine());
       meshWatcher.watchMeshChanges(meshPath);
-      if (meshPath.toFile().exists()) {
-        meshManager.start();
-      } else {
-        Files.createFile(meshPath);
-      }
 
+      if (meshFileExists) {
+        meshManager.start();
+      }
 
       Quarkus.waitForExit();
     } catch (ContainerStartupTimeoutException e) {
