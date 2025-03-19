@@ -9,3 +9,4 @@ properties:
 payload:
   content:
     bytes: file://${payloadPath}
+

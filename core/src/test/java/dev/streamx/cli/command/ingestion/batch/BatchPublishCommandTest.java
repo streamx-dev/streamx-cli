@@ -137,6 +137,41 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
     }
 
     @Test
+    public void shouldBatchPublishValidDirectoryWithJsons(QuarkusMainLauncher launcher) {
+      // when
+      LaunchResult result = launcher.launch(
+          "batch", "--ingestion-url=" + getIngestionUrl(),
+          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid-json"
+      );
+
+      // then
+      expectSuccess(result);
+      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
+          .withRequestBody(equalToJson("""
+              {
+                "key" : "content.json",
+                "action" : "publish",
+                "eventTime" : null,
+                "properties" : { },
+                "payload" : {
+                  "dev.streamx.blueprints.data.Page" : {
+                    "object" : {
+                      "content" : "<h1>Hello world!</h1>"
+                    },
+                    "fixed-property" : true,
+                    "list" : [ {
+                      "content" : "<h1>Hello world!</h1>"
+                    } ]
+                  }
+                }
+              }
+              """))
+          .withoutHeader("Authorization"));
+
+      wm.verify(1, postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL))));
+    }
+
+    @Test
     public void shouldRejectWrongIngestionUrl(QuarkusMainLauncher launcher) {
       // when
       String ingestionServiceUrl = "http://aaa.bbb.ccc";

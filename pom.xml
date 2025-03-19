@@ -241,10 +241,10 @@
                     <limit>
                       <counter>INSTRUCTION</counter>
                       <value>COVEREDRATIO</value>
-                      <!-- FixMe: Add tests for batch and stream commands
+                      <!-- FixMe: Add tests for stream commands
                         and increase the COVEREDRATIO to 75%
                         -->
-                      <minimum>68%</minimum>
+                      <minimum>70%</minimum>
                     </limit>
                   </limits>
                 </rule>
