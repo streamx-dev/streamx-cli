@@ -6,6 +6,8 @@ import com.github.dockerjava.api.DockerClient;
 import dev.streamx.cli.command.MeshStopper;
 import dev.streamx.cli.command.dev.DevCommandTest.DevCommandProfile;
 import dev.streamx.cli.command.dev.event.DashboardStarted;
+import dev.streamx.cli.command.dev.event.DevReady;
+import dev.streamx.runner.event.MeshReloadUpdate;
 import dev.streamx.runner.event.MeshStarted;
 import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.test.junit.QuarkusTestProfile;
@@ -22,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.shaded.com.github.dockerjava.core.command.ExecStartResultCallback;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
@@ -40,20 +45,30 @@ import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 @TestProfile(DevCommandProfile.class)
 class DevCommandTest {
 
+  public static final String MESH_PROPERTY_NAME = "test.mesh.path";
   public static final String HOST_DIRECTORY = "target/test-classes";
-  public static final String HOST_MESH_PATH = HOST_DIRECTORY + "/mesh.yaml";
+  public static final String MESHES_DIRECTORY = HOST_DIRECTORY + "/dev/streamx/cli/command/dev";
+  public static final String INITIAL_MESH = MESHES_DIRECTORY + "/initial-mesh.yaml";
+  public static final String FAILING_MESH = MESHES_DIRECTORY + "/failing-mesh.yaml";
+  public static final String INCREMENTAL_RELOADED_MESH =
+      MESHES_DIRECTORY + "/incremental-reloaded-mesh.yaml";
+
+  @TempDir
+  public Path temp;
 
   @Test
-  void shouldServeExampleDashboard(QuarkusMainLauncher launcher) {
+  void shouldReactOnMeshChanges(QuarkusMainLauncher launcher) {
     // given
-    var meshPath = Paths.get(HOST_MESH_PATH);
-    String s = meshPath
+    var meshPath = temp.resolve("mesh.yaml");
+    String meshPathString = meshPath
         .toAbsolutePath()
         .normalize()
         .toString();
 
+    System.setProperty(MESH_PROPERTY_NAME, meshPathString);
+
     // when
-    LaunchResult result = launcher.launch("dev", "-f=" + s);
+    LaunchResult result = launcher.launch("dev", "-f=" + meshPathString);
 
     // then
     var errorOutput = getErrorOutput(result);
@@ -80,6 +95,8 @@ class DevCommandTest {
   public static class StateVerifier {
     private static final String PROJECT_DIR_DIFFERENT =
         "Provided project directory contend is different than container project.";
+    private static final String INITIAL_MESH_NOT_EMPTY =
+        "Initial mesh file must be empty.";
     private static final String DASHBOARD_NOT_STARTED =
         "Dashboard did not start";
     private static final String MESH_CONTENT_DIFFERENT =
@@ -96,14 +113,54 @@ class DevCommandTest {
     DashboardRunner dashboardRunner;
 
     void onMeshStarted(@Observes MeshStarted event) throws Exception {
-      compareMeshContent();
-      compareProjectDirectoryContent();
+      Path meshPath = getMeshPath();
 
+      Files.copy(Path.of(FAILING_MESH), meshPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    void onDevReady(@Observes DevReady event) throws Exception {
       if (!dashboardStarted.get()) {
         System.err.println(DASHBOARD_NOT_STARTED);
       }
-      dashboardRunner.stopStreamxDashboard();
-      meshStopper.scheduleStop();
+
+      Path meshPath = getMeshPath();
+
+      if (Files.size(meshPath) > 0) {
+        System.err.println(INITIAL_MESH_NOT_EMPTY);
+      }
+      Files.copy(Path.of(INITIAL_MESH), meshPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    void onMeshReload(@Observes MeshReloadUpdate event) throws Exception {
+      Path meshPath = getMeshPath();
+
+      switch (event.getEvent()) {
+        case FULL_RELOAD_FINISHED -> {
+          compareMeshContent(INITIAL_MESH);
+          compareProjectDirectoryContent();
+
+          Files.copy(Path.of(FAILING_MESH), meshPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+        case INCREMENTAL_RELOAD_FAILED -> {
+          Files.copy(Path.of(INCREMENTAL_RELOADED_MESH), meshPath,
+              StandardCopyOption.REPLACE_EXISTING);
+        }
+        case INCREMENTAL_RELOAD_FINISHED -> {
+          Files.deleteIfExists(meshPath);
+
+          dashboardRunner.stopStreamxDashboard();
+          meshStopper.scheduleStop();
+        }
+        default -> {
+
+        }
+      }
+    }
+
+    private @NotNull Path getMeshPath() {
+      String meshPath = System.getProperty(MESH_PROPERTY_NAME);
+      Path meshFile = Path.of(meshPath);
+      return meshFile;
     }
 
     void onDashboardStarted(@Observes DashboardStarted event) {
@@ -141,11 +198,11 @@ class DevCommandTest {
           .collect(Collectors.toSet());
     }
 
-    private void compareMeshContent() throws InterruptedException, IOException {
+    private void compareMeshContent(String mesh) throws InterruptedException, IOException {
       var command = "cat /data/mesh.yaml";
 
       var containerMeshContent = executeCommand(client, command);
-      var meshPath = Paths.get(HOST_MESH_PATH);
+      var meshPath = Paths.get(mesh);
 
       if (!Arrays.equals(Files.readAllBytes(meshPath), containerMeshContent)) {
         System.err.println(MESH_CONTENT_DIFFERENT);
@@ -175,7 +232,10 @@ class DevCommandTest {
 
     @Override
     public Map<String, String> getConfigOverrides() {
-      return Map.of("streamx.dev.test.profile", "true");
+      return Map.of(
+          "streamx.dev.test.profile", "true",
+          "streamx.container.startup-timeout-seconds", "15"
+      );
     }
   }
 

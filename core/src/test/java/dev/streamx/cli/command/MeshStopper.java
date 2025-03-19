@@ -15,6 +15,7 @@ public class MeshStopper {
   private static final ScheduledExecutorService SCHEDULER =
       Executors.newSingleThreadScheduledExecutor();
   private static final AtomicBoolean scheduled =  new AtomicBoolean(false);
+
   @Inject
   StreamxRunner streamxRunner;
 

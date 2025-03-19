@@ -56,8 +56,14 @@ public class IngestionMessageJsonFactory {
     root.put("action", action);
     root.putNull("eventTime");
     root.set("properties", propertiesObject);
-    ObjectNode payload = root.putObject("payload");
-    payload.set(payloadType, payloadContent);
+
+    if (payloadContent != null) {
+      ObjectNode payload = root.putObject("payload");
+      payload.set(payloadType, payloadContent);
+    } else {
+      root.putNull("payload");
+    }
+
     return root;
   }
 }

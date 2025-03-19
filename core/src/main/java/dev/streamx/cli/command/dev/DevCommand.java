@@ -4,6 +4,7 @@ import static dev.streamx.cli.util.Output.print;
 
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
+import dev.streamx.cli.command.dev.event.DevReady;
 import dev.streamx.cli.command.meshprocessing.MeshConfig;
 import dev.streamx.cli.command.meshprocessing.MeshManager;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
@@ -14,6 +15,7 @@ import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.container.PulsarContainer;
 import dev.streamx.runner.exception.ContainerStartupTimeoutException;
 import io.quarkus.runtime.Quarkus;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -66,6 +68,9 @@ public class DevCommand implements Runnable {
   @Inject
   DashboardRunner dashboardRunner;
 
+  @Inject
+  Event<DevReady> devReadyEvent;
+
   @Override
   public void run() {
     try {
@@ -90,6 +95,8 @@ public class DevCommand implements Runnable {
       if (meshFileExists) {
         meshManager.start();
       }
+
+      devReadyEvent.fire(new DevReady());
 
       Quarkus.waitForExit();
     } catch (ContainerStartupTimeoutException e) {

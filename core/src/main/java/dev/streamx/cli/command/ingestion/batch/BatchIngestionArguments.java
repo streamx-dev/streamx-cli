@@ -9,7 +9,7 @@ public class BatchIngestionArguments {
   }
 
   @Parameters(index = "0",
-      description = "Action to perform, either ${COMPLETION-CANDIDATES}", arity = "1")
+      description = "Action to perform (publish, unpublish)", arity = "1")
   ActionType action;
 
   @Parameters(index = "1", description = "Source directory for the batch publication", arity = "1")

@@ -3,6 +3,7 @@ package dev.streamx.cli.command.ingestion.batch.walker;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dev.streamx.cli.command.ingestion.batch.EventSourceDescriptor;
+import dev.streamx.cli.command.ingestion.batch.exception.EventSourceDescriptorException;
 import dev.streamx.cli.util.FileUtils;
 import io.quarkus.logging.Log;
 import java.io.IOException;
@@ -13,7 +14,9 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
+import org.jetbrains.annotations.NotNull;
 
 public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
 
@@ -30,9 +33,7 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
   public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
     Path configFile = dir.resolve(EventSourceDescriptor.FILENAME);
     if (Files.exists(configFile) && Files.isRegularFile(configFile)) {
-      EventSourceDescriptor descriptor = yamlMapper.readValue(configFile.toFile(),
-          EventSourceDescriptor.class);
-      descriptor.setSource(configFile);
+      EventSourceDescriptor descriptor = parseDescriptor(configFile);
 
       eventSourceStack.push(descriptor);
       Log.debugf("Found event source in %s: %s", dir, descriptor);
@@ -41,6 +42,25 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
     // Process all files in this directory with the current active event source (if any)
     processDirectory(dir, eventSourceStack.isEmpty() ? null : eventSourceStack.peek());
     return FileVisitResult.CONTINUE;
+  }
+
+  private @NotNull EventSourceDescriptor parseDescriptor(Path configFile)
+      throws IOException {
+    try {
+      EventSourceDescriptor descriptor = yamlMapper.readValue(configFile.toFile(),
+          EventSourceDescriptor.class);
+
+      Objects.requireNonNull(descriptor.getKey(),
+          "Missing required 'key' property in config file '%s'.'".formatted(configFile));
+      Objects.requireNonNull(descriptor.getChannel(),
+          "Missing required 'channel' property in config file '%s'.'".formatted(configFile));
+      Objects.requireNonNull(descriptor.getPayload(),
+          "Missing required 'payload' property in config file '%s'.'".formatted(configFile));
+      descriptor.setSource(configFile);
+      return descriptor;
+    } catch (IOException e) {
+      throw new EventSourceDescriptorException(configFile, e);
+    }
   }
 
   @Override

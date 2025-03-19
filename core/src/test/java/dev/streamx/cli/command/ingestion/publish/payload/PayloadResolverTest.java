@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 class PayloadResolverTest {
 
   private static final JsonNode EXAMPLE_JSON_NODE;
+  private static final String TEST_RESOURCES = "file://target/test-classes";
 
   static {
     try {
@@ -71,7 +72,7 @@ class PayloadResolverTest {
   void shouldValidateFileContent() {
     // given
     String corruptedPathArg =
-        "file://target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+        TEST_RESOURCES + "/dev/streamx/cli/command/ingestion/publish/payload/invalid-payload.json";
 
     // when
     Exception exception = catchException(() -> createPayload(corruptedPathArg));
@@ -97,7 +98,7 @@ class PayloadResolverTest {
   @Test
   void shouldExtractDataFromFileAndConvertToJsonNode() {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+    String arg = TEST_RESOURCES + "/dev/streamx/cli/command/ingestion/publish/payload/payload.json";
 
     // when
     JsonNode payload = createPayload(arg);
@@ -109,7 +110,7 @@ class PayloadResolverTest {
   @Test
   void shouldValidateMissingJsonPathOfNonJsonNodePayload() {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+    String arg = TEST_RESOURCES + "/dev/streamx/cli/command/ingestion/publish/payload/payload.json";
 
     // when
     Exception exception = catchException(() ->
@@ -126,7 +127,7 @@ class PayloadResolverTest {
   @Test
   void shouldValidateNonexistingJsonPathOfNonJsonNodePayload() {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+    String arg = TEST_RESOURCES + "/dev/streamx/cli/command/ingestion/publish/payload/payload.json";
 
     // when
     Exception exception = catchException(() ->

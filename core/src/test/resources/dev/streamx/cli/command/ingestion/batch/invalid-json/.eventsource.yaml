@@ -1,0 +1,5 @@
+channel: pages
+relativePathLevel: 0
+key: ${relativePath}
+
+payload: json://${payloadPath}

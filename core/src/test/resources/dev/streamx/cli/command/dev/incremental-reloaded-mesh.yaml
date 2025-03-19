@@ -1,0 +1,30 @@
+defaultRegistry: ghcr.io/streamx-dev/streamx
+defaultImageTag: latest-jvm
+
+sources:
+  cli:
+    outgoing:
+      - "pages"
+
+ingestion:
+  rest-ingestion:
+    environment:
+      QUARKUS_HTTP_AUTH_PERMISSION_BEARER_POLICY: "permit"
+
+processing:
+  relay:
+    image: sample-relay-processing-service
+    incoming:
+      incoming-pages:
+        topic: inboxes/pages
+    outgoing:
+      outgoing-pages:
+        topic: outboxes/page
+
+delivery:
+  web-delivery-service:
+    image: sample-web-delivery-service
+    incoming:
+      pages:
+        topic: outboxes/page
+    port: 8081
