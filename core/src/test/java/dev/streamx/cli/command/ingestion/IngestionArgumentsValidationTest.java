@@ -49,9 +49,10 @@ public class IngestionArgumentsValidationTest extends BaseIngestionCommandTest {
     // then
     expectError(result, """
         Missing required parameter for option '--string-fragment' (<string>)
-        Usage: streamx publish [-hV] [[--ingestion-url=<restIngestionServiceUrl>]]
-                               (<channel> <key> [payloadFile]) [[[-s=<string> |
-                               -b=<binary> | -j=<json>]]...]
+        Usage: streamx publish [-hV] [-p=<String=String>]...
+                               [[--ingestion-url=<restIngestionServiceUrl>]] (<channel>
+                               <key> [payloadFile]) [[[-s=<string> | -b=<binary> |
+                               -j=<json>]]...]
 
         Try 'streamx publish --help' for more information.""");
   }
