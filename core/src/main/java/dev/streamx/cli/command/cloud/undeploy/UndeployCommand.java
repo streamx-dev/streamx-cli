@@ -1,5 +1,6 @@
 package dev.streamx.cli.command.cloud.undeploy;
 
+import static dev.streamx.cli.command.cloud.ServiceMeshResolver.SERVICE_MESH_NAME;
 import static dev.streamx.cli.util.Output.printf;
 
 import dev.streamx.cli.VersionProvider;
@@ -21,16 +22,16 @@ public class UndeployCommand implements Runnable {
 
   public static final String COMMAND_NAME = "undeploy";
 
-  @ArgGroup
-  KubernetesArguments namespaceArg;
-
+  @ArgGroup(exclusive = false)
+  KubernetesArguments kubernetesArguments;
   @Inject
   KubernetesService kubernetesService;
 
   @Override
   public void run() {
     kubernetesService.validateCrdInstallation();
-    kubernetesService.undeploy();
+    kubernetesService.undeploy(SERVICE_MESH_NAME);
+
     printf("StreamX project successfully undeployed from '%s' namespace.%n",
         kubernetesService.getNamespace());
   }

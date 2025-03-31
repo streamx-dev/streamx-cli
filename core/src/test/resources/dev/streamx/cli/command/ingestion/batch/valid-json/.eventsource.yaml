@@ -1,0 +1,8 @@
+channel: pages
+key: ${relativePath}
+
+payload:
+  object: json://${payloadPath}
+  fixed-property: true
+  list:
+    - json://${payloadPath}

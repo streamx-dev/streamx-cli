@@ -7,6 +7,8 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommand;
 import dev.streamx.cli.command.ingestion.IngestionMessageJsonFactory;
 import dev.streamx.cli.command.ingestion.batch.BatchIngestionArguments.ActionType;
+import dev.streamx.cli.command.ingestion.batch.exception.EventSourceDescriptorException;
+import dev.streamx.cli.command.ingestion.batch.exception.FileIngestionException;
 import dev.streamx.cli.command.ingestion.batch.resolver.BatchPayloadResolver;
 import dev.streamx.cli.command.ingestion.batch.resolver.substitutor.Substitutor;
 import dev.streamx.cli.command.ingestion.batch.walker.EventSourceFileTreeWalker;
@@ -19,13 +21,17 @@ import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.ParameterException;
 
 @Command(name = BatchCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
@@ -39,12 +45,16 @@ public class BatchCommand extends BaseIngestionCommand {
   private final Map<String, String> schemaTypesCache = new HashMap<>();
   @ArgGroup(exclusive = false, multiplicity = "1")
   BatchIngestionArguments batchIngestionArguments;
+
   @Inject
   BatchPayloadResolver payloadResolver;
+
   @Inject
   Substitutor substitutor;
+
   @Inject
   IngestionMessageJsonFactory ingestionMessageJsonFactory;
+
   private State state;
 
   @Override
@@ -56,6 +66,13 @@ public class BatchCommand extends BaseIngestionCommand {
     Path startDir = Paths.get(batchIngestionArguments.getSourceDirectory());
 
     try {
+      if (!Files.exists(startDir)) {
+        throw new RuntimeException("Directory '" + startDir + "' does not exists.");
+      }
+      if (!Files.isDirectory(startDir)) {
+        throw new RuntimeException("Specified path '" + startDir + "' must be a directory.");
+      }
+
       Files.walkFileTree(startDir, new EventSourceFileTreeWalker((file, eventSource) -> {
         try {
           updateCommandState(file, eventSource);
@@ -66,22 +83,32 @@ public class BatchCommand extends BaseIngestionCommand {
           }
           perform(publisher);
         } catch (StreamxClientException ex) {
-          // Wrap into IOException to match method signatures
-          throw new IOException(ex);
+          throw new FileIngestionException(file, ex);
         }
       }));
+    } catch (FileIngestionException e) {
+      throw new RuntimeException(
+          ExceptionUtils.appendLogSuggestion(
+              "Error performing batch publication while processing '" + e.getPath() + "' file.\n"
+              + "\n"
+              + "Details:\n"
+              + e.getCause().getMessage()), e);
+    } catch (EventSourceDescriptorException e) {
+      throw new RuntimeException(
+          ExceptionUtils.appendLogSuggestion(
+              "Invalid descriptor: '" + e.getPath() + "'.\n"
+              + "\n"
+              + "Details:\n"
+              + e.getCause().getMessage()), e);
+    } catch (NoSuchFileException e) {
+      throw new RuntimeException("File '" + e.getFile() + "' does not exists.");
     } catch (IOException e) {
-      if (e.getCause() instanceof StreamxClientException) {
-        // Rethrow original Exception to leverage generic publication error handling from super
-        throw (StreamxClientException) e.getCause();
-      } else {
-        throw new RuntimeException(
-            ExceptionUtils.appendLogSuggestion(
-                "Error performing batch publication using '" + startDir + "' directory.\n"
-                    + "\n"
-                    + "Details:\n"
-                    + e.getMessage()), e);
-      }
+      throw new RuntimeException(
+          ExceptionUtils.appendLogSuggestion(
+              "Error performing batch publication using '" + startDir + "' directory.\n"
+                  + "\n"
+                  + "Details:\n"
+                  + e.getMessage()), e);
     }
   }
 
@@ -89,15 +116,17 @@ public class BatchCommand extends BaseIngestionCommand {
   protected void perform(Publisher<JsonNode> publisher) throws StreamxClientException {
     String schemaType = schemaTypesCache.computeIfAbsent(getChannel(),
         c -> getPayloadPropertyName());
+    ActionType action = state.action();
     SuccessResult result = publisher.send(ingestionMessageJsonFactory.from(
         state.key(),
-        state.action().toString(),
+        action.toString(),
         state.message(),
+        state.properties(),
         schemaType
     ));
 
     printf("Sent data %s message using batch to '%s' with key '%s' at %d%n",
-        state.action(), state.channel(), state.key(),
+        action, state.channel(), state.key(),
         result.getEventTime());
 
   }
@@ -105,16 +134,43 @@ public class BatchCommand extends BaseIngestionCommand {
   private void updateCommandState(Path file, EventSourceDescriptor eventSource) {
 
     String relativePath = calculateRelativePath(file, eventSource);
-
     Map<String, String> variables = substitutor.createSubstitutionVariables(
         file.toString(), eventSource.getChannel(), relativePath);
-    String key = substitutor.substitute(variables, eventSource.getKey());
 
-    JsonNode message = payloadResolver.createPayload(eventSource, variables);
+    String key = substitutor.substitute(variables, eventSource.getKey());
+    JsonNode message = executeHandlingException(
+        () -> payloadResolver.createPayload(eventSource, variables),
+        () -> "Could not resolve payload for file '" + file + "'"
+    );
+
+    Map<String, String> properties = createProperties(eventSource, variables);
 
     this.state = new State(
-        eventSource.getChannel(), key, message, batchIngestionArguments.getAction()
+        eventSource.getChannel(), key, properties, message, batchIngestionArguments.getAction()
     );
+  }
+
+  private @NotNull Map<String, String> createProperties(EventSourceDescriptor eventSource,
+      Map<String, String> variables) {
+    final Map<String, String> properties = new HashMap<>();
+    if (eventSource.getProperties() != null) {
+      for (Entry<String, String> entry : eventSource.getProperties().entrySet()) {
+        properties.put(entry.getKey(), substitutor.substitute(variables, entry.getValue()));
+      }
+    }
+    return properties;
+  }
+
+  private <T> T executeHandlingException(Supplier<T> function,
+      Supplier<String> messageSupplier) {
+    try {
+      return function.get();
+    } catch (RuntimeException e) {
+      throw new ParameterException(spec.commandLine(),
+          messageSupplier.get() + "\n"
+          + "\n"
+          + "Details:\n" + e.getMessage());
+    }
   }
 
   @NotNull
@@ -130,9 +186,8 @@ public class BatchCommand extends BaseIngestionCommand {
     return relativePath;
   }
 
-  private record State(String channel, String key, JsonNode message, ActionType action) {
+  private record State(String channel, String key, Map<String, String> properties, JsonNode message,
+                       ActionType action) {
 
   }
-
-
 }

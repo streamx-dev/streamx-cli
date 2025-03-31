@@ -1,7 +1,13 @@
 package dev.streamx.cli.command.cloud;
 
-import static dev.streamx.cli.command.cloud.ServiceMeshResolver.SERVICE_MESH_NAME;
+import static dev.streamx.cli.command.cloud.MetadataUtils.CONFIG_TYPE_LABEL;
+import static dev.streamx.cli.command.cloud.MetadataUtils.DEFAULT_K8S_NAMESPACE;
+import static dev.streamx.cli.command.cloud.MetadataUtils.SERVICEMESH_CRD_NAME;
+import static dev.streamx.cli.command.cloud.MetadataUtils.setLabel;
+import static dev.streamx.cli.command.cloud.MetadataUtils.setMetadata;
 
+import dev.streamx.cli.command.cloud.collector.ClusterResourcesCollector;
+import dev.streamx.cli.command.cloud.collector.TypedClusterResourceCollector;
 import dev.streamx.cli.command.cloud.deploy.Config;
 import dev.streamx.cli.exception.KubernetesException;
 import dev.streamx.operator.Component;
@@ -18,60 +24,26 @@ import io.fabric8.kubernetes.client.dsl.NonDeletingOperation;
 import io.fabric8.kubernetes.client.utils.KubernetesResourceUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 
 @ApplicationScoped
 public class KubernetesService {
 
-  public static final String NAME_LABEL = "app.kubernetes.io/name";
-  public static final String INSTANCE_LABEL = "app.kubernetes.io/instance";
-  public static final String COMPONENT_LABEL = "app.kubernetes.io/component";
-  public static final String MANAGED_BY_LABEL = "app.kubernetes.io/managed-by";
-  public static final String MANAGED_BY_LABEL_VALUE = "streamx-cli";
-  public static final String CONFIG_TYPE_LABEL = "mesh.streamx.dev/config-type";
-  public static final String PART_OF_LABEL = "app.kubernetes.io/part-of";
-  public static final String SERVICEMESH_CRD_NAME = "servicemeshes.streamx.dev";
-  private static final Map<String, String> CONFIG_SELECTOR_LABELS = Map.of(
-      PART_OF_LABEL, SERVICE_MESH_NAME,
-      MANAGED_BY_LABEL, MANAGED_BY_LABEL_VALUE
-  );
-  private static final String DEFAULT_K8S_NAMESPACE = "default";
   @Inject
   KubernetesClient kubernetesClient;
   @Inject
   KubernetesConfig kubernetesConfig;
 
-  private static void setMetadata(String meshName, Component component, String name,
-      HasMetadata resource) {
-    String instanceName = getResourceName(meshName, component.getShortName(), name);
-    resource.getMetadata().setName(instanceName);
-    setLabel(resource, INSTANCE_LABEL, instanceName);
-    setLabel(resource, COMPONENT_LABEL, component.getName());
-    setLabel(resource, NAME_LABEL, name);
-    setLabel(resource, PART_OF_LABEL, meshName);
-    setLabel(resource, MANAGED_BY_LABEL, MANAGED_BY_LABEL_VALUE);
-  }
-
-  private static String getResourceName(String meshName, String componentName, String name) {
-    return KubernetesResourceUtil.sanitizeName(meshName + "-" + componentName + "-" + name);
-  }
-
-  private static void setLabel(HasMetadata resource, String key, String value) {
-    if (resource.getMetadata().getLabels() == null) {
-      resource.getMetadata().setLabels(new HashMap<>());
-    }
-    resource.getMetadata().getLabels().put(key, value);
-  }
-
   public <T extends HasMetadata> void deploy(List<T> resources) {
     resources.forEach(this::deploy);
   }
 
-  public <T extends HasMetadata> void deploy(T resource) {
+  private <T extends HasMetadata> void deploy(T resource) {
     try {
       kubernetesClient.resource(resource).inNamespace(getNamespace())
           .createOr(NonDeletingOperation::update);
@@ -80,17 +52,37 @@ public class KubernetesService {
     }
   }
 
-  public void undeploy() {
+  public void undeploy(String meshName) {
+    undeploy(collectManagedResources(meshName));
+  }
+
+  public void undeploy(List<HasMetadata> resources) {
     try {
-      kubernetesClient.resources(ServiceMesh.class).inNamespace(getNamespace())
-          .withName(SERVICE_MESH_NAME).delete();
-      kubernetesClient.resources(ConfigMap.class).inNamespace(getNamespace())
-          .withLabels(CONFIG_SELECTOR_LABELS).delete();
-      kubernetesClient.resources(Secret.class).inNamespace(getNamespace())
-          .withLabels(CONFIG_SELECTOR_LABELS).delete();
+      resources.forEach(r -> kubernetesClient.resource(r).delete());
     } catch (KubernetesClientException e) {
       throw KubernetesException.kubernetesClientException(e);
     }
+  }
+
+  public List<HasMetadata> collectManagedResources(String meshName) {
+    List<HasMetadata> result = new ArrayList<>();
+    // Collect mesh
+    ServiceMesh mesh = kubernetesClient.resources(ServiceMesh.class).inNamespace(getNamespace())
+        .withName(meshName).get();
+    if (mesh != null) {
+      result.add(mesh);
+    }
+
+    // Collect configs and secrets
+    result.addAll(
+        new TypedClusterResourceCollector(kubernetesClient, List.of(ConfigMap.class, Secret.class),
+            getNamespace()).collect(meshName));
+
+    // Collect other resources controlled by the CLI
+    result.addAll(new ClusterResourcesCollector(kubernetesClient,
+        getControlledResourceDefinitions(), getNamespace()).collect(meshName));
+
+    return result;
   }
 
   public void validateCrdInstallation() {
@@ -138,4 +130,18 @@ public class KubernetesService {
         .orElse(Optional.ofNullable(kubernetesClient.getNamespace()).orElse(DEFAULT_K8S_NAMESPACE));
   }
 
+  public List<String> getResourcePaths() {
+    return kubernetesConfig.resourceDirectories().map(paths -> Arrays.stream(paths.split(","))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .collect(Collectors.toList())).orElse(List.of());
+  }
+
+  public List<String> getControlledResourceDefinitions() {
+    return kubernetesConfig.controlledResourceDefinitions()
+        .map(paths -> Arrays.stream(paths.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList())).orElse(List.of());
+  }
 }

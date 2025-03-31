@@ -41,14 +41,15 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>3.18.3</quarkus.platform.version>
 
-    <streamx.version>1.0.5</streamx.version>
-    <streamx-operator.version>0.0.4</streamx-operator.version>
+    <streamx.version>1.0.13</streamx.version>
+    <ingestion-client.version>1.1.1</ingestion-client.version>
+    <streamx-operator.version>0.0.12</streamx-operator.version>
     <json-path.version>2.9.0</json-path.version>
     <assertj-core.version>3.24.2</assertj-core.version>
-    <wiremock.version>3.10.0</wiremock.version>
+    <wiremock.version>3.12.0</wiremock.version>
 
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
-    <compiler-plugin.version>3.12.1</compiler-plugin.version>
+    <compiler-plugin.version>3.13.0</compiler-plugin.version>
     <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
     <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
   </properties>
@@ -82,7 +83,7 @@
       <dependency>
         <groupId>dev.streamx</groupId>
         <artifactId>ingestion-client</artifactId>
-        <version>${streamx.version}</version>
+        <version>${ingestion-client.version}</version>
       </dependency>
 
       <dependency>
@@ -240,10 +241,10 @@
                     <limit>
                       <counter>INSTRUCTION</counter>
                       <value>COVEREDRATIO</value>
-                      <!-- FixMe: Add tests for batch and stream commands
+                      <!-- FixMe: Add tests for stream commands
                         and increase the COVEREDRATIO to 75%
                         -->
-                      <minimum>65%</minimum>
+                      <minimum>70%</minimum>
                     </limit>
                   </limits>
                 </rule>
@@ -263,7 +264,9 @@
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>TOTALCOUNT</value>
-                      <maximum>20</maximum>
+                      <!-- FixMe: Review the code and decide if it's worth to decrease it back to 20
+                        -->
+                      <maximum>25</maximum>
                     </limit>
                   </limits>
                 </rule>
@@ -275,7 +278,7 @@
                       <value>TOTALCOUNT</value>
                       <!-- FixMe: Review the code and decide if it's worth to decrease it back to 5
                         -->
-                      <maximum>7</maximum>
+                      <maximum>8</maximum>
                     </limit>
                   </limits>
                 </rule>

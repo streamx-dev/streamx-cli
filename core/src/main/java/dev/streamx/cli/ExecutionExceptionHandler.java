@@ -25,10 +25,17 @@ public class ExecutionExceptionHandler implements IExecutionExceptionHandler {
         : cmd.getExitCodeExceptionMapper().getExitCode(ex);
   }
 
+  public void handleExecutionException(Exception ex, CommandLine cmd) {
+    printErrorMessage(ex, cmd);
+    log.error("Execution exception occurred.", ex);
+  }
+
   private static void printErrorMessage(Exception ex, CommandLine cmd) {
     Throwable exceptionCause = unwrapExceptionCauseIfPossible(ex);
 
-    cmd.getErr().println(cmd.getColorScheme().errorText(exceptionCause.getMessage()));
+    if (exceptionCause.getMessage() != null) {
+      cmd.getErr().println(cmd.getColorScheme().errorText(exceptionCause.getMessage()));
+    }
 
     if (ex instanceof ParameterException && "Missing required subcommand".equals(ex.getMessage())) {
       cmd.usage(cmd.getErr());

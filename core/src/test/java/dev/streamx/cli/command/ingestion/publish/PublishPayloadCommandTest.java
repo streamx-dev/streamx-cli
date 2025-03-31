@@ -14,7 +14,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommandTest;
-import dev.streamx.clients.ingestion.impl.MessageStatus;
+import dev.streamx.clients.ingestion.publisher.IngestionResult;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
@@ -28,6 +28,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   private static final String KEY = "index.html";
   private static final String DATA = """
       {"content": {"bytes": "<h1>Hello World!</h1>"}}""";
+  private static final String TEST_RESOURCES = "file://target/test-classes/";
 
   @Test
   public void shouldRejectInvalidJsonPath(QuarkusMainLauncher launcher) {
@@ -68,7 +69,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   public void shouldRejectInvalidFile(QuarkusMainLauncher launcher) {
     // given
     String corruptedPathArg =
-        "file://target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json";
+        TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/invalid-payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -83,7 +84,8 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
         Supplied JSONPath expression:
         $['content']['bytes']
         Supplied replacement:
-        file://target/test-classes/dev/streamx/cli/publish/payload/invalid-payload.json
+        file://target/test-classes/dev/streamx/cli/command/ingestion/publish/payload/\
+        invalid-payload.json
                 
         Make sure that:
          * you need a JSON node as replacement
@@ -119,6 +121,26 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   }
 
   @Test
+  public void shouldPublishWithProperties(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-s", "content.bytes=<h1>Hello changed value!</h1>",
+        "-p", "sx:type=type/subtype",
+        CHANNEL, KEY);
+
+    // then
+    expectSuccess(result);
+    wm.verify(postRequestedFor(urlEqualTo(
+        getPublicationPath(CHANNEL)))
+        .withRequestBody(
+            equalToJson(
+                buildResponseWith(
+                    "{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}",
+                    "{ \"sx:type\": \"type/subtype\" }"))));
+  }
+
+  @Test
   public void shouldPublishReplacedWithObjectJsonPath(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
@@ -140,7 +162,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   @Test
   public void shouldPublishReplacedFromFile(QuarkusMainLauncher launcher) {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/payload.json";
+    String arg = TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/payload.json";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -209,7 +231,7 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   @Test
   public void shouldPublishReplacedJsonPathWithStringValueFromFile(QuarkusMainLauncher launcher) {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/raw-text.txt";
+    String arg = TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/raw-text.txt";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -229,7 +251,8 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   @Test
   public void shouldPublishReplacedJsonPathWithBinaryValue(QuarkusMainLauncher launcher) {
     // given
-    String arg = "file://target/test-classes/dev/streamx/cli/publish/payload/example-image.png";
+    String arg =
+        TEST_RESOURCES + "dev/streamx/cli/command/ingestion/publish/payload/example-image.png";
 
     // when
     LaunchResult result = launcher.launch("publish",
@@ -250,24 +273,28 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   }
 
   private String buildResponseWith(String content) {
+    return buildResponseWith(content, "{ }");
+  }
+
+  private String buildResponseWith(String content, String properties) {
     return
         """
             {
               "key" : "index.html",
               "action" : "publish",
               "eventTime" : null,
-              "properties" : { },
+              "properties" : %s,
               "payload" : {
                 "dev.streamx.blueprints.data.Page" : %s
               }
             }
-            """.formatted(content);
+            """.formatted(properties, content);
   }
 
 
   @Override
   protected void initializeWiremock() {
-    var result = MessageStatus.of(new SuccessResult(123456L, KEY));
+    var result = IngestionResult.of(new SuccessResult(123456L, KEY));
     wm.stubFor(
         post(getPublicationPath(CHANNEL))
             .willReturn(responseDefinition().withStatus(SC_ACCEPTED).withBody(Json.write(result))

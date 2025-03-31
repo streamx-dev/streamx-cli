@@ -30,6 +30,4 @@ public class BatchCompositePayloadResolver implements BatchPayloadResolver {
     payload = binaryResolverStep.resolve(payload, variables);
     return jsonResolverStep.resolve(payload, variables);
   }
-
-
 }

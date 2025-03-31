@@ -1,0 +1,15 @@
+{
+  "key" : "homepage.html",
+  "action" : "publish",
+  "eventTime" : null,
+  "properties" : {
+    "sx:type": "page/content"
+  },
+  "payload" : {
+    "dev.streamx.blueprints.data.Page" : {
+      "content" : {
+        "bytes" : "<h1>This is Home Page!</h1>"
+      }
+    }
+  }
+}

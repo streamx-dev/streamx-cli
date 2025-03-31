@@ -23,7 +23,10 @@ The application can be packaged using:
 It produces the `streamx-cli-<project.version>-runner.jar` file in the `distribution/target` directory.
 
 The application is packaged as an _über-jar_.
-You can run it with `java -jar distribution/target/*-runner.jar`.
+You can run it with following command:
+```shell script
+java -jar distribution/target/*-runner.jar
+```
 
 ## Running tests for the application
 
@@ -41,4 +44,4 @@ E2e tests are omitted for:
 
 There are several ways of configuring and several properties to configure. 
 
-For details refer to [StreamX CLI Reference](https://www.streamx.dev/guides/main/streamx-command-line-interface-reference.html).
+For details refer to [StreamX CLI Reference](https://www.streamx.dev/guides/streamx-command-line-interface-reference.html).

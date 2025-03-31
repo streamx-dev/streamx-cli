@@ -1,0 +1,12 @@
+channel: pages
+relativePathLevel: 1
+key: ${relativePath}
+ignorePatterns:
+  - ".*/ignore\\.me"
+properties:
+  "sx:type": page/sub-page
+
+payload:
+  content:
+    bytes: file://${payloadPath}
+
