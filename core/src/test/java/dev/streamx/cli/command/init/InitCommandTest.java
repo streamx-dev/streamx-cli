@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.create;
+package dev.streamx.cli.command.init;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import dev.streamx.cli.command.create.project.template.ProjectTemplateSource;
+import dev.streamx.cli.command.init.project.template.ProjectTemplateSource;
 import dev.streamx.cli.exception.GitException;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.component.QuarkusComponentTest;
@@ -29,15 +29,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
     annotationsTransformers = dev.streamx.cli.command.util.CommandTransformer.class
 )
 @TestConfigProperty(
-    key = CreateProjectConfig.STREAMX_CREATE_PROJECT_TEMPLATE_OUTPUT_DIR,
-    value = CreateCommandTest.OUTPUT_DIR
+    key = InitProjectConfig.STREAMX_INIT_PROJECT_TEMPLATE_OUTPUT_DIR,
+    value = InitCommandTest.OUTPUT_DIR
 )
 @TestConfigProperty(
     key = "quarkus.log.file.path",
     value = "/log/path"
 )
 @ExtendWith(MockitoExtension.class)
-class CreateCommandTest {
+class InitCommandTest {
 
   public static final String OUTPUT_DIR = "outputDir";
   public static final String REPO_URL = "repoUrl";
@@ -45,7 +45,7 @@ class CreateCommandTest {
       .normalize().toAbsolutePath().toString();
 
   @Inject
-  CreateCommand createCommand;
+  InitCommand initCommand;
 
   @InjectMock
   GitClient gitClient;
@@ -69,7 +69,7 @@ class CreateCommandTest {
     doThrow(GitException.gitCloneException(process)).when(gitClient).validateGitInstalled();
 
     // when
-    Throwable throwable = catchThrowable(() -> createCommand.run());
+    Throwable throwable = catchThrowable(() -> initCommand.run());
 
     // then
     assertThat(throwable).isInstanceOf(RuntimeException.class)
@@ -90,7 +90,7 @@ class CreateCommandTest {
     Files.createDirectories(Path.of(OUTPUT_DIR));
 
     // when
-    Throwable throwable = catchThrowable(() -> createCommand.run());
+    Throwable throwable = catchThrowable(() -> initCommand.run());
 
     // then
     assertThat(throwable).isInstanceOf(RuntimeException.class)
@@ -111,7 +111,7 @@ class CreateCommandTest {
     when(projectTemplateSource.getRepoUrl()).thenReturn(REPO_URL);
 
     // when
-    createCommand.run();
+    initCommand.run();
 
     // then
     verify(gitClient).validateGitInstalled();

@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.create;
+package dev.streamx.cli.command.init;
 
 import dev.streamx.cli.exception.GitException;
 import dev.streamx.cli.util.os.OsCommandStrategy;
@@ -19,21 +19,6 @@ public class GitClient {
 
   @Inject
   Logger logger;
-
-  public boolean isGitInstalled() {
-    try {
-      Process process = strategy.create("git --version").start();
-      process.waitFor();
-      byte[] stdOutBytes = process.getInputStream().readAllBytes();
-
-      if (process.exitValue() != 0) {
-        return false;
-      }
-      return new String(stdOutBytes).startsWith("git version");
-    } catch (IOException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   public void clone(String cloneUrl, String outputDir) {
     try {
@@ -66,14 +51,17 @@ public class GitClient {
       byte[] stdOutBytes = process.getInputStream().readAllBytes();
 
       if (process.exitValue() != 0) {
-        logger.info("Git not installed...");
-        throw GitException.gitNotInstalledException(process);
+        throwGitNotInstalled(process);
       } else if (!new String(stdOutBytes).startsWith("git version")) {
-        logger.info("Git not installed...");
-        throw GitException.gitNotInstalledException(process);
+        throwGitNotInstalled(process);
       }
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private void throwGitNotInstalled(Process process) {
+    logger.info("Git not installed...");
+    throw GitException.gitNotInstalledException(process);
   }
 }

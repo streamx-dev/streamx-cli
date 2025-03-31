@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.create;
+package dev.streamx.cli.command.init;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -42,34 +42,6 @@ class GitClientTest {
 
   @TempDir
   Path temp;
-
-  @Test
-  void shouldConfirmThatGitInstalled() throws IOException {
-    // given
-    mockProcess(0);
-    String processOutput = "git version";
-    mockProcessOutput(processOutput);
-
-    // when
-    boolean result = gitClient.isGitInstalled();
-
-    // then
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void shouldDenyThatGitInstalled() throws IOException {
-    // given
-    mockProcess(127);
-    String processOutput = "git version";
-    mockProcessOutput(processOutput);
-
-    // when
-    boolean result = gitClient.isGitInstalled();
-
-    // then
-    assertThat(result).isFalse();
-  }
 
   @Test
   void shouldValidateGitOutput() throws IOException {

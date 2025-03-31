@@ -1,10 +1,10 @@
-package dev.streamx.cli.command.create;
+package dev.streamx.cli.command.init;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import dev.streamx.cli.command.create.CreateCommandMainTest.SampleLocalRepositoryResource;
+import dev.streamx.cli.command.init.InitCommandMainTest.SampleLocalRepositoryResource;
 import dev.streamx.cli.util.os.CmdCommandStrategy;
 import dev.streamx.cli.util.os.OsCommandStrategy;
 import dev.streamx.cli.util.os.ProcessBuilder;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 @QuarkusMainTest
 @WithTestResource(SampleLocalRepositoryResource.class)
-class CreateCommandMainTest {
+class InitCommandMainTest {
 
   public static final String PN_SAMPLE_GIT_REPOSITORY = "sampleGitRepository";
   public static final String GIT_NOT_INSTALLED = "gitNotInstalled";
@@ -40,7 +40,7 @@ class CreateCommandMainTest {
 
     // when
     String outputDir = resolveOutputDir();
-    LaunchResult result = launcher.launch("create", outputDir);
+    LaunchResult result = launcher.launch("init", outputDir);
 
     // then
     assertThat(result.exitCode()).isEqualTo(0);
@@ -59,10 +59,8 @@ class CreateCommandMainTest {
   }
 
   private static void assumeGitIsInstalled() {
-    GitClient gitClient = new GitClient();
-    gitClient.strategy = getOsCommandStrategy();
-
-    assumeTrue(gitClient.isGitInstalled(), "Git not installed.");
+    assumeTrue(GitClientUtils.isGitInstalled(getOsCommandStrategy()),
+        "Git not installed.");
   }
 
   private static OsCommandStrategy getOsCommandStrategy() {
@@ -77,17 +75,16 @@ class CreateCommandMainTest {
 
     @Override
     public Map<String, String> start() {
-      GitClient gitClient = new GitClient();
-      gitClient.strategy = getOsCommandStrategy();
+      OsCommandStrategy commandStrategy = getOsCommandStrategy();
 
-      if (gitClient.isGitInstalled()) {
+      if (GitClientUtils.isGitInstalled(commandStrategy)) {
         String sampleGitRepository = initializeLocalGitRepository();
         prepareSampleLocalRepository();
 
         System.setProperty(PN_SAMPLE_GIT_REPOSITORY, sampleGitRepository);
-        return Map.of("streamx.cli.create.project.template.repo-url", sampleGitRepository);
+        return Map.of("streamx.cli.init.project.template.repo-url", sampleGitRepository);
       } else {
-        return Map.of("streamx.cli.create.project.template.repo-url", GIT_NOT_INSTALLED);
+        return Map.of("streamx.cli.init.project.template.repo-url", GIT_NOT_INSTALLED);
       }
     }
 

@@ -1,4 +1,4 @@
-package dev.streamx.cli.command.create.project.template;
+package dev.streamx.cli.command.init.project.template;
 
 public class ConfigurableProjectTemplateSource implements ProjectTemplateSource {
 

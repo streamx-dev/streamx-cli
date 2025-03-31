@@ -1,9 +1,9 @@
-package dev.streamx.cli.command.create;
+package dev.streamx.cli.command.init;
 
 import static dev.streamx.cli.util.Output.printf;
 
 import dev.streamx.cli.VersionProvider;
-import dev.streamx.cli.command.create.project.template.ProjectTemplateSource;
+import dev.streamx.cli.command.init.project.template.ProjectTemplateSource;
 import dev.streamx.cli.config.ArgumentConfigSource;
 import dev.streamx.cli.exception.GitException;
 import dev.streamx.cli.util.ExceptionUtils;
@@ -16,13 +16,13 @@ import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = CreateCommand.COMMAND_NAME,
+@Command(name = InitCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
     description = "Create sample StreamX template project.")
-public class CreateCommand implements Runnable {
+public class InitCommand implements Runnable {
 
-  public static final String COMMAND_NAME = "create";
+  public static final String COMMAND_NAME = "init";
 
   @Parameters(
       paramLabel = "outputDir", description = "path of newly created project",
@@ -30,11 +30,11 @@ public class CreateCommand implements Runnable {
   )
   void outputDir(String outputDir) {
     ArgumentConfigSource.registerValue(
-        CreateProjectConfig.STREAMX_CREATE_PROJECT_TEMPLATE_OUTPUT_DIR, outputDir);
+        InitProjectConfig.STREAMX_INIT_PROJECT_TEMPLATE_OUTPUT_DIR, outputDir);
   }
 
   @Inject
-  CreateProjectConfig config;
+  InitProjectConfig config;
 
   @Inject
   ProjectTemplateSource projectTemplateSource;
