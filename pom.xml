@@ -46,7 +46,7 @@
     <streamx-operator.version>0.0.12</streamx-operator.version>
     <json-path.version>2.9.0</json-path.version>
     <assertj-core.version>3.24.2</assertj-core.version>
-    <wiremock.version>3.10.0</wiremock.version>
+    <wiremock.version>3.12.0</wiremock.version>
 
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
     <compiler-plugin.version>3.13.0</compiler-plugin.version>
