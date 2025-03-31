@@ -14,11 +14,13 @@ import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = PublishCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
@@ -33,6 +35,10 @@ public class PublishCommand extends BaseIngestionCommand {
 
   @ArgGroup(exclusive = false)
   PayloadArguments payloadArguments;
+
+  @Option(names = { "-p", "--property" },
+      description = "Message property")
+  Map<String, String> properties;
 
   @Inject
   PayloadResolver payloadResolver;
@@ -62,6 +68,7 @@ public class PublishCommand extends BaseIngestionCommand {
         publishArguments.getKey(),
         COMMAND_NAME,
         payload,
+        properties,
         payloadPropertyName
     );
   }

@@ -121,6 +121,26 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   }
 
   @Test
+  public void shouldPublishWithProperties(QuarkusMainLauncher launcher) {
+    // when
+    LaunchResult result = launcher.launch("publish",
+        "--ingestion-url=" + getIngestionUrl(),
+        "-s", "content.bytes=<h1>Hello changed value!</h1>",
+        "-p", "sx:type=type/subtype",
+        CHANNEL, KEY);
+
+    // then
+    expectSuccess(result);
+    wm.verify(postRequestedFor(urlEqualTo(
+        getPublicationPath(CHANNEL)))
+        .withRequestBody(
+            equalToJson(
+                buildResponseWith(
+                    "{\"content\": {\"bytes\": \"<h1>Hello changed value!</h1>\"}}",
+                    "{ \"sx:type\": \"type/subtype\" }"))));
+  }
+
+  @Test
   public void shouldPublishReplacedWithObjectJsonPath(QuarkusMainLauncher launcher) {
     // when
     LaunchResult result = launcher.launch("publish",
@@ -253,18 +273,22 @@ public class PublishPayloadCommandTest extends BaseIngestionCommandTest {
   }
 
   private String buildResponseWith(String content) {
+    return buildResponseWith(content, "{ }");
+  }
+
+  private String buildResponseWith(String content, String properties) {
     return
         """
             {
               "key" : "index.html",
               "action" : "publish",
               "eventTime" : null,
-              "properties" : { },
+              "properties" : %s,
               "payload" : {
                 "dev.streamx.blueprints.data.Page" : %s
               }
             }
-            """.formatted(content);
+            """.formatted(properties, content);
   }
 
 

@@ -16,23 +16,6 @@ public class IngestionMessageJsonFactory {
    * @param key            of resource
    * @param action         publish or unpublish
    * @param payloadContent to include as a payload in returned JsonNode
-   * @param payloadType    type matching registered ingestion API schema
-   * @return JsonNode representation of {@link dev.streamx.clients.ingestion.publisher.Message}
-   */
-
-  public JsonNode from(
-      String key,
-      String action,
-      JsonNode payloadContent,
-      String payloadType
-  ) {
-    return from(key, action, payloadContent, Map.of(), payloadType);
-  }
-
-  /**
-   * @param key            of resource
-   * @param action         publish or unpublish
-   * @param payloadContent to include as a payload in returned JsonNode
    * @param properties     to use as payload properties
    * @param payloadType    type matching registered ingestion API schema
    * @return JsonNode representation of {@link dev.streamx.clients.ingestion.publisher.Message}
