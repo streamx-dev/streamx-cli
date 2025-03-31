@@ -72,7 +72,7 @@ class InitCommandTest {
     Throwable throwable = catchThrowable(() -> initCommand.run());
 
     // then
-    assertThat(throwable).isInstanceOf(RuntimeException.class)
+    assertThat(throwable).isInstanceOf(RuntimeException.class) // FIXME
         .hasMessage("""
             Unable create project template.
             
@@ -93,7 +93,7 @@ class InitCommandTest {
     Throwable throwable = catchThrowable(() -> initCommand.run());
 
     // then
-    assertThat(throwable).isInstanceOf(RuntimeException.class)
+    assertThat(throwable).isInstanceOf(RuntimeException.class) // FIXME
         .hasMessage("""
             Unable create project template.
 

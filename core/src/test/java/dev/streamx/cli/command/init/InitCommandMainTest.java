@@ -44,8 +44,8 @@ class InitCommandMainTest {
 
     // then
     assertThat(result.exitCode()).isEqualTo(0);
-    assertThat(result.getOutput()).contains("Creating StreamX project template");
-    assertThat(result.getOutput()).contains("Project created");
+    assertThat(result.getOutput()).contains("Creating StreamX project template"); // FIXME
+    assertThat(result.getOutput()).contains("Project created"); // FIXME
     assertThat(outputDirectory.toFile().exists()).isTrue();
     assertThat(result.getErrorOutput()).isEmpty();
   }

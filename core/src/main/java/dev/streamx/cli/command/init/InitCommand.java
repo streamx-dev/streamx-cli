@@ -19,14 +19,14 @@ import picocli.CommandLine.Parameters;
 @Command(name = InitCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    description = "Create sample StreamX template project.")
+    description = "Create sample StreamX template project.") // FIXME
 public class InitCommand implements Runnable {
 
   public static final String COMMAND_NAME = "init";
 
   @Parameters(
       paramLabel = "outputDir", description = "path of newly created project",
-      defaultValue = "streamx-project-template", arity = "0..1"
+      defaultValue = "streamx-project-template", arity = "0..1"// FIXME
   )
   void outputDir(String outputDir) {
     ArgumentConfigSource.registerValue(
@@ -52,10 +52,10 @@ public class InitCommand implements Runnable {
       validateOutputDir();
 
       String outputDir = normalizeOutputDirPath(Path.of(config.outputDir()));
-      printf("Creating StreamX project template...%n");
+      printf("Creating StreamX project template...%n"); // FIXME
       gitClient.clone(projectTemplateSource.getRepoUrl(), outputDir);
       gitClient.removeGitMetadata(outputDir);
-      printf("Project created in '%s'.%n", outputDir);
+      printf("Project created in '%s'.%n", outputDir); // FIXME
     } catch (GitException e) {
       logGitOutput(e);
       throw throwGenericException(e);
@@ -92,7 +92,7 @@ public class InitCommand implements Runnable {
   private RuntimeException throwGenericException(Exception e) {
     return new RuntimeException(
         ExceptionUtils.appendLogSuggestion(
-            "Unable create project template.\n"
+            "Unable create project template.\n"// FIXME
                 + "\n"
                 + "Details:\n"
                 + e.getMessage()), e);
