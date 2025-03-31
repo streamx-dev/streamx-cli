@@ -9,6 +9,8 @@ import dev.streamx.cli.command.dev.event.DashboardStarted;
 import dev.streamx.cli.command.dev.event.DevReady;
 import dev.streamx.runner.event.MeshReloadUpdate;
 import dev.streamx.runner.event.MeshStarted;
+import dev.streamx.runner.validation.DockerContainerValidator;
+import dev.streamx.runner.validation.DockerEnvironmentValidator;
 import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
@@ -33,7 +35,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.awaitility.Awaitility;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.DockerClientFactory;
@@ -55,6 +59,24 @@ class DevCommandTest {
 
   @TempDir
   public Path temp;
+
+  @AfterEach
+  void awaitDockerResourcesAreRemoved() {
+    Awaitility.await()
+        .until(() -> {
+          try {
+            Set<String> cleanedUpContainers =
+                Set.of("pulsar", "pulsar-init", "streamx-dashboard",
+                    "rest-ingestion", "relay", "web-delivery-service");
+            DockerClient client = new DockerEnvironmentValidator().validateDockerClient();
+            new DockerContainerValidator().verifyExistingContainers(client, cleanedUpContainers);
+
+            return true;
+          } catch (Exception e) {
+            return false;
+          }
+        });
+  }
 
   @Test
   void shouldReactOnMeshChanges(QuarkusMainLauncher launcher) {

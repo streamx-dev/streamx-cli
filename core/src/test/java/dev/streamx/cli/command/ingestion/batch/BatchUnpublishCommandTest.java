@@ -108,8 +108,16 @@ public class BatchUnpublishCommandTest extends BaseIngestionCommandTest {
                     "key": "%s",
                     "action" : "unpublish",
                     "eventTime" : null,
-                    "properties" : { },
-                    "payload" : null
+                    "properties" : {
+                      "sx:type" : "page/sub-page"
+                    },
+                    "payload" : {
+                      "dev.streamx.blueprints.data.Page" : {
+                        "content" : {
+                          "bytes" : "<h1>Hello World!</h1>\\n"
+                        }
+                      }
+                    }
                   }
               """.formatted("valid/" + KEY), true, true))
               .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));

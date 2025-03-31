@@ -120,8 +120,8 @@ public class BatchCommand extends BaseIngestionCommand {
     SuccessResult result = publisher.send(ingestionMessageJsonFactory.from(
         state.key(),
         action.toString(),
-        action == ActionType.publish ? state.message() : null,
-        action == ActionType.publish ? state.properties() : null,
+        state.message(),
+        state.properties(),
         schemaType
     ));
 
