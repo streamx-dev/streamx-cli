@@ -48,7 +48,7 @@
     <assertj-core.version>3.24.2</assertj-core.version>
     <wiremock.version>3.12.1</wiremock.version>
 
-    <surefire-plugin.version>3.2.5</surefire-plugin.version>
+    <surefire-plugin.version>3.5.3</surefire-plugin.version>
     <compiler-plugin.version>3.14.0</compiler-plugin.version>
     <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
     <jacoco-plugin.version>0.8.12</jacoco-plugin.version>
@@ -304,7 +304,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>3.2.5</version>
+            <version>3.5.3</version>
             <configuration>
               <skipITs>false</skipITs>
             </configuration>
