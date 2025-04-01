@@ -72,9 +72,9 @@ class InitCommandTest {
     Throwable throwable = catchThrowable(() -> initCommand.run());
 
     // then
-    assertThat(throwable).isInstanceOf(RuntimeException.class) // FIXME
+    assertThat(throwable).isInstanceOf(RuntimeException.class)
         .hasMessage("""
-            Unable create project template.
+            Unable to initialize new project.
             
             Details:
             git clone failed.
@@ -93,9 +93,9 @@ class InitCommandTest {
     Throwable throwable = catchThrowable(() -> initCommand.run());
 
     // then
-    assertThat(throwable).isInstanceOf(RuntimeException.class) // FIXME
+    assertThat(throwable).isInstanceOf(RuntimeException.class)
         .hasMessage("""
-            Unable create project template.
+            Unable to initialize new project.
 
             Details:
             %s already exists

@@ -11,6 +11,6 @@ public interface InitProjectConfig {
       "streamx.cli.init.project.template.output-dir";
 
   @WithName(STREAMX_INIT_PROJECT_TEMPLATE_OUTPUT_DIR)
-  @WithDefault("streamx-project-template")
+  @WithDefault("streamx-sample-project")
   String outputDir();
 }

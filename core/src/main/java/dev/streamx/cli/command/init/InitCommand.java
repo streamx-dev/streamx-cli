@@ -19,14 +19,14 @@ import picocli.CommandLine.Parameters;
 @Command(name = InitCommand.COMMAND_NAME,
     mixinStandardHelpOptions = true,
     versionProvider = VersionProvider.class,
-    description = "Create sample StreamX template project.") // FIXME
+    description = "Initialize new StreamX project.")
 public class InitCommand implements Runnable {
 
   public static final String COMMAND_NAME = "init";
 
   @Parameters(
       paramLabel = "outputDir", description = "path of newly created project",
-      defaultValue = "streamx-project-template", arity = "0..1"// FIXME
+      defaultValue = "streamx-sample-project", arity = "0..1"
   )
   void outputDir(String outputDir) {
     ArgumentConfigSource.registerValue(
@@ -52,10 +52,10 @@ public class InitCommand implements Runnable {
       validateOutputDir();
 
       String outputDir = normalizeOutputDirPath(Path.of(config.outputDir()));
-      printf("Creating StreamX project template...%n"); // FIXME
+      printf("Initializing StreamX project...%n");
       gitClient.clone(projectTemplateSource.getRepoUrl(), outputDir);
       gitClient.removeGitMetadata(outputDir);
-      printf("Project created in '%s'.%n", outputDir); // FIXME
+      printf("Project is ready in '%s'.%n", outputDir);
     } catch (GitException e) {
       logGitOutput(e);
       throw throwGenericException(e);
@@ -92,7 +92,7 @@ public class InitCommand implements Runnable {
   private RuntimeException throwGenericException(Exception e) {
     return new RuntimeException(
         ExceptionUtils.appendLogSuggestion(
-            "Unable create project template.\n"// FIXME
+            "Unable to initialize new project.\n"
                 + "\n"
                 + "Details:\n"
                 + e.getMessage()), e);
