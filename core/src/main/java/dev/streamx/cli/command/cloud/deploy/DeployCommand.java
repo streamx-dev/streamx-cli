@@ -105,7 +105,7 @@ public class DeployCommand implements Runnable {
     // Collect all resources to delete
     ResourceCleaner cleaner = new ResourceCleaner(resourcesToDeploy, managedResources);
     kubernetesService.deploy(resourcesToDeploy);
-    printf("Project %s successfully deployed to '%s' namespace.\n",
+    printf("Project %s successfully deployed to '%s' namespace.%n",
         projectPath.toAbsolutePath().normalize(), kubernetesService.getNamespace());
     List<HasMetadata> orphanedResources = cleaner.getOrphanedResources();
     printf("Deleting %d orphaned resources.\n", orphanedResources.size());

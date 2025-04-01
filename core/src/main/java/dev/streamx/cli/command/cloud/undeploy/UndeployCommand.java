@@ -32,7 +32,7 @@ public class UndeployCommand implements Runnable {
     kubernetesService.validateCrdInstallation();
     kubernetesService.undeploy(SERVICE_MESH_NAME);
 
-    printf("StreamX project successfully undeployed from '%s' namespace.",
+    printf("StreamX project successfully undeployed from '%s' namespace.%n",
         kubernetesService.getNamespace());
   }
 }
