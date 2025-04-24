@@ -23,8 +23,10 @@ import java.util.Set;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 
 @QuarkusMainTest
+@EnabledIf("dev.streamx.cli.OsUtils#isDockerAvailable")
 @TestProfile(RunCommandProfile.class)
 public class RunCommandTest {
 

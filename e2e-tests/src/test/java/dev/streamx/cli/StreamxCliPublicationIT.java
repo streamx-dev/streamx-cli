@@ -16,11 +16,13 @@ import java.util.stream.Stream;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @QuarkusTest
+@EnabledIf("dev.streamx.cli.OsUtils#isDockerAvailable")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class StreamxCliPublicationIT {
 

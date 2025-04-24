@@ -8,8 +8,10 @@ import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 
 @QuarkusMainTest
+@EnabledIf("dev.streamx.cli.OsUtils#isDockerAvailable")
 @TestProfile(KubernetesClientProfile.class)
 class UndeployCommandIT {
 
