@@ -4,7 +4,6 @@ import static dev.streamx.cli.command.cloud.MetadataUtils.setManagedByAndPartOfL
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.streamx.cli.util.FileUtils;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,7 +53,7 @@ public class DirectoryResourcesCollector implements KubernetesResourcesCollector
   }
 
   private void processResourceFile(Path file, List<HasMetadata> resources) {
-    String fileName = FileUtils.toString(file.getFileName());
+    String fileName = file.getFileName().toString();
     if (!fileName.endsWith(".yaml") && !fileName.endsWith(".yml")) {
       return;
     }
