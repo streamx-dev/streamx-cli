@@ -11,6 +11,7 @@ import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.command.meshprocessing.MeshWatcher;
 import dev.streamx.cli.exception.DockerException;
+import dev.streamx.cli.util.FileUtils;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.container.PulsarContainer;
 import dev.streamx.runner.exception.ContainerStartupTimeoutException;
@@ -111,9 +112,10 @@ public class DevCommand implements Runnable {
 
   private void startDashboard(Path meshPath) {
     print("Setting up StreamX Dashboard...");
-    var meshPathAsString = meshPath.toAbsolutePath().normalize().toString();
+    var meshPathAsString = FileUtils.toString(meshPath.toAbsolutePath().normalize());
     var projectDirectory = meshPath.resolve("..");
-    var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
+    var projectDirectoryAsString =
+        FileUtils.toString(projectDirectory.toAbsolutePath().normalize());
 
     logger.infov("Resolved mesh {0} and project directory {1}",
         meshPathAsString, projectDirectoryAsString);

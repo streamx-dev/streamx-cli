@@ -2,6 +2,7 @@ package dev.streamx.cli.settings;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.exception.SettingsFileException;
+import dev.streamx.cli.util.FileUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class SettingsStore {
         return Optional.empty();
       }
     } catch (IOException e) {
-      throw new SettingsFileException(path.toString(), e);
+      throw new SettingsFileException(FileUtils.toString(path), e);
     }
   }
 
@@ -43,13 +44,13 @@ public class SettingsStore {
         Files.createDirectories(rootPath);
       }
     } catch (IOException e) {
-      throw new SettingsFileException(path.toString(), e);
+      throw new SettingsFileException(FileUtils.toString(path), e);
     }
 
     try {
       objectMapper.writeValue(path.toFile(), settings);
     } catch (IOException e) {
-      throw new SettingsFileException(path.toString(), e);
+      throw new SettingsFileException(FileUtils.toString(path), e);
     }
   }
 

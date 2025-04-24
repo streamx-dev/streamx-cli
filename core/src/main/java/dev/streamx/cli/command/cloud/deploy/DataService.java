@@ -1,5 +1,6 @@
 package dev.streamx.cli.command.cloud.deploy;
 
+import dev.streamx.cli.util.FileUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +31,7 @@ public class DataService {
       Map<String, String> data = new HashMap<>();
       for (Map.Entry<Object, Object> entry : properties.entrySet()) {
         String propertyKey = entry.getKey().toString();
-        validatePropertyKey(propertiesFilePath.toString(), propertyKey);
+        validatePropertyKey(FileUtils.toString(propertiesFilePath), propertyKey);
         data.put(propertyKey, entry.getValue().toString());
       }
       return data;
@@ -43,14 +44,14 @@ public class DataService {
     Map<String, String> data = new HashMap<>();
     try {
       if (Files.isRegularFile(path)) {
-        loadDataFromFile(path.toString(), path, data);
+        loadDataFromFile(FileUtils.toString(path), path, data);
       } else if (Files.isDirectory(path)) {
         try (Stream<Path> walk = Files.walk(path, 1)) {
           walk
               .filter(Files::isRegularFile)
               .forEach(file -> {
                 try {
-                  loadDataFromFile(path.toString(), file, data);
+                  loadDataFromFile(FileUtils.toString(path), file, data);
                 } catch (IOException e) {
                   throw new RuntimeException("Failed to read data file: " + file.toAbsolutePath(),
                       e);
@@ -71,7 +72,7 @@ public class DataService {
   private void loadDataFromFile(String configPath, Path filePath, Map<String, String> data)
       throws IOException {
     String content = Files.readString(filePath);
-    String fileName = filePath.getFileName().toString();
+    String fileName = FileUtils.toString(filePath.getFileName());
     validateFileName(configPath, fileName);
     data.put(fileName, content);
   }

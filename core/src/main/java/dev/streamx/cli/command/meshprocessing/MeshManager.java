@@ -7,6 +7,7 @@ import dev.streamx.cli.ExecutionExceptionHandler;
 import dev.streamx.cli.command.run.RunningMeshPropertiesGenerator;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
+import dev.streamx.cli.util.FileUtils;
 import dev.streamx.mesh.model.ServiceMesh;
 import dev.streamx.runner.StreamxRunner;
 import dev.streamx.runner.event.MeshReloadUpdate;
@@ -43,7 +44,7 @@ public class MeshManager {
   public void initializeMesh(Path meshPath) {
     this.meshPath = meshPath;
     this.normalizedMeshPath = meshPath.toAbsolutePath().normalize();
-    this.meshPathAsString = normalizedMeshPath.toString();
+    this.meshPathAsString = FileUtils.toString(normalizedMeshPath);
 
     this.serviceMesh = resolveMeshDefinition(meshPath);;
   }
@@ -73,7 +74,7 @@ public class MeshManager {
     this.commandLine = commandLine;
 
     normalizedMeshPath = meshPath.toAbsolutePath().normalize();
-    meshPathAsString = normalizedMeshPath.toString();
+    meshPathAsString = FileUtils.toString(normalizedMeshPath);
 
     print("\nSetting up system containers...");
 

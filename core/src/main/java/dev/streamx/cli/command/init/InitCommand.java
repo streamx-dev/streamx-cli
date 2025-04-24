@@ -7,6 +7,7 @@ import dev.streamx.cli.command.init.project.template.ProjectTemplateSource;
 import dev.streamx.cli.config.ArgumentConfigSource;
 import dev.streamx.cli.exception.GitException;
 import dev.streamx.cli.util.ExceptionUtils;
+import dev.streamx.cli.util.FileUtils;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -75,7 +76,7 @@ public class InitCommand implements Runnable {
 
   private static @NotNull String normalizeOutputDirPath(Path path) {
     Path outputDirPath = path.normalize().toAbsolutePath();
-    return outputDirPath.toString();
+    return FileUtils.toString(outputDirPath);
   }
 
   private void logGitOutput(GitException e) {

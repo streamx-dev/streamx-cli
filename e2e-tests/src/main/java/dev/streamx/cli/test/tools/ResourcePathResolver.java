@@ -13,6 +13,6 @@ public class ResourcePathResolver {
     } catch (Exception e) {
       throw new RuntimeException("Can not get file path", e);
     }
-    return path.toAbsolutePath().toString();
+    return path.toAbsolutePath().toString().replace("\\", "/");
   }
 }

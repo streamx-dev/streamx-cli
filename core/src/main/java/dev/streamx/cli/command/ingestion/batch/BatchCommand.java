@@ -135,7 +135,7 @@ public class BatchCommand extends BaseIngestionCommand {
 
     String relativePath = calculateRelativePath(file, eventSource);
     Map<String, String> variables = substitutor.createSubstitutionVariables(
-        file.toString(), eventSource.getChannel(), relativePath);
+        FileUtils.toString(file), eventSource.getChannel(), relativePath);
 
     String key = substitutor.substitute(variables, eventSource.getKey());
     JsonNode message = executeHandlingException(
@@ -177,11 +177,11 @@ public class BatchCommand extends BaseIngestionCommand {
   private String calculateRelativePath(Path file, EventSourceDescriptor eventSource) {
     String relativePath;
     if (eventSource.getRelativePathLevel() == null) {
-      relativePath = Path.of(batchIngestionArguments.getSourceDirectory()).relativize(file)
-          .toString();
+      relativePath = FileUtils.toString(
+          Path.of(batchIngestionArguments.getSourceDirectory()).relativize(file));
     } else {
-      relativePath = FileUtils.getNthParent(eventSource.getSource(),
-          eventSource.getRelativePathLevel()).relativize(file).toString();
+      relativePath = FileUtils.toString(FileUtils.getNthParent(eventSource.getSource(),
+          eventSource.getRelativePathLevel()).relativize(file));
     }
     return relativePath;
   }

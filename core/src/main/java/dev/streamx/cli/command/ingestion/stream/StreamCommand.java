@@ -7,6 +7,7 @@ import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommand;
 import dev.streamx.cli.command.ingestion.stream.parser.StreamIngestionJsonParser;
 import dev.streamx.cli.util.ExceptionUtils;
+import dev.streamx.cli.util.FileUtils;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.clients.ingestion.publisher.Publisher;
 import dev.streamx.clients.ingestion.publisher.SuccessResult;
@@ -57,10 +58,11 @@ public class StreamCommand extends BaseIngestionCommand {
     } catch (IOException | IllegalArgumentException e) {
       throw new RuntimeException(
           ExceptionUtils.appendLogSuggestion(
-              "Error performing stream publication using '" + streamFile + "' file.\n"
-                  + "\n"
-                  + "Details:\n"
-                  + e.getMessage()), e);
+              "Error performing stream publication using '"
+              + FileUtils.toString(streamFile) + "' file.\n"
+              + "\n"
+              + "Details:\n"
+              + e.getMessage()), e);
     }
   }
 
