@@ -1,8 +1,8 @@
 package dev.streamx.cli;
 
-import com.github.jknack.handlebars.internal.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class OsUtils {
   public static final String ESCAPED_LINE_SEPARATOR =
-      StringEscapeUtils.ESCAPE_JSON.translate(System.lineSeparator());
+      StringEscapeUtils.escapeJson(System.lineSeparator());
 }
