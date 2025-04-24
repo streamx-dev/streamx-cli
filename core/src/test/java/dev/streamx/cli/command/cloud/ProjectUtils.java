@@ -26,7 +26,8 @@ public final class ProjectUtils {
   public static String getResource(String resourceName) throws IOException {
     try (InputStream is = ServiceMeshResolverTest.class.getResourceAsStream(
         PROJECT_PATH + resourceName)) {
-      return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+      return new String(is.readAllBytes(), StandardCharsets.UTF_8)
+          .replace("\r\n", "\n");
     }
   }
 }

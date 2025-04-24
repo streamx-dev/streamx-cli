@@ -89,7 +89,8 @@ public class BatchCommand extends BaseIngestionCommand {
     } catch (FileIngestionException e) {
       throw new RuntimeException(
           ExceptionUtils.appendLogSuggestion(
-              "Error performing batch publication while processing '" + e.getPath() + "' file.\n"
+              "Error performing batch publication while processing '"
+              + FileUtils.toString(e.getPath()) + "' file.\n"
               + "\n"
               + "Details:\n"
               + e.getCause().getMessage()), e);
@@ -140,7 +141,7 @@ public class BatchCommand extends BaseIngestionCommand {
     String key = substitutor.substitute(variables, eventSource.getKey());
     JsonNode message = executeHandlingException(
         () -> payloadResolver.createPayload(eventSource, variables),
-        () -> "Could not resolve payload for file '" + file + "'"
+        () -> "Could not resolve payload for file '" + FileUtils.toString(file) + "'"
     );
 
     Map<String, String> properties = createProperties(eventSource, variables);
