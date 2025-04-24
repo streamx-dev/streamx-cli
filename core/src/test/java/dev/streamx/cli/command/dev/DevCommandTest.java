@@ -39,6 +39,7 @@ import org.awaitility.Awaitility;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.shaded.com.github.dockerjava.core.command.ExecStartResultCallback;
@@ -46,6 +47,7 @@ import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
 
 @QuarkusMainTest
+@EnabledIf("dev.streamx.cli.OsUtils#isDockerAvailable")
 @TestProfile(DevCommandProfile.class)
 class DevCommandTest {
 

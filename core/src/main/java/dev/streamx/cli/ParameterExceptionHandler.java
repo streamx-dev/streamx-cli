@@ -28,7 +28,8 @@ public class ParameterExceptionHandler implements IParameterExceptionHandler {
     writer.println(cmd.getHelp().fullSynopsis());
 
     CommandSpec spec = cmd.getCommandSpec();
-    writer.printf("Try '%s --help' for more information.%n", spec.qualifiedName());
+    writer.printf("Try '%s --help' for more information.", spec.qualifiedName());
+    writer.println();
 
     if (cmd.getExitCodeExceptionMapper() != null) {
       return cmd.getExitCodeExceptionMapper().getExitCode(ex);

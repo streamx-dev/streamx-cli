@@ -10,8 +10,10 @@ import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 
 @QuarkusMainTest
+@EnabledIf("dev.streamx.cli.OsUtils#isDockerAvailable")
 @TestProfile(KubernetesClientProfile.class)
 public class DeployCommandIT {
 

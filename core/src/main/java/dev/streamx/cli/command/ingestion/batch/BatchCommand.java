@@ -89,7 +89,8 @@ public class BatchCommand extends BaseIngestionCommand {
     } catch (FileIngestionException e) {
       throw new RuntimeException(
           ExceptionUtils.appendLogSuggestion(
-              "Error performing batch publication while processing '" + e.getPath() + "' file.\n"
+              "Error performing batch publication while processing '"
+              + FileUtils.toString(e.getPath()) + "' file.\n"
               + "\n"
               + "Details:\n"
               + e.getCause().getMessage()), e);
@@ -135,12 +136,12 @@ public class BatchCommand extends BaseIngestionCommand {
 
     String relativePath = calculateRelativePath(file, eventSource);
     Map<String, String> variables = substitutor.createSubstitutionVariables(
-        file.toString(), eventSource.getChannel(), relativePath);
+        FileUtils.toString(file), eventSource.getChannel(), relativePath);
 
     String key = substitutor.substitute(variables, eventSource.getKey());
     JsonNode message = executeHandlingException(
         () -> payloadResolver.createPayload(eventSource, variables),
-        () -> "Could not resolve payload for file '" + file + "'"
+        () -> "Could not resolve payload for file '" + FileUtils.toString(file) + "'"
     );
 
     Map<String, String> properties = createProperties(eventSource, variables);
@@ -177,11 +178,11 @@ public class BatchCommand extends BaseIngestionCommand {
   private String calculateRelativePath(Path file, EventSourceDescriptor eventSource) {
     String relativePath;
     if (eventSource.getRelativePathLevel() == null) {
-      relativePath = Path.of(batchIngestionArguments.getSourceDirectory()).relativize(file)
-          .toString();
+      relativePath = FileUtils.toString(
+          Path.of(batchIngestionArguments.getSourceDirectory()).relativize(file));
     } else {
-      relativePath = FileUtils.getNthParent(eventSource.getSource(),
-          eventSource.getRelativePathLevel()).relativize(file).toString();
+      relativePath = FileUtils.toString(FileUtils.getNthParent(eventSource.getSource(),
+          eventSource.getRelativePathLevel()).relativize(file));
     }
     return relativePath;
   }

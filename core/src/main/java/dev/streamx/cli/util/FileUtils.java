@@ -42,4 +42,8 @@ public class FileUtils {
     }
     return current;
   }
+
+  public static String toString(Path path) {
+    return path.toString().replace("\\", "/");
+  }
 }

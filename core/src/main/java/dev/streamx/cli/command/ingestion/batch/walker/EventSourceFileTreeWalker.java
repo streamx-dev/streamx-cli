@@ -90,7 +90,7 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
         for (Path entry : stream) {
           if (Files.isRegularFile(entry)
               // Skip .eventsource.yaml files
-              && !EventSourceDescriptor.FILENAME.equals(entry.getFileName().toString())
+              && !EventSourceDescriptor.FILENAME.equals(FileUtils.toString(entry.getFileName()))
               && noIgnorePatternMatches(entry, currentDescriptor)) {
             processor.apply(entry, currentDescriptor);
           }
@@ -109,8 +109,8 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
     }
 
     int level = descriptor.getRelativePathLevel() == null ? 0 : descriptor.getRelativePathLevel();
-    String relativePath = FileUtils.getNthParent(descriptor.getSource(), level)
-        .relativize(payloadFile).toString();
+    String relativePath = FileUtils.toString(FileUtils.getNthParent(descriptor.getSource(), level)
+        .relativize(payloadFile));
 
     // Check against each ignore pattern.
     for (String regex : patterns) {

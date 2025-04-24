@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
@@ -24,6 +25,7 @@ import org.testcontainers.DockerClientFactory;
 
 
 @QuarkusTest
+@EnabledIf("dev.streamx.cli.OsUtils#isDockerAvailable")
 class DockerValidatorTest {
 
   public static final String HELLO_WORLD_IMAGE = "hello-world:latest";

@@ -8,6 +8,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
+import static dev.streamx.cli.OsUtils.ESCAPED_LINE_SEPARATOR;
 import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
 
@@ -114,12 +115,12 @@ public class BatchUnpublishCommandTest extends BaseIngestionCommandTest {
                     "payload" : {
                       "dev.streamx.blueprints.data.Page" : {
                         "content" : {
-                          "bytes" : "<h1>Hello World!</h1>\\n"
+                          "bytes" : "<h1>Hello World!</h1>%s"
                         }
                       }
                     }
                   }
-              """.formatted("valid/" + KEY), true, true))
+              """.formatted("valid/" + KEY, ESCAPED_LINE_SEPARATOR), true, true))
               .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
   }
