@@ -40,7 +40,7 @@ public class StreamxTerminalCommandProducer {
         .map(File::listFiles)
         .flatMap(Stream::of)
         .map(File::getAbsolutePath)
-        .filter(p -> pattern.matcher(p.replace("\\","/")).matches())
+        .filter(p -> pattern.matcher(p.replace("\\", "/")).matches())
         .findFirst()
         .orElseThrow(() -> new RuntimeException("Could not find streamx Jar"));
   }
