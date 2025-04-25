@@ -123,7 +123,8 @@ class StreamCommandTest extends BaseIngestionCommandTest {
       LaunchResult result = launcher.launch("stream",
           "--ingestion-url=" + getIngestionUrl(),
           CHANNEL,
-          "target/test-classes/dev/streamx/cli/command/ingestion/stream/invalid-separated-json.stream"
+          "target/test-classes/dev/streamx/cli/command/ingestion/stream"
+          + "/invalid-separated-json.stream"
       );
 
       // then
