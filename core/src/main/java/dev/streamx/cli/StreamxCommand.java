@@ -58,6 +58,9 @@ public class StreamxCommand implements QuarkusApplication {
   @Inject
   BannerPrinter bannerPrinter;
 
+  @Inject
+  LogsPurger logsPurger;
+
   @ArgGroup(exclusive = false)
   LicenseArguments licenseArguments;
 
@@ -84,6 +87,8 @@ public class StreamxCommand implements QuarkusApplication {
   @Override
   public int run(String... args) throws Exception {
     this.args = args;
+
+    logsPurger.purge();
 
     commandLine = new CommandLine(this, factory)
         .setParameterExceptionHandler(parameterExceptionHandler)
