@@ -24,12 +24,14 @@ public class DashboardRunner {
 
   private DashboardContainer dashboardContainer;
 
-  public void startStreamxDashboard(String meshPathAsString, String projectDirectoryAsString) {
+  public void startStreamxDashboard(String meshPath, String meshDirectory,
+      String projectDirectory) {
     dashboardContainer = new DashboardContainer(
         StreamxMavenPropertiesUtils.getDashboardImage(),
         devConfig.dashboardPort(),
-        meshPathAsString,
-        projectDirectoryAsString
+        meshPath,
+        meshDirectory,
+        projectDirectory
     ).withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS));
     dashboardContainer.start();
 
