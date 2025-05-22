@@ -19,7 +19,7 @@
     <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
 
     <!-- this should not be overridden by user, same as streamx runner dependencies -->
-    <streamx.dev.dashboard.stable.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:0.0.7-jvm</streamx.dev.dashboard.stable.image>
+    <streamx.dev.dashboard.stable.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:0.0.7-patch001-jvm</streamx.dev.dashboard.stable.image>
     <streamx.dev.dashboard.preview.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:latest-jvm</streamx.dev.dashboard.preview.image>
     <streamx.dev.dashboard.image>${streamx.dev.dashboard.stable.image}</streamx.dev.dashboard.image>
   </properties>
