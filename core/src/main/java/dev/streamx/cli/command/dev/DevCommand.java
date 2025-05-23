@@ -112,11 +112,20 @@ public class DevCommand implements Runnable {
   private void startDashboard(Path meshPath) {
     print("Setting up StreamX Dashboard...");
     var meshPathAsString = meshPath.toAbsolutePath().normalize().toString();
-    var projectDirectory = meshPath.resolve("..");
-    var projectDirectoryAsString = projectDirectory.toAbsolutePath().normalize().toString();
+    Path meshDirectory = meshPath.resolve("..");
+    Path projectDirectory = null;
+    if (Files.exists(meshDirectory.resolve("..").normalize())) {
+      projectDirectory = meshDirectory.resolve("..").normalize();
+    }
 
-    logger.infov("Resolved mesh {0} and project directory {1}",
-        meshPathAsString, projectDirectoryAsString);
-    dashboardRunner.startStreamxDashboard(meshPathAsString, projectDirectoryAsString);
+    var meshDirectoryAsString = meshDirectory.toAbsolutePath().normalize().toString();
+    var projectDirectoryAsString = projectDirectory != null
+        ? projectDirectory.toAbsolutePath().normalize().toString()
+        : null;
+
+    logger.infov("Resolved mesh {0}, mesh directory {1} and project directory {2}",
+        meshPathAsString, meshDirectoryAsString, projectDirectoryAsString);
+    dashboardRunner.startStreamxDashboard(meshPathAsString, meshDirectoryAsString,
+        projectDirectoryAsString);
   }
 }
