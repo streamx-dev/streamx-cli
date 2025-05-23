@@ -19,8 +19,7 @@
     <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
 
     <!-- this should not be overridden by user, same as streamx runner dependencies -->
-    <!-- FIXME use fixed version after streamx dashboard stabilizes -->
-    <streamx.dev.dashboard.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:latest-jvm</streamx.dev.dashboard.image>
+    <streamx.dev.dashboard.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:0.0.7-patch002-jvm</streamx.dev.dashboard.image>
   </properties>
 
   <dependencies>
