@@ -1,5 +1,6 @@
 package dev.streamx.cli.command.dev;
 
+import static dev.streamx.cli.command.util.MeshTestsUtils.cleanUpMesh;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.dockerjava.api.DockerClient;
@@ -9,8 +10,6 @@ import dev.streamx.cli.command.dev.event.DashboardStarted;
 import dev.streamx.cli.command.dev.event.DevReady;
 import dev.streamx.runner.event.MeshReloadUpdate;
 import dev.streamx.runner.event.MeshStarted;
-import dev.streamx.runner.validation.DockerContainerValidator;
-import dev.streamx.runner.validation.DockerEnvironmentValidator;
 import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
@@ -70,8 +69,7 @@ class DevCommandTest {
             Set<String> cleanedUpContainers =
                 Set.of("pulsar", "pulsar-init", "streamx-dashboard",
                     "rest-ingestion", "relay", "web-delivery-service");
-            DockerClient client = new DockerEnvironmentValidator().validateDockerClient();
-            new DockerContainerValidator().verifyExistingContainers(client, cleanedUpContainers);
+            cleanUpMesh(cleanedUpContainers);
 
             return true;
           } catch (Exception e) {

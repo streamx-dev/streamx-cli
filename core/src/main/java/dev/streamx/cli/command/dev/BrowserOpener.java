@@ -23,7 +23,8 @@ public class BrowserOpener {
     try {
       if (Desktop.isDesktopSupported()) {
         Desktop desktop = Desktop.getDesktop();
-        URI meshManagerUri = new URI("http://localhost:" + devConfig.dashboardPort());
+        String entryUrl = "http://localhost:%d/overview".formatted(devConfig.dashboardPort());
+        URI meshManagerUri = new URI(entryUrl);
         desktop.browse(meshManagerUri);
       } else {
         logger.warn("Opening browser is not supported");
