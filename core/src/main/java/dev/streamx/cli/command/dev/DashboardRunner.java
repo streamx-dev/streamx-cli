@@ -34,8 +34,13 @@ public class DashboardRunner {
         meshPath,
         meshDirectory,
         projectDirectory
-    ).withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS))
-        .withNetwork(network);
+    )
+        .withNetwork(network)
+        .waitingFor(Wait.forHttp("/q/health")
+            .forPort(8080)
+        )
+        .withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS));
+
     dashboardContainer.start();
 
     print("StreamX Dashboard started on http://localhost:" + devConfig.dashboardPort());
