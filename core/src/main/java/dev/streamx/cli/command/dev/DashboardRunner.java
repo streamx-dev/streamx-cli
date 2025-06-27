@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import java.time.Duration;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 @ApplicationScoped
@@ -26,7 +27,7 @@ public class DashboardRunner {
   private DashboardContainer dashboardContainer;
 
   public void startStreamxDashboard(String meshPath, String meshDirectory,
-      String projectDirectory) {
+      String projectDirectory, Network network) {
     dashboardContainer = new DashboardContainer(
         StreamxMavenPropertiesUtils.getDashboardImage(),
         devConfig.dashboardPort(),
@@ -34,11 +35,12 @@ public class DashboardRunner {
         meshDirectory,
         projectDirectory
     )
+        .withNetwork(network)
         .waitingFor(Wait.forHttp("/q/health")
             .forPort(8080)
         )
-        .withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS))
-    ;
+        .withStartupTimeout(Duration.ofSeconds(CONTAINER_TIMEOUT_IN_SECS));
+
     dashboardContainer.start();
 
     print("StreamX Dashboard started on http://localhost:" + devConfig.dashboardPort());

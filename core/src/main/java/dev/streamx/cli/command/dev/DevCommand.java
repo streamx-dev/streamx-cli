@@ -87,6 +87,7 @@ public class DevCommand implements Runnable {
         Files.createFile(meshPath);
       }
 
+      this.runner.initializeBase();
       startDashboard(meshPath);
 
       meshManager.initializeDevMode(meshPath, spec.commandLine());
@@ -125,7 +126,10 @@ public class DevCommand implements Runnable {
 
     logger.infov("Resolved mesh {0}, mesh directory {1} and project directory {2}",
         meshPathAsString, meshDirectoryAsString, projectDirectoryAsString);
-    dashboardRunner.startStreamxDashboard(meshPathAsString, meshDirectoryAsString,
-        projectDirectoryAsString);
+    dashboardRunner.startStreamxDashboard(
+        meshPathAsString,
+        meshDirectoryAsString,
+        projectDirectoryAsString,
+        runner.getContext().getNetwork());
   }
 }
