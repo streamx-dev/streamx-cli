@@ -1,65 +1,94 @@
-# **StreamX Dev Repository Template**
+# **StreamX Connector Github**
 
-This repository serves as a **template** for creating new repositories within the **streamx-dev** organization. It includes pre-configured settings, templates, and best practices to ensure consistency and compliance across all projects.
+StreamX Connector GitHub is a Quarkus GitHub Action project that allows syncing GitHub 
+changes with StreamX.
 
-## **Included Configurations**
+Detail information please check [Quarkus GitHub Action](https://docs.quarkiverse.io/quarkus-github-action/dev/index.html) documentation.
 
-1. **EULA License:**
-   - A sample **End-User License Agreement (EULA)** is included for repositories that require it.
-   - Located in the `LICENSE.md` file.
-  
-2. **Issue Templates:**
-   - Standardized templates for reporting bugs, requesting features, and general contacts links.
-   - Located in the `.github/ISSUE_TEMPLATE/` directory.
+## **Actions**
+* WebResourceAction - This action checks your repository under $GITHUB_WORKSPACE, if there are any
+git modifications in files, that are configured for monitoring in variable `STREAMX_INGESTION_WEBRESOURCE_INCLUDES`.
+Aditionaly by using `Run workflow` button with `Publish all` option checked we trigger full
+sync of the repository with StreamX.
 
-3. **Pull Request (PR) Templates:**
-   - A default PR template is provided to maintain quality and structure in submissions.
-   - Located in the `.github/PULL_REQUEST_TEMPLATE.md` file.
+### Usage WebResourceAction
 
-4. **Codeowners:**
-   - Defines the responsible individuals or teams for reviewing changes.
-   - Located in the `.github/CODEOWNERS` file.
-  
-5. **Dependabot:**
-   - It is a tool that automates dependency updates, ensuring your project stays up-to-date with the latest security patches and version improvements.
-   - Located in the `.github/dependabot.yml` file.
-   - The provided Dependabot setup performs a monthly scan of the subfolders in your repository for Maven projects, checking dependencies for outdated versions. If any outdated dependencies are detected, Dependabot automatically creates a new Pull Request (PR) with the updates.
-   - It is often necessary to establish a CI/CD pipeline to validate and test updates whenever a new PR is opened. These pipelines require specific credentials to operate effectively. However, it is important to note that pipelines triggered by Dependabot use a different set of variables and secrets than those triggered by GitHub users manually opening a PR.
-Please contact the Principal Engineer responisble for Infrastructure to provide the appropriate secrets for Dependabot-triggered pipelines.
-   - You can learn more about managing secrets for Dependabot-triggered pipelines in the [GitHub documentation on Accessing Secrets in Dependabot](https://docs.github.com/en/code-security/dependabot/troubleshooting-dependabot/troubleshooting-dependabot-on-github-actions#accessing-secrets).
+#### Prerequisites
 
-## **Repository Settings Standards** 
+* job execution has if constraint that allows only pull request closed and manual workflow dispatch  
+executions, ie:
+```yaml
+    if: github.event.pull_request.merged == true || (github.event_name == 'workflow_dispatch' && inputs.publish_all_webresources == true)
+```
+* working directory has already checkout code base, with defined fetch-depth option set to 0 (option required for git diff detection)
+```yaml
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+```
 
-1. **Main Branch Protection Rules**
-   - The main branch is protected to maintain code quality and stability.
-   - Merging to `main` requires: a review with approval from at least one **code owner**.
-  
-3. **Default reposiotry settings**:
-   - Wikis - disabled
-   - Issues - enabled
-   - for PRs only squash merging are allowed
-   - Automatically delete head branches - allowed
+#### Usage
+<!-- start usage -->
+```yaml
+- name: Run sync with StreamX
+  uses: streamx-dev/streamx-connector-github@main
+  with:
+    # Name of the action with 'webresource_' prefix. Supported event names are [pull_request, workflow_dispatch]
+    action: "webresource_${{github.event_name}}"
+    
+    # A secret parameter with auth token used for communication with StreamX ingestion API. 
+    # Value required.
+    streamx-ingestion-token: ${{ secret.STREAMX_INGESTION_TOKEN }}
 
-## **How to Use This Template**
-1. **Clone or Use as Template:**  
-   - Create by cloning the repository.
-   - Create a new repository based on this template. See example below:
-<img width="758" alt="image" src="https://github.com/user-attachments/assets/91bc7776-e7ef-421e-9405-abf68f1e5013" />
+     # A variable parameter with StreamX ingestion api endpoint URL. 
+     # Example: https://ingestion.mystreamx.site
+     # Value required.
+    streamx-ingestion-url: ${{ vars.STREAMX_INGESTION_URL }}
 
-2. **Update Configurations:**
-   - **Adjust the License:** If needed, replace the default license with one that matches your project’s requirements. When there are any dobts, check the [decision log](https://teamds.atlassian.net/wiki/x/AYA1KQ) related to Licensing Policy.
-   - **Modify codeowners:** Ensure the responsible teams or individuals are correctly listed in `.github/CODEOWNERS`. It's importnant to avoid merge bottlenecks.
-   - **Adjust Dependabot configuration:** Adjust dependabot config to fit the project needs. Provide CI/CD pipelines to validate and test updates, as well. 
-   - **Provide a JIRA release GitHub action:** [here](https://github.com/streamx-dev/streamx-common-github-actions) you can find more details on how and why to create it.
-   - **Update README.md:** Add specific details about your project to replace this template content.
+    # A variable parameter list of paths that are included in StreamX webresources syncing processing.
+    # Check mechanism is based on ant path matcher code base [details ref java.nio.file.PathMatcher]. 
+    # Example: ["scripts/*.js", "styles/*.css"]
+    # Value required.    
+    streamx-ingestion-webresource-includes: ${{ vars.STREAMX_INGESTION_WEBRESOURCE_INCLUDES }}
+```
+<!-- end usage -->
+#### Example workflow
+```yaml
+name: Publish/Unpublish web resources on StreamX
 
-3. **Start Developing:**  
-   - Get familiar with [Contribution Policy](https://github.com/streamx-dev/streamx/blob/main/CONTRIBUTING.md).
-   - Push your code, create issues, and submit PRs following the provided templates.
+on:
+  workflow_dispatch:
+    inputs:
+      publish_all_webresources:
+        description: "Publish all pattern included webresources to StreamX"
+        required: false
+        type: boolean
+        default: false
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
 
-## **Best Practices**
-- Regularly review the codeowners file to ensure it reflects the correct reviewers.
-- Keep your license file up to date with the project’s purpose and legal requirements.
-- Ensure all team members are familiar with the repository’s templates and protection rules.
+jobs:
+  sync-with-streamx:
+    if: github.event.pull_request.merged == true || (github.event_name == 'workflow_dispatch' && inputs.publish_all_webresources == true)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run sync with StreamX
+        uses: streamx-dev/streamx-connector-github@main
+        with:
+          action: "webresource_${{github.event_name}}"
+          streamx-ingestion-token: ${{ secrets.STREAMX_INGESTION_TOKEN }}
+          streamx-ingestion-url: ${{ vars.STREAMX_INGESTION_URL }}
+          streamx-ingestion-webresource-includes: ${{ vars.STREAMX_INGESTION_WEBRESOURCE_INCLUDES }}
+```
 
-By using this template, you’re setting up your repository for success with clear structure, strong protections, and organizational consistency.  
+## **Releasing**
+
+Please follow [Quarkus GitHub Action](https://docs.quarkiverse.io/quarkus-github-action/dev/push-to-production.html) documentation recommendation steps.
