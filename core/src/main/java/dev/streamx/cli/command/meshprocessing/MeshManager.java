@@ -77,7 +77,6 @@ public class MeshManager {
 
     print("\nSetting up system containers...");
 
-    this.runner.initializeBase();
     this.runner.startBase();
   }
 

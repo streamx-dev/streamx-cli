@@ -25,7 +25,7 @@ public class DashboardContainer extends GenericContainer<DashboardContainer> {
     }
 
     withCreateContainerCmdModifier(cmd -> cmd.withName(CONTAINER_NAME));
-    withEnv("streamx.dashboard.mesh-manager.services-metadata-registry-roots",
+    withEnv("streamx.platform.mesh.services-metadata-registry-roots",
         "/data/project/services,/data/mesh/services");
   }
 }

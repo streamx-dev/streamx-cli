@@ -5,7 +5,7 @@
   <parent>
     <groupId>dev.streamx.cli</groupId>
     <artifactId>streamx-cli</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>streamx-cli-core</artifactId>
@@ -19,7 +19,7 @@
     <quarkus.package.main-class>dev.streamx.cli.StreamxCommand</quarkus.package.main-class>
 
     <!-- this should not be overridden by user, same as streamx runner dependencies -->
-    <streamx.dev.dashboard.stable.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:0.0.7-patch002-jvm</streamx.dev.dashboard.stable.image>
+    <streamx.dev.dashboard.stable.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:0.0.8-jvm</streamx.dev.dashboard.stable.image>
     <streamx.dev.dashboard.preview.image>ghcr.io/streamx-dev/streamx-dashboard/streamx-local-dashboard:latest-jvm</streamx.dev.dashboard.preview.image>
     <streamx.dev.dashboard.image>${streamx.dev.dashboard.stable.image}</streamx.dev.dashboard.image>
   </properties>
