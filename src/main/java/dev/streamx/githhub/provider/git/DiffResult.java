@@ -1,4 +1,4 @@
-package dev.streamx.githhub.git.impl;
+package dev.streamx.githhub.provider.git;
 
 import java.util.Collections;
 import java.util.HashSet;

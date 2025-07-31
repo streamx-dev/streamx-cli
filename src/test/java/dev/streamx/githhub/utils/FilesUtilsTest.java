@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dev.streamx.exception.GitHubActionException;
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.Set;
 import org.junit.jupiter.api.Test;

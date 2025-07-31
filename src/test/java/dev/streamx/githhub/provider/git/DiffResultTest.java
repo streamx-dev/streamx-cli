@@ -1,6 +1,6 @@
-package dev.streamx.githhub.git.impl;
+package dev.streamx.githhub.provider.git;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,26 +13,26 @@ class DiffResultTest {
 
   @Test
   public void testShouldAddOldPathWhenChangeTypeDelete() {
-      DiffResult diffResult = new DiffResult();
-      DiffEntry deleteEntry = mock(DiffEntry.class);
-      when(deleteEntry.getChangeType()).thenReturn(ChangeType.DELETE);
-      when(deleteEntry.getOldPath()).thenReturn("styles/main.css");
-      when(deleteEntry.getNewPath()).thenReturn("/dev/null");
+    DiffEntry deleteEntry = mock(DiffEntry.class);
+    when(deleteEntry.getChangeType()).thenReturn(ChangeType.DELETE);
+    when(deleteEntry.getOldPath()).thenReturn("styles/main.css");
+    when(deleteEntry.getNewPath()).thenReturn("/dev/null");
 
-      diffResult.add(deleteEntry);
+    DiffResult diffResult = new DiffResult();
+    diffResult.add(deleteEntry);
 
-      assertTrue(diffResult.getDeletedPaths().contains("styles/main.css"));
-      assertTrue(diffResult.getModifiedPaths().isEmpty());
+    assertTrue(diffResult.getDeletedPaths().contains("styles/main.css"));
+    assertTrue(diffResult.getModifiedPaths().isEmpty());
   }
 
   @Test
   public void testShouldAddNewPathWhenChangeTypeIsNotDelete() {
-    DiffResult diffResult = new DiffResult();
     DiffEntry modifiedEntry = mock(DiffEntry.class);
     when(modifiedEntry.getChangeType()).thenReturn(ChangeType.MODIFY);
     when(modifiedEntry.getOldPath()).thenReturn("styles/main.css");
     when(modifiedEntry.getNewPath()).thenReturn("styles/main.css");
 
+    DiffResult diffResult = new DiffResult();
     diffResult.add(modifiedEntry);
 
     assertTrue(diffResult.getModifiedPaths().contains("styles/main.css"));

@@ -1,12 +1,10 @@
-package dev.streamx.githhub.git.impl;
+package dev.streamx.githhub.provider.git;
 
 import dev.streamx.exception.GitHubActionException;
-import dev.streamx.githhub.git.GitService;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -16,7 +14,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 @ApplicationScoped
-public class DefaultGitService implements GitService {
+public class GitService {
 
   public static final String CHANGED_REV_STR_FMT = "HEAD~%d^{tree}";
 
@@ -30,12 +28,14 @@ public class DefaultGitService implements GitService {
     try (ObjectReader reader = repository.newObjectReader()) {
       ObjectId head = repository.resolve("HEAD^{tree}");
       if (Objects.isNull(head)) {
-        throw new GitHubActionException(String.format("Git HEAD^{tree} can not resolve for %s", workspace));
+        throw new GitHubActionException(
+            String.format("Git HEAD^{tree} can not resolve for %s", workspace));
       }
       String changedRevStr = String.format(CHANGED_REV_STR_FMT, commits);
       ObjectId changes = repository.resolve(changedRevStr);
       if (Objects.isNull(changes)) {
-        throw new GitHubActionException(String.format("Git %s can not resolve for %s", changedRevStr, workspace));
+        throw new GitHubActionException(
+            String.format("Git %s can not resolve for %s", changedRevStr, workspace));
       }
 
       CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();

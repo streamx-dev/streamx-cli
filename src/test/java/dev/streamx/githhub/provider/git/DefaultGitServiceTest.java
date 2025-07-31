@@ -1,4 +1,4 @@
-package dev.streamx.githhub.git.impl;
+package dev.streamx.githhub.provider.git;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,13 +33,13 @@ class DefaultGitServiceTest {
 
   private Repository repository;
 
-  private DefaultGitService service;
+  private GitService service;
 
   @BeforeEach
   public void setUp() throws GitAPIException, IOException {
     gitDir = tempDir.resolve(".git");
 
-    service = new DefaultGitService();
+    service = new GitService();
     git = Git.init().setDirectory(tempDir.toFile()).setGitDir(gitDir.toFile()).call();
     repository = git.getRepository();
   }

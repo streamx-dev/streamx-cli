@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class FilesUtils {
 
@@ -49,6 +50,9 @@ public class FilesUtils {
   }
 
   private static boolean validatePathMatches(String path, String[] filters) {
+    if (ArrayUtils.isEmpty(filters)) {
+      return false;
+    }
     Path filePath = Path.of(path);
     for (String filter : filters) {
       PathMatcher matcher = filePath.getFileSystem()

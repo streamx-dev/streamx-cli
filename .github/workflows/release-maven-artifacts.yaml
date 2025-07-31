@@ -33,6 +33,14 @@ jobs:
         with:
           java-version: '21'
           distribution: 'adopt'
+          cache: 'maven'
 
-      - name: Release
-        run: ./mvnw -B release:prepare release:perform
+      - name: Release verify
+        run: ./mvnw -B verify -Dquarkus.package.type=uber-jar -Dquarkus.package.add-runner-suffix=false
+
+      - name: Release prepare
+        run: ./mvnw -B release:prepare -Darguments="-DskipTests -Dquarkus.package.type=uber-jar -Dquarkus.package.add-runner-suffix=false"
+
+      - name: Release perform
+        run: |
+          ./mvnw -B release:perform -Darguments="-DskipTests -Dquarkus.package.type=uber-jar -Dquarkus.package.add-runner-suffix=false"
