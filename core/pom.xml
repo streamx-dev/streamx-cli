@@ -49,7 +49,7 @@
     </dependency>
     <dependency>
       <groupId>dev.streamx</groupId>
-      <artifactId>streamx-operator-api</artifactId>
+      <artifactId>streamx-operator-mesh-api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>

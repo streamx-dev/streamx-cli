@@ -29,3 +29,5 @@ delivery:
         ports:
           - 8082:80
         repositoryVolume: "/usr/share/nginx/html"
+    environment:
+      STREAMX_DELIVERY-SERVICE_READINESS-CHECK_CHANNELS-QUIET-TIME: "3000"
