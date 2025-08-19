@@ -28,3 +28,5 @@ delivery:
       pages:
         topic: outboxes/pages
     port: 8081
+    environment:
+      STREAMX_DELIVERY-SERVICE_READINESS-CHECK_CHANNELS-QUIET-TIME: "3000"
