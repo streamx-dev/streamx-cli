@@ -121,6 +121,15 @@ spec:
                                   type: "string"
                               type: "object"
                             type: "array"
+                          podDisruptionBudget:
+                            properties:
+                              enabled:
+                                type: "boolean"
+                              maxUnavailable:
+                                type: "integer"
+                              minAvailable:
+                                type: "integer"
+                            type: "object"
                           probes:
                             properties:
                               liveness:
@@ -318,6 +327,8 @@ spec:
                                 items:
                                   properties:
                                     name:
+                                      type: "string"
+                                    request:
                                       type: "string"
                                   type: "object"
                                 type: "array"
@@ -725,6 +736,10 @@ spec:
                                   type: "object"
                                 type: "array"
                             type: "object"
+                          stateful:
+                            type: "boolean"
+                          storageClassName:
+                            type: "string"
                           strategy:
                             properties:
                               rollingUpdate:
@@ -755,6 +770,15 @@ spec:
                                   type: "string"
                               type: "object"
                             type: "array"
+                          podDisruptionBudget:
+                            properties:
+                              enabled:
+                                type: "boolean"
+                              maxUnavailable:
+                                type: "integer"
+                              minAvailable:
+                                type: "integer"
+                            type: "object"
                           probes:
                             properties:
                               liveness:
@@ -952,6 +976,8 @@ spec:
                                 items:
                                   properties:
                                     name:
+                                      type: "string"
+                                    request:
                                       type: "string"
                                   type: "object"
                                 type: "array"
@@ -1359,6 +1385,10 @@ spec:
                                   type: "object"
                                 type: "array"
                             type: "object"
+                          stateful:
+                            type: "boolean"
+                          storageClassName:
+                            type: "string"
                           strategy:
                             properties:
                               rollingUpdate:
@@ -1389,6 +1419,15 @@ spec:
                                   type: "string"
                               type: "object"
                             type: "array"
+                          podDisruptionBudget:
+                            properties:
+                              enabled:
+                                type: "boolean"
+                              maxUnavailable:
+                                type: "integer"
+                              minAvailable:
+                                type: "integer"
+                            type: "object"
                           probes:
                             properties:
                               liveness:
@@ -1586,6 +1625,8 @@ spec:
                                 items:
                                   properties:
                                     name:
+                                      type: "string"
+                                    request:
                                       type: "string"
                                   type: "object"
                                 type: "array"
@@ -1993,6 +2034,10 @@ spec:
                                   type: "object"
                                 type: "array"
                             type: "object"
+                          stateful:
+                            type: "boolean"
+                          storageClassName:
+                            type: "string"
                           strategy:
                             properties:
                               rollingUpdate:
@@ -2023,6 +2068,15 @@ spec:
                                   type: "string"
                               type: "object"
                             type: "array"
+                          podDisruptionBudget:
+                            properties:
+                              enabled:
+                                type: "boolean"
+                              maxUnavailable:
+                                type: "integer"
+                              minAvailable:
+                                type: "integer"
+                            type: "object"
                           probes:
                             properties:
                               liveness:
@@ -2220,6 +2274,8 @@ spec:
                                 items:
                                   properties:
                                     name:
+                                      type: "string"
+                                    request:
                                       type: "string"
                                   type: "object"
                                 type: "array"
@@ -2627,6 +2683,10 @@ spec:
                                   type: "object"
                                 type: "array"
                             type: "object"
+                          stateful:
+                            type: "boolean"
+                          storageClassName:
+                            type: "string"
                           strategy:
                             properties:
                               rollingUpdate:
@@ -2849,6 +2909,8 @@ spec:
                                       properties:
                                         name:
                                           type: "string"
+                                        request:
+                                          type: "string"
                                       type: "object"
                                     type: "array"
                                   limits:
@@ -2868,6 +2930,20 @@ spec:
                                 type: "object"
                               sidecar:
                                 type: "boolean"
+                              volumes:
+                                additionalProperties:
+                                  properties:
+                                    mountPath:
+                                      type: "string"
+                                    size:
+                                      anyOf:
+                                      - type: "integer"
+                                      - type: "string"
+                                      x-kubernetes-int-or-string: true
+                                    storageClassName:
+                                      type: "string"
+                                  type: "object"
+                                type: "object"
                             type: "object"
                           type: "object"
                         imagePullPolicy:
@@ -2918,6 +2994,17 @@ spec:
                                     type: "string"
                                 type: "object"
                               type: "array"
+                            waitForLoadBalancer:
+                              type: "boolean"
+                          type: "object"
+                        podDisruptionBudget:
+                          properties:
+                            enabled:
+                              type: "boolean"
+                            maxUnavailable:
+                              type: "integer"
+                            minAvailable:
+                              type: "integer"
                           type: "object"
                         probes:
                           properties:
@@ -3116,6 +3203,8 @@ spec:
                               items:
                                 properties:
                                   name:
+                                    type: "string"
+                                  request:
                                     type: "string"
                                 type: "object"
                               type: "array"
@@ -3525,6 +3614,8 @@ spec:
                           type: "object"
                         stateful:
                           type: "boolean"
+                        storageClassName:
+                          type: "string"
                         strategy:
                           properties:
                             rollingUpdate:
@@ -3542,6 +3633,20 @@ spec:
                               type: "object"
                             type:
                               type: "string"
+                          type: "object"
+                        volumes:
+                          additionalProperties:
+                            properties:
+                              mountPath:
+                                type: "string"
+                              size:
+                                anyOf:
+                                - type: "integer"
+                                - type: "string"
+                                x-kubernetes-int-or-string: true
+                              storageClassName:
+                                type: "string"
+                            type: "object"
                           type: "object"
                       type: "object"
                     type: "object"
@@ -3596,6 +3701,17 @@ spec:
                                     type: "string"
                                 type: "object"
                               type: "array"
+                            waitForLoadBalancer:
+                              type: "boolean"
+                          type: "object"
+                        podDisruptionBudget:
+                          properties:
+                            enabled:
+                              type: "boolean"
+                            maxUnavailable:
+                              type: "integer"
+                            minAvailable:
+                              type: "integer"
                           type: "object"
                         probes:
                           properties:
@@ -3794,6 +3910,8 @@ spec:
                               items:
                                 properties:
                                   name:
+                                    type: "string"
+                                  request:
                                     type: "string"
                                 type: "object"
                               type: "array"
@@ -4201,6 +4319,10 @@ spec:
                                 type: "object"
                               type: "array"
                           type: "object"
+                        stateful:
+                          type: "boolean"
+                        storageClassName:
+                          type: "string"
                         strategy:
                           properties:
                             rollingUpdate:
@@ -4218,6 +4340,20 @@ spec:
                               type: "object"
                             type:
                               type: "string"
+                          type: "object"
+                        volumes:
+                          additionalProperties:
+                            properties:
+                              mountPath:
+                                type: "string"
+                              size:
+                                anyOf:
+                                - type: "integer"
+                                - type: "string"
+                                x-kubernetes-int-or-string: true
+                              storageClassName:
+                                type: "string"
+                            type: "object"
                           type: "object"
                       type: "object"
                     type: "object"
@@ -4233,6 +4369,15 @@ spec:
                                 type: "string"
                             type: "object"
                           type: "array"
+                        podDisruptionBudget:
+                          properties:
+                            enabled:
+                              type: "boolean"
+                            maxUnavailable:
+                              type: "integer"
+                            minAvailable:
+                              type: "integer"
+                          type: "object"
                         probes:
                           properties:
                             liveness:
@@ -4430,6 +4575,8 @@ spec:
                               items:
                                 properties:
                                   name:
+                                    type: "string"
+                                  request:
                                     type: "string"
                                 type: "object"
                               type: "array"
@@ -4837,6 +4984,10 @@ spec:
                                 type: "object"
                               type: "array"
                           type: "object"
+                        stateful:
+                          type: "boolean"
+                        storageClassName:
+                          type: "string"
                         strategy:
                           properties:
                             rollingUpdate:
@@ -4855,24 +5006,21 @@ spec:
                             type:
                               type: "string"
                           type: "object"
+                        volumes:
+                          additionalProperties:
+                            properties:
+                              mountPath:
+                                type: "string"
+                              size:
+                                anyOf:
+                                - type: "integer"
+                                - type: "string"
+                                x-kubernetes-int-or-string: true
+                              storageClassName:
+                                type: "string"
+                            type: "object"
+                          type: "object"
                       type: "object"
-                    type: "object"
-                  tenantConfig:
-                    properties:
-                      inboxesCompactionThresholdBytes:
-                        type: "integer"
-                      inboxesPartitions:
-                        type: "integer"
-                      outboxesCompactionThresholdBytes:
-                        type: "integer"
-                      outboxesPartitions:
-                        type: "integer"
-                      relaysPartitions:
-                        type: "integer"
-                      storesCompactionThresholdBytes:
-                        type: "integer"
-                      subscriptionExpirationTimeMinutes:
-                        type: "integer"
                     type: "object"
                 type: "object"
               environment:
