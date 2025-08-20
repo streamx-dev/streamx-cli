@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dev.streamx.githhub</groupId>
   <artifactId>streamx-connector-github</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
   <name>StreamX Connector GitHub</name>
 
   <properties>
@@ -259,7 +259,7 @@
     <connection>scm:git:git@github.com:streamx-dev/streamx-connector-github.git</connection>
     <developerConnection>scm:git:git@github.com:streamx-dev/streamx-connector-github.git</developerConnection>
     <url>https://github.com/streamx-dev/streamx-connector-github</url>
-    <tag>HEAD</tag>
+    <tag>streamx-connector-github-1.0.1</tag>
   </scm>
 
   <repositories>
