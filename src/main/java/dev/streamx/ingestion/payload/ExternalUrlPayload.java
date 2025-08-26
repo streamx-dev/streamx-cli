@@ -1,12 +1,10 @@
 package dev.streamx.ingestion.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.ingestion.IngestionPayload;
 import dev.streamx.ingestion.IngestionPayloadJsonFactory;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -66,12 +64,11 @@ public class ExternalUrlPayload extends AbstractSchemaTypePayload implements Ing
     if (log.isDebugEnabled()) {
       log.debugf("Read external resource: %s, bytes length: %d", url, bytes.length);
     }
-    TextNode text = TextNode.valueOf(new String(bytes, StandardCharsets.UTF_8));
-
+    JsonNode bytesNode = toJsonNode(bytes);
     JsonNode message = IngestionPayloadJsonFactory.createMessage(
         Objects.toString(key, url),
         getAction(),
-        IngestionPayloadJsonFactory.createPayloadContent(text),
+        IngestionPayloadJsonFactory.createPayloadContent(bytesNode),
         getIngestionProperties(),
         getSchemaType()
     );
@@ -97,4 +94,6 @@ public class ExternalUrlPayload extends AbstractSchemaTypePayload implements Ing
     }
     return byteArray;
   }
+
+
 }

@@ -1,12 +1,10 @@
 package dev.streamx.ingestion.payload;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.ingestion.IngestionPayloadJsonFactory;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -47,11 +45,11 @@ public class FilePayload extends AbstractSchemaTypePayload {
     if (log.isDebugEnabled()) {
       log.debugf("Read file: %s, bytes length: %d", absolutePath, bytes.length);
     }
-    TextNode text = TextNode.valueOf(new String(bytes, StandardCharsets.UTF_8));
+    JsonNode bytesNode = toJsonNode(bytes);
     JsonNode message = IngestionPayloadJsonFactory.createMessage(
         filePath,
         getAction(),
-        IngestionPayloadJsonFactory.createPayloadContent(text),
+        IngestionPayloadJsonFactory.createPayloadContent(bytesNode),
         getIngestionProperties(),
         getSchemaType()
     );

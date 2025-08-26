@@ -3,7 +3,6 @@ package dev.streamx.ingestion;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import java.util.Map;
 import java.util.Objects;
 
@@ -50,10 +49,10 @@ public class IngestionPayloadJsonFactory {
     return root;
   }
 
-  public static JsonNode createPayloadContent(ValueNode value) {
+  public static JsonNode createPayloadContent(JsonNode bytesContentNode) {
     ObjectNode payloadContent = mapper.createObjectNode();
     ObjectNode content = payloadContent.putObject(CONTENT_NODE_NAME);
-    content.set(BYTES_CONTENT_NODE_NAME, value);
+    content.set(BYTES_CONTENT_NODE_NAME, bytesContentNode);
     payloadContent.set(CONTENT_NODE_NAME, content);
     return payloadContent;
   }
