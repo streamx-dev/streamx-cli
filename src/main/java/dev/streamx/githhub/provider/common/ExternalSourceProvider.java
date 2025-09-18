@@ -35,9 +35,6 @@ public class ExternalSourceProvider extends AbstractSourceProvider {
       STREAMX_INGESTION_URL, INGESTION_CHANNEL, EXTERNAL_RESOURCE_URL, INGESTION_MESSAGE_KEY};
 
   @Inject
-  ObjectMapper objectMapper;
-
-  @Inject
   CloseableHttpClient httpClient;
 
   @Inject
@@ -45,6 +42,8 @@ public class ExternalSourceProvider extends AbstractSourceProvider {
 
   @Inject
   SchemaProvider schemaProvider;
+
+  ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
   public String getName() {

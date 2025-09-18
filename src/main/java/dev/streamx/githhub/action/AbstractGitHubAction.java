@@ -5,7 +5,9 @@ import static dev.streamx.githhub.Constants.INGESTION_SOURCE_PROVIDER;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_TOKEN;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_URL;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.clients.ingestion.StreamxClient;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.clients.ingestion.publisher.FailureResult;
@@ -15,15 +17,19 @@ import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.provider.DataSourceProvider;
+import dev.streamx.ingestion.IngestionConfig;
 import dev.streamx.ingestion.StreamxClientProvider;
 import io.quarkiverse.githubaction.Commands;
 import io.quarkiverse.githubaction.Context;
 import io.quarkiverse.githubaction.Inputs;
 import io.quarkus.arc.All;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 import org.kohsuke.github.GHEventPayload;
@@ -40,13 +46,15 @@ abstract class AbstractGitHubAction {
       "Unsupported data source provider '%s'. StreamX ingestion skipped.";
   @Inject
   Logger log;
-
   @Inject
   StreamxClientProvider streamxClientProvider;
-
+  @Inject
+  IngestionConfig ingestionConfig;
   @Inject
   @All
   List<DataSourceProvider> dataSourceProviders;
+
+  ObjectMapper objectMapper = new ObjectMapper();
 
   void commonAction(Commands commands, Inputs inputs, Context context) {
     commonAction(commands, inputs, context, null);
@@ -76,25 +84,79 @@ abstract class AbstractGitHubAction {
         ingestionPayload.forEach(message -> logMessageNotice(commands, message));
 
         Publisher<JsonNode> publisher = streamxClient.newPublisher(channel, JsonNode.class);
-        List<IngestionResult> send = publisher.send(ingestionPayload);
-        send.forEach(ingestionResult -> {
-          SuccessResult successResult = ingestionResult.getSuccess();
-          if (Objects.nonNull(successResult)) {
-            logSuccessNotice(commands, successResult);
-          } else {
-            FailureResult failure = ingestionResult.getFailure();
-            logErrorNotice(commands, failure);
-          }
+        List<List<JsonNode>> chunkedPayload = chunkedPayload(ingestionPayload);
+        chunkedPayload.forEach(partition -> {
+          sendChunk(commands, publisher, partition);
         });
       }
-
+    } catch (StreamxClientException exc) {
+      String errMsg = "Failed to init StreamX publisher: " + exc.getMessage();
+      log.error(errMsg, exc);
+      commands.error(errMsg);
     } catch (GitHubActionException exc) {
       log.error(exc.getMessage(), exc);
       commands.error(exc.getMessage());
+    }
+  }
+
+  private void sendChunk(Commands commands, Publisher<JsonNode> publisher,
+      List<JsonNode> chunk) {
+    try {
+      List<IngestionResult> send = publisher.send(chunk);
+      send.forEach(ingestionResult -> {
+        SuccessResult successResult = ingestionResult.getSuccess();
+        if (Objects.nonNull(successResult)) {
+          logSuccessNotice(commands, successResult);
+        } else {
+          FailureResult failure = ingestionResult.getFailure();
+          logErrorNotice(commands, failure);
+        }
+      });
     } catch (StreamxClientException exc) {
       String errMsg = "Failed to execute StreamX client: " + exc.getMessage();
       log.error(errMsg, exc);
       commands.error(errMsg);
+    }
+  }
+
+  private List<List<JsonNode>> chunkedPayload(List<JsonNode> ingestionPayload)
+      throws GitHubActionException {
+    List<JsonNode> batch = new ArrayList<>();
+    AtomicInteger batchSize = new AtomicInteger(0);
+
+    List<List<JsonNode>> result = new ArrayList<>();
+    Iterator<JsonNode> it = ingestionPayload.iterator();
+    while (it.hasNext()) {
+      JsonNode node = it.next();
+
+      int size = calculateNodeSize(node);
+      long batchSizeLimit = ingestionConfig.batchSourceProviderBatchSizeInBytes();
+      if (size > batchSizeLimit) {
+        String key = Optional.of(node).map(n -> n.get("key")).map(JsonNode::asText)
+            .orElse("Unknown");
+        log.debugf("Ingestion payload size of key [%s] exceeds limit of %d.",
+            key, batchSizeLimit);
+        continue;
+      }
+      if ((batchSize.get() + size) > batchSizeLimit) {
+        result.add(batch);
+        batch = new ArrayList<>();
+        batchSize.set(0);
+      }
+      batch.add(node);
+      batchSize.getAndAdd(size);
+    }
+    if (batchSize.get() > 0) {
+      result.add(batch);
+    }
+    return result;
+  }
+
+  private int calculateNodeSize(JsonNode jsonNode) throws GitHubActionException {
+    try {
+      return objectMapper.writeValueAsBytes(jsonNode).length;
+    } catch (JsonProcessingException exc) {
+      throw new GitHubActionException("Failed to calculate node size: " + exc.getMessage(), exc);
     }
   }
 

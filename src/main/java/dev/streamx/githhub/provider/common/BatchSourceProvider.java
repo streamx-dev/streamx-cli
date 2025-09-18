@@ -32,9 +32,9 @@ public class BatchSourceProvider extends AbstractSourceProvider {
   @Inject
   Logger log;
   @Inject
-  ObjectMapper objectMapper;
-  @Inject
   SchemaProvider schemaProvider;
+
+  ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
   public String getName() {

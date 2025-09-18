@@ -41,8 +41,8 @@ public class PullRequestDiffDataSourceProvider extends AbstractSourceProvider {
   GitService gitService;
   @Inject
   SchemaProvider schemaProvider;
-  @Inject
-  ObjectMapper objectMapper;
+
+  ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
   public String getName() {

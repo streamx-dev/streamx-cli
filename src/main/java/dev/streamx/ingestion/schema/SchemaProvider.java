@@ -43,8 +43,7 @@ public class SchemaProvider {
   @Inject
   CloseableHttpClient httpClient;
 
-  @Inject
-  ObjectMapper objectMapper;
+  ObjectMapper objectMapper = new ObjectMapper();
 
   public String getSchemaType(String ingestionUrl, String ingestionToken, String channel)
       throws GitHubActionException {

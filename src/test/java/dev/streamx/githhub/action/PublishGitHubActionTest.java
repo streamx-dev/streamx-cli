@@ -3,7 +3,6 @@ package dev.streamx.githhub.action;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -12,10 +11,13 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
+import dev.streamx.clients.ingestion.publisher.Message;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.DataSourceProvider;
+import dev.streamx.ingestion.IngestionPayloadJsonFactory;
 import io.quarkiverse.githubaction.Context;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +48,8 @@ class PublishGitHubActionTest extends AbstractGitHubActionTest {
     action.streamxClientProvider = streamxClientProvider;
     when(dataSourceProvider.getName()).thenReturn("action_source_provider");
     action.dataSourceProviders = Collections.singletonList(dataSourceProvider);
+    action.ingestionConfig = ingestionConfig;
+    action.objectMapper = objectMapper;
   }
 
   @Test
@@ -80,7 +84,16 @@ class PublishGitHubActionTest extends AbstractGitHubActionTest {
   public void testShouldSendPublishMessage() throws StreamxClientException,
       GitHubActionException {
     mockInputParameters();
-    List<JsonNode> requestPayload = mock(List.class);
+
+    JsonNode message = IngestionPayloadJsonFactory.createMessage(
+        "/test/streamx.key",
+        Message.PUBLISH_ACTION,
+        createTestPayloadContent("Test content"),
+        null,
+        "web-resource/static"
+    );
+    List<JsonNode> requestPayload = new ArrayList<>();
+    requestPayload.add(message);
     when(dataSourceProvider.createPayload(inputs, context, null))
         .thenReturn(requestPayload);
 
