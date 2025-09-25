@@ -64,6 +64,7 @@ public class BatchSourceProviderTest extends AbstractSourceProviderTest {
     mockIngestionSchemaInputParameters();
     Path testWorkspacePath = getTestWorkspacePath();
     when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.empty());
+    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.empty());
     when(inputs.get(Constants.INGESTION_WORKSPACE))
         .thenReturn(Optional.of(testWorkspacePath.toAbsolutePath().toString()));
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS))
@@ -85,6 +86,7 @@ public class BatchSourceProviderTest extends AbstractSourceProviderTest {
     mockIngestionSchemaInputParameters();
     Path testWorkspacePath = getTestWorkspacePath();
     when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.empty());
+    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.empty());
     when(inputs.get(Constants.INGESTION_WORKSPACE)).thenReturn(null);
     when(context.getGitHubWorkspace()).thenReturn(testWorkspacePath.toAbsolutePath().toString());
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS))
@@ -98,6 +100,29 @@ public class BatchSourceProviderTest extends AbstractSourceProviderTest {
     assertFalse(result.isEmpty());
     result.forEach(node -> {
       assertTrue(StringUtils.endsWith(node.get("key").asText(), ".js"));
+    });
+  }
+
+  @Test
+  public void testShouldSetGivenIngestionPayloadProperties() throws GitHubActionException {
+    mockIngestionSchemaInputParameters();
+    Path testWorkspacePath = getTestWorkspacePath();
+    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.of("page/blog"));
+    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.of("true"));
+    when(inputs.get(Constants.INGESTION_WORKSPACE)).thenReturn(null);
+    when(context.getGitHubWorkspace()).thenReturn(testWorkspacePath.toAbsolutePath().toString());
+    when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS))
+        .thenReturn(Optional.of("[\"**/*.js\"]"));
+    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
+        "ingestion_token", "pages"))
+        .thenReturn("dev.streamx.blueprints.data.WebResource");
+
+    List<JsonNode> result = provider.createPayload(inputs, context, payload);
+
+    assertFalse(result.isEmpty());
+    result.forEach(node -> {
+      assertEquals(node.get("properties").get("sx:type").asText(), "page/blog");
+      assertEquals(node.get("properties").get("indexable").asText(), "true");
     });
   }
 

@@ -20,6 +20,8 @@ abstract class AbstractSchemaTypePayload implements IngestionPayload {
 
   private String type;
 
+  private String indexable;
+
   AbstractSchemaTypePayload(String schemaType) {
     this.schemaType = schemaType;
   }
@@ -32,10 +34,17 @@ abstract class AbstractSchemaTypePayload implements IngestionPayload {
     this.type = type;
   }
 
+  public void setIndexable(String indexable) {
+    this.indexable = indexable;
+  }
+
   protected Map<String, String> getIngestionProperties() {
     Map<String, String> properties = new HashMap<>();
     if (StringUtils.isNotBlank(type)) {
       properties.put(TYPE_KEY, type);
+    }
+    if (StringUtils.isNotBlank(indexable)) {
+      properties.put(INDEXABLE_KEY, indexable);
     }
     return properties;
   }

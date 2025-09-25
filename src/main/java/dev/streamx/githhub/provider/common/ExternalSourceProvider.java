@@ -3,6 +3,7 @@ package dev.streamx.githhub.provider.common;
 import static dev.streamx.githhub.Constants.EXTERNAL_RESOURCE_URL;
 import static dev.streamx.githhub.Constants.INGESTION_ACTION;
 import static dev.streamx.githhub.Constants.INGESTION_CHANNEL;
+import static dev.streamx.githhub.Constants.INGESTION_INDEXABLE;
 import static dev.streamx.githhub.Constants.INGESTION_MESSAGE_KEY;
 import static dev.streamx.githhub.Constants.INGESTION_TYPE;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_URL;
@@ -79,7 +80,17 @@ public class ExternalSourceProvider extends AbstractSourceProvider {
 
     String ingestionType = getInputString(inputs, INGESTION_TYPE);
     if (Objects.nonNull(ingestionType)) {
+      if (log.isDebugEnabled()) {
+        log.debug("type: " + ingestionType);
+      }
       externalUrlPayload.setType(ingestionType);
+    }
+    String ingestionIndexable = getInputString(inputs, INGESTION_INDEXABLE);
+    if (Objects.nonNull(ingestionIndexable)) {
+      if (log.isDebugEnabled()) {
+        log.debug("indexable: " + ingestionIndexable);
+      }
+      externalUrlPayload.setIndexable(ingestionIndexable);
     }
 
     JsonNode jsonNode = externalUrlPayload.resolve();

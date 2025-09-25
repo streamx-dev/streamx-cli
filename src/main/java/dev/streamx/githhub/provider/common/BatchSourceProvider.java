@@ -1,5 +1,6 @@
 package dev.streamx.githhub.provider.common;
 
+import static dev.streamx.githhub.Constants.INGESTION_INDEXABLE;
 import static dev.streamx.githhub.Constants.INGESTION_TYPE;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,18 +55,20 @@ public class BatchSourceProvider extends AbstractSourceProvider {
     try {
       String schemaType = getIngestionSchemaType(schemaProvider, inputs);
       String ingestionType = getInputString(inputs, INGESTION_TYPE);
+      String ingestionIndexable = getInputString(inputs, INGESTION_INDEXABLE);
       String workspace = getWorkspace(inputs, context.getGitHubWorkspace());
       String[] includePatterns = getIncludePatterns(inputs);
       if (log.isDebugEnabled()) {
         log.debug("Creating ingestion payload for options:");
         log.debug("schema type: " + schemaType);
         log.debug("type: " + ingestionType);
+        log.debug("indexable: " + ingestionIndexable);
         log.debug("workspace: " + workspace);
         log.debug("include patterns: " + includePatterns);
       }
       Set<String> paths = FilesUtils.listFilteredFiles(workspace, includePatterns);
       return tranformToIngestionMessages(paths, Message.PUBLISH_ACTION, workspace,
-          schemaType, ingestionType);
+          schemaType, ingestionType, ingestionIndexable);
     } catch (IOException exc) {
       log.error(exc.getMessage(), exc);
       return Collections.emptyList();
@@ -73,7 +76,8 @@ public class BatchSourceProvider extends AbstractSourceProvider {
   }
 
   private List<JsonNode> tranformToIngestionMessages(Set<String> paths,
-      String action, String workspace, String schemaType, String ingestionType) {
+      String action, String workspace, String schemaType, String ingestionType,
+      String ingestionIndexable) {
     if (Objects.isNull(paths) || paths.isEmpty()) {
       return Collections.emptyList();
     }
@@ -82,6 +86,9 @@ public class BatchSourceProvider extends AbstractSourceProvider {
         .map(payload -> {
           if (Objects.nonNull(ingestionType)) {
             payload.setType(ingestionType);
+          }
+          if (Objects.nonNull(ingestionIndexable)) {
+            payload.setIndexable(ingestionIndexable);
           }
           try {
             return payload.resolve();

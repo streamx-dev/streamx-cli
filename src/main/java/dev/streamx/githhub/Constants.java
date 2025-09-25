@@ -9,6 +9,7 @@ public interface Constants {
   String INGESTION_CHANNEL = "channel";
   String INGESTION_WORKSPACE = "workspace";
   String INGESTION_TYPE = "type";
+  String INGESTION_INDEXABLE = "indexable";
 
   String INGESTION_SOURCE_PROVIDER = "source-provider";
   String INGESTION_INCLUDE_PATTERNS = "include-patterns";

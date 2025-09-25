@@ -177,5 +177,37 @@ class ExternalSourceProviderTest extends AbstractSourceProviderTest {
     assertEquals("page/eds", propertiesNode.get("sx:type").asText());
   }
 
+  @Test
+  public void testShouldMakeIngestionMessageWithIndexableParam()
+      throws GitHubActionException {
+    when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
+        Optional.of("https://ingestion.streamx.dev"));
+    when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(
+        Optional.of("ingestion_token"));
+    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
+        Optional.of("pages"));
+
+    when(inputs.get(Constants.INGESTION_ACTION)).thenReturn(
+        Optional.of(Message.PUBLISH_ACTION));
+    when(inputs.get(Constants.EXTERNAL_RESOURCE_URL)).thenReturn(
+        Optional.of("https://test.dev/my/resource"));
+    when(inputs.get(Constants.INGESTION_MESSAGE_KEY)).thenReturn(
+        Optional.of("my/resource/key"));
+    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
+        Optional.of("pages"));
+    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
+        "ingestion_token", "pages"))
+        .thenReturn("dev.streamx.blueprints.data.Page");
+
+    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.empty());
+    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.of("true"));
+
+    List<JsonNode> result = provider.createPayload(inputs, context, payload);
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    JsonNode node = result.get(0);
+    assertEquals("true", node.get("properties").get("indexable").asText());
+  }
+
 
 }
