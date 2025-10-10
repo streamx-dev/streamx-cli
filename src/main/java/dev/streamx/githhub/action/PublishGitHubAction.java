@@ -4,6 +4,7 @@ import static dev.streamx.githhub.Constants.INGESTION_CHANNEL;
 import static dev.streamx.githhub.Constants.INGESTION_SOURCE_PROVIDER;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_URL;
 
+import dev.streamx.exception.GitHubActionException;
 import io.quarkiverse.githubaction.Action;
 import io.quarkiverse.githubaction.Commands;
 import io.quarkiverse.githubaction.Context;
@@ -19,7 +20,8 @@ public class PublishGitHubAction extends AbstractGitHubAction {
       STREAMX_INGESTION_URL, INGESTION_CHANNEL, INGESTION_SOURCE_PROVIDER};
 
   @Action(PublishGitHubAction.ACTION_NAME)
-  void publishAction(Commands commands, Inputs inputs, Context context) {
+  void publishAction(Commands commands, Inputs inputs, Context context)
+      throws GitHubActionException {
     commands.notice("Starting publish to StreamX action");
     commonAction(commands, inputs, context);
     commands.notice("Publish to StreamX action has finished");

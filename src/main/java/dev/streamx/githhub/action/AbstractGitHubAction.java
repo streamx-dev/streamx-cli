@@ -56,16 +56,18 @@ abstract class AbstractGitHubAction {
 
   ObjectMapper objectMapper = new ObjectMapper();
 
-  void commonAction(Commands commands, Inputs inputs, Context context) {
+  void commonAction(Commands commands, Inputs inputs, Context context)
+      throws GitHubActionException {
     commonAction(commands, inputs, context, null);
   }
 
-  void commonAction(Commands commands, Inputs inputs, Context context, GHEventPayload payload) {
+  void commonAction(Commands commands, Inputs inputs, Context context, GHEventPayload payload)
+      throws GitHubActionException {
     try {
       assertRequiredInputParameters(inputs, getActionRequiredInputParameters());
     } catch (MissingRequiredInputException exc) {
       commands.error(exc.getMessage());
-      return;
+      throw exc;
     }
 
     String channel = inputs.getRequired(INGESTION_CHANNEL);
@@ -93,9 +95,11 @@ abstract class AbstractGitHubAction {
       String errMsg = "Failed to init StreamX publisher: " + exc.getMessage();
       log.error(errMsg, exc);
       commands.error(errMsg);
+      throw new GitHubActionException(errMsg, exc);
     } catch (GitHubActionException exc) {
       log.error(exc.getMessage(), exc);
       commands.error(exc.getMessage());
+      throw exc;
     }
   }
 

@@ -1,5 +1,6 @@
 package dev.streamx.githhub.action;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.clients.ingestion.publisher.Message;
 import dev.streamx.exception.GitHubActionException;
+import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.DataSourceProvider;
 import dev.streamx.ingestion.IngestionPayloadJsonFactory;
@@ -53,15 +55,17 @@ class PublishGitHubActionTest extends AbstractGitHubActionTest {
   }
 
   @Test
-  public void testShouldValidateRequiredInputParameters() {
-    action.publishAction(commands, inputs, context);
+  public void testShouldValidateRequiredInputParameters() throws GitHubActionException {
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.publishAction(commands, inputs, context));
     verify(commands, times(1)).error(
         "Missing required streamx-ingestion-url input parameter. StreamX ingestion skipped.");
 
     reset(commands);
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    action.publishAction(commands, inputs, context);
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.publishAction(commands, inputs, context));
     verify(commands, times(1)).error(
         "Missing required channel input parameter. StreamX ingestion skipped.");
 
@@ -70,7 +74,8 @@ class PublishGitHubActionTest extends AbstractGitHubActionTest {
         Optional.of("https://ingestion.streamx.dev"));
     when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
         Optional.of("page"));
-    action.publishAction(commands, inputs, context);
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.publishAction(commands, inputs, context));
     verify(commands, times(1)).error(
         "Missing required source-provider input parameter. StreamX ingestion skipped.");
 

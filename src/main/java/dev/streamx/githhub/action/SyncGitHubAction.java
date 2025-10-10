@@ -4,6 +4,7 @@ import static dev.streamx.githhub.Constants.INGESTION_CHANNEL;
 import static dev.streamx.githhub.Constants.INGESTION_SOURCE_PROVIDER;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_URL;
 
+import dev.streamx.exception.GitHubActionException;
 import io.quarkiverse.githubaction.Action;
 import io.quarkiverse.githubaction.Commands;
 import io.quarkiverse.githubaction.Context;
@@ -22,7 +23,7 @@ public class SyncGitHubAction extends AbstractGitHubAction {
 
   @Action(SyncGitHubAction.ACTION_NAME)
   void syncAction(Commands commands, Inputs inputs, Context context,
-      @PullRequest GHEventPayload.PullRequest payload) {
+      @PullRequest GHEventPayload.PullRequest payload) throws GitHubActionException {
     commands.notice("Starting sync action");
     commonAction(commands, inputs, context, payload);
     commands.notice("Sync action has finished");

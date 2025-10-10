@@ -1,6 +1,7 @@
 package dev.streamx.githhub.action;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.lenient;
@@ -12,6 +13,8 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
+import dev.streamx.exception.GitHubActionException;
+import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,15 +35,17 @@ class UnpublishGitHubActionTest extends AbstractGitHubActionTest {
   }
 
   @Test
-  public void testShouldValidateRequiredInputParameters() {
-    action.unpublishAction(commands, inputs);
+  public void testShouldValidateRequiredInputParameters() throws GitHubActionException {
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.unpublishAction(commands, inputs));
     verify(commands, times(1)).error(
         "Missing required streamx-ingestion-url input parameter. StreamX ingestion skipped.");
 
     reset(commands);
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    action.unpublishAction(commands, inputs);
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.unpublishAction(commands, inputs));
     verify(commands, times(1)).error(
         "Missing required channel input parameter. StreamX ingestion skipped.");
 
@@ -48,7 +53,8 @@ class UnpublishGitHubActionTest extends AbstractGitHubActionTest {
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
     when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(Optional.of("page"));
-    action.unpublishAction(commands, inputs);
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.unpublishAction(commands, inputs));
     verify(commands, times(1)).error(
         "Missing required key input parameter. StreamX ingestion skipped.");
 
@@ -59,7 +65,8 @@ class UnpublishGitHubActionTest extends AbstractGitHubActionTest {
   }
 
   @Test
-  public void testShouldSendUnpublishMessage() throws StreamxClientException {
+  public void testShouldSendUnpublishMessage() throws StreamxClientException,
+      GitHubActionException {
     mockInputParameters();
 
     action.unpublishAction(commands, inputs);

@@ -1,5 +1,6 @@
 package dev.streamx.githhub.action;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.clients.ingestion.publisher.Message;
 import dev.streamx.exception.GitHubActionException;
+import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.DataSourceProvider;
 import dev.streamx.ingestion.IngestionPayloadJsonFactory;
@@ -55,15 +57,17 @@ class SyncGitHubActionTest extends AbstractGitHubActionTest {
   }
 
   @Test
-  public void testShouldValidateRequiredInputParameters() {
-    action.syncAction(commands, inputs, context, eventPayload);
+  public void testShouldValidateRequiredInputParameters() throws GitHubActionException {
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.syncAction(commands, inputs, context, eventPayload));
     verify(commands, times(1)).error(
         "Missing required streamx-ingestion-url input parameter. StreamX ingestion skipped.");
 
     reset(commands);
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    action.syncAction(commands, inputs, context, eventPayload);
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.syncAction(commands, inputs, context, eventPayload));
     verify(commands, times(1)).error(
         "Missing required channel input parameter. StreamX ingestion skipped.");
 
@@ -72,7 +76,8 @@ class SyncGitHubActionTest extends AbstractGitHubActionTest {
         Optional.of("https://ingestion.streamx.dev"));
     when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
         Optional.of("webresource"));
-    action.syncAction(commands, inputs, context, eventPayload);
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.syncAction(commands, inputs, context, eventPayload));
     verify(commands, times(1)).error(
         "Missing required source-provider input parameter. StreamX ingestion skipped.");
 

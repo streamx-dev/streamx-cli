@@ -34,13 +34,13 @@ public class UnpublishGitHubAction extends AbstractGitHubAction {
   Logger log;
 
   @Action(UnpublishGitHubAction.ACTION_NAME)
-  void unpublishAction(Commands commands, Inputs inputs) {
+  void unpublishAction(Commands commands, Inputs inputs) throws GitHubActionException {
     commands.notice("Starting unpublish from StreamX action");
     try {
       assertRequiredInputParameters(inputs, getActionRequiredInputParameters());
     } catch (MissingRequiredInputException exc) {
       commands.error(exc.getMessage());
-      return;
+      throw exc;
     }
 
     String key = inputs.getRequired(INGESTION_MESSAGE_KEY);
@@ -58,14 +58,15 @@ public class UnpublishGitHubAction extends AbstractGitHubAction {
       Publisher<JsonNode> publisher = streamxClient.newPublisher(channel, JsonNode.class);
       SuccessResult successResult = publisher.send(unpublishMessage);
       logSuccessNotice(commands, successResult);
-
     } catch (GitHubActionException exc) {
       log.error(exc.getMessage(), exc);
       commands.error(exc.getMessage());
+      throw exc;
     } catch (StreamxClientException exc) {
       String errMsg = "Failed to execute StreamX client: " + exc.getMessage();
       log.error(errMsg, exc);
       commands.error(errMsg);
+      throw new GitHubActionException(errMsg, exc);
     }
     commands.notice("Unpublish from StreamX action has finished");
   }
