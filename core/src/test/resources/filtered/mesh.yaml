@@ -23,7 +23,7 @@ descriptors:
           - "repository-volume:/srv/www"
 
 sources:
-  e2e:
+  cli:
     outgoing:
       - ref: "inbox.pages"
         produces:
