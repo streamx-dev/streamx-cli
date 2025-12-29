@@ -14,8 +14,8 @@ public class EntrypointMain {
   public static void main(String[] args) {
     int javaVersion = getJavaVersion();
 
-    if (javaVersion < 17) {
-      System.out.println("Java 17 or higher is required!");
+    if (javaVersion < 21) {
+      System.out.println("Java 21 or higher is required!");
       return;
     }
 

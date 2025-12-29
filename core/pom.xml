@@ -12,7 +12,7 @@
 
   <name>StreamX Cli : Core</name>
   <properties>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
 
     <skipITs>true</skipITs>
     <quarkus.package.type>uber-jar</quarkus.package.type>

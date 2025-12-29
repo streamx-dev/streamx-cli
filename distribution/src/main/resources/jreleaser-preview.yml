@@ -15,7 +15,7 @@ project:
   java:
     groupId: dev.streamx.cli
     artifactId: streamx-cli
-    version: 17
+    version: 21
   inceptionYear: 2024
 
   tags:

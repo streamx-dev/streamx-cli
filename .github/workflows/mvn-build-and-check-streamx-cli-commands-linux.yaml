@@ -35,7 +35,7 @@ jobs:
       - name: Set up JDK 17s
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'adopt'
 
       - name: Set up homebrew
