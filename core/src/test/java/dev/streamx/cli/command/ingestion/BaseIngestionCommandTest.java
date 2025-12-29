@@ -1,20 +1,24 @@
 package dev.streamx.cli.command.ingestion;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
 import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static dev.streamx.clients.ingestion.StreamxClient.INGESTION_ENDPOINT_PATH_V1;
+import static com.streamx.clients.ingestion.StreamxClient.INGESTION_ENDPOINT_PATH_V2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.streamx.ce.serialization.json.CloudEventJsonSerializer;
+import io.cloudevents.CloudEvent;
 import io.quarkus.test.junit.main.LaunchResult;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public abstract class BaseIngestionCommandTest {
+
+  protected static final String PUBLICATION_PATH = INGESTION_ENDPOINT_PATH_V2;
 
   @RegisterExtension
   protected static WireMockExtension wm = WireMockExtension.newInstance()
@@ -27,18 +31,14 @@ public abstract class BaseIngestionCommandTest {
     initializeWiremock();
   }
 
-  protected abstract void initializeWiremock();
+  private void initializeWiremock() {
+    setupMockPublicationResponse(
+        CloudEventBuilder.build("index.html", "some-event-type", "source", "mock-response")
+    );
+  }
 
   protected static String getIngestionUrl() {
     return "http://localhost:" + wm.getPort();
-  }
-
-  protected static String getPublicationPath(String channel) {
-    return INGESTION_ENDPOINT_PATH_V1 + "/channels/" + channel + "/messages";
-  }
-
-  protected static String getChannelsPath() {
-    return INGESTION_ENDPOINT_PATH_V1 + "/channels";
   }
 
   protected static void expectSuccess(LaunchResult result) {
@@ -48,71 +48,16 @@ public abstract class BaseIngestionCommandTest {
 
   protected static void expectError(LaunchResult result, String expectedErrorOutput) {
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput().replace("\r\n", "\n")).contains(expectedErrorOutput);
+    assertThat(result.getErrorOutput().replace("\r\n", "\n")).isEqualTo(expectedErrorOutput);
   }
 
-  protected static void setupMockChannelsSchemasResponse() {
+  protected static void setupMockPublicationResponse(CloudEvent response) {
     ResponseDefinitionBuilder mockResponse = responseDefinition()
-        .withStatus(200)
-        .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-        .withBody(
-            """
-                {
-                  "pages": {
-                    "type": "record",
-                    "name": "DataIngestionMessage",
-                    "namespace": "dev.streamx.ingestion.rest.test",
-                    "fields": [
-                      {
-                        "name": "key",
-                        "type": "string"
-                      },
-                      {
-                        "name": "action",
-                        "type": "string"
-                      },
-                      {
-                        "name": "eventTime",
-                        "type": [
-                          "null",
-                          "long"
-                        ]
-                      },
-                      {
-                        "name": "properties",
-                        "type": {
-                          "type": "map",
-                          "values": "string"
-                        }
-                      },
-                      {
-                        "name": "payload",
-                        "type": [
-                          "null",
-                          {
-                            "type": "record",
-                            "name": "Page",
-                            "namespace": "dev.streamx.blueprints.data",
-                            "fields": [
-                              {
-                                "name": "content",
-                                "type": [
-                                  "null",
-                                  "bytes"
-                                ],
-                                "default": null
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-                """
-        );
+        .withStatus(HttpStatus.SC_ACCEPTED)
+        .withBody(new CloudEventJsonSerializer().serialize(response))
+        .withHeader(CONTENT_TYPE, "application/cloudevents+json");
 
-    wm.stubFor(WireMock.get(getChannelsPath())
+    wm.stubFor(WireMock.post(PUBLICATION_PATH)
         .willReturn(mockResponse));
   }
 }

@@ -1,13 +1,7 @@
 package dev.streamx.cli;
 
-import dev.streamx.cli.command.cloud.deploy.DeployCommand;
-import dev.streamx.cli.command.cloud.undeploy.UndeployCommand;
-import dev.streamx.cli.command.dev.DevCommand;
 import dev.streamx.cli.command.ingestion.batch.BatchCommand;
-import dev.streamx.cli.command.ingestion.publish.PublishCommand;
 import dev.streamx.cli.command.ingestion.stream.StreamCommand;
-import dev.streamx.cli.command.ingestion.unpublish.UnpublishCommand;
-import dev.streamx.cli.command.init.InitCommand;
 import dev.streamx.cli.command.run.RunCommand;
 import dev.streamx.cli.config.ArgumentConfigSource;
 import dev.streamx.cli.config.validation.ConfigSourcesValidator;
@@ -30,11 +24,8 @@ import picocli.CommandLine.ParseResult;
 @Command(mixinStandardHelpOptions = true,
     name = "streamx",
     subcommands = {
-        InitCommand.class,
-        RunCommand.class, DevCommand.class,
-        PublishCommand.class, UnpublishCommand.class,
+        RunCommand.class,
         BatchCommand.class, StreamCommand.class,
-        DeployCommand.class, UndeployCommand.class,
         HelpCommand.class
     },
     versionProvider = VersionProvider.class)
@@ -55,14 +46,10 @@ public class StreamxCommand implements QuarkusApplication {
   @Inject
   ConfigSourcesValidator configSourcesValidator;
 
-  @Inject
-  BannerPrinter bannerPrinter;
-
   @ArgGroup(exclusive = false)
   LicenseArguments licenseArguments;
 
   private CommandLine commandLine;
-  private String[] args;
 
   public static void main(String... args) {
     initializeArgumentConfigSource(args);
@@ -82,9 +69,7 @@ public class StreamxCommand implements QuarkusApplication {
   }
 
   @Override
-  public int run(String... args) throws Exception {
-    this.args = args;
-
+  public int run(String... args) {
     commandLine = new CommandLine(this, factory)
         .setParameterExceptionHandler(parameterExceptionHandler)
         .setExecutionExceptionHandler(executionExceptionHandler)
@@ -122,8 +107,6 @@ public class StreamxCommand implements QuarkusApplication {
   }
 
   private void init() {
-    bannerPrinter.initialize(commandLine, args);
-
     licenseProcessorEntrypoint.process();
   }
 }

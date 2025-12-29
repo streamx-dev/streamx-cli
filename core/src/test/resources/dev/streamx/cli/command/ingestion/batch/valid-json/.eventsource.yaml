@@ -1,4 +1,5 @@
-channel: pages
+eventType: page_publish
+eventSource: source
 key: ${relativePath}
 
 payload:

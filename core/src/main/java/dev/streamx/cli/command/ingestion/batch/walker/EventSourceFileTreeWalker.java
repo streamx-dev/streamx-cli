@@ -52,8 +52,8 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
 
       Objects.requireNonNull(descriptor.getKey(),
           "Missing required 'key' property in config file '%s'.'".formatted(configFile));
-      Objects.requireNonNull(descriptor.getChannel(),
-          "Missing required 'channel' property in config file '%s'.'".formatted(configFile));
+      Objects.requireNonNull(descriptor.getEventType(),
+          "Missing required 'eventType' property in config file '%s'.'".formatted(configFile));
       Objects.requireNonNull(descriptor.getPayload(),
           "Missing required 'payload' property in config file '%s'.'".formatted(configFile));
       descriptor.setSource(configFile);

@@ -1,6 +1,6 @@
 package dev.streamx.cli;
 
-import dev.streamx.runner.validation.DockerEnvironmentValidator;
+import com.streamx.runner.validation.DockerEnvironmentValidator;
 
 public class OsUtils {
   public static boolean isDockerAvailable() {

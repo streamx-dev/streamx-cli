@@ -2,8 +2,8 @@ package dev.streamx.cli.command.run;
 
 import static dev.streamx.cli.command.ingestion.IngestionClientConfig.STREAMX_INGESTION_AUTH_TOKEN;
 
+import com.streamx.runner.mesh.MeshContext;
 import dev.streamx.cli.config.DotStreamxGeneratedConfigSource;
-import dev.streamx.runner.mesh.MeshContext;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;

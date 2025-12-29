@@ -1,0 +1,8 @@
+eventType: com.streamx.blueprints.page.unpublished.v1
+eventSource: source
+
+relativePathLevel: 0
+key: ${relativePath}
+
+payload:
+  type: page/index-page

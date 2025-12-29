@@ -1,17 +1,17 @@
 package dev.streamx.cli.command.meshprocessing;
 
+import static com.streamx.runner.main.Main.StreamxApp.printSummary;
 import static dev.streamx.cli.util.Output.print;
-import static dev.streamx.runner.main.Main.StreamxApp.printSummary;
 
+import com.streamx.mesh.model.ServiceMesh;
+import com.streamx.runner.StreamxRunner;
+import com.streamx.runner.event.MeshReloadUpdate;
+import com.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
+import com.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import dev.streamx.cli.ExecutionExceptionHandler;
 import dev.streamx.cli.command.run.RunningMeshPropertiesGenerator;
 import dev.streamx.cli.exception.DockerException;
 import dev.streamx.cli.util.ExceptionUtils;
-import dev.streamx.mesh.model.ServiceMesh;
-import dev.streamx.runner.StreamxRunner;
-import dev.streamx.runner.event.MeshReloadUpdate;
-import dev.streamx.runner.validation.excpetion.DockerContainerNonUniqueException;
-import dev.streamx.runner.validation.excpetion.DockerEnvironmentException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -108,7 +108,7 @@ public class MeshManager {
     print("");
     RunningMeshPropertiesGenerator.generateRootAuthToken(this.runner.getMeshContext());
     if (started) {
-      printSummary(this.runner, normalizedMeshPath);
+      printSummary(runner, normalizedMeshPath, serviceMesh);
     }
   }
 
@@ -179,7 +179,7 @@ public class MeshManager {
   }
 
   void onMeshStarted(@Observes MeshReloadUpdate event) {
-    switch (event.getEvent()) {
+    switch (event.event()) {
       case MESH_UNCHANGED -> print("\nMesh definition is unchanged. Skip reloading...");
       case FULL_RELOAD_STARTED -> print("\nMesh file changed. Processing full reload...");
       case INCREMENTAL_RELOAD_STARTED ->

@@ -18,13 +18,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -231,15 +228,7 @@ class LicenseAcceptingTest {
   }
 
   private static void clearSettings() {
-    try {
-      Path pathToBeDeleted = Path.of(ProceedingTestProfile.TEST_SETTINGS_PATH_ROOT);
-
-      Files.walk(pathToBeDeleted)
-          .sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .forEach(File::delete);
-    } catch (IOException e) {
-      // skip
-    }
+    File directoryToBeDeleted = new File(ProceedingTestProfile.TEST_SETTINGS_PATH_ROOT);
+    FileUtils.deleteQuietly(directoryToBeDeleted);
   }
 }

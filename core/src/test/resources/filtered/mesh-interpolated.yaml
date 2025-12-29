@@ -1,25 +1,61 @@
-defaultRegistry: ghcr.io/streamx-dev/streamx
-defaultImageTag: ${streamx.version}-jvm
+descriptors:
+  relay:
+    type: "processing"
+    containers:
+      service:
+        incoming:
+          events: {}
+        outgoing:
+          relayed-events: {}
+
+  web-server-sink:
+    type: "edge"
+    volumes:
+      repository-volume: {}
+    containers:
+      sink:
+        image: "${config.image.interpolated}"
+        incoming:
+          resources: {}
+        servicePorts:
+          - "8087:8080"
+        volumes:
+          - "repository-volume:/srv/www"
 
 sources:
-  cli:
+  e2e:
     outgoing:
-      - "pages"
+      - ref: "inbox.pages"
+        produces:
+          - "com.streamx.blueprints.page.published.v1"
+          - "com.streamx.blueprints.page.unpublished.v1"
+
+ingestion:
+  rest-ingestion:
+    containers:
+      proxy:
+        environment:
+          QUARKUS_HTTP_AUTH_PERMISSION_BEARER_POLICY: permit
 
 processing:
-  relay:
-    image: ${config.image.interpolated}
-    incoming:
-      incoming-pages:
-        topic: inboxes/pages
-    outgoing:
-      outgoing-pages:
-        topic: outboxes/pages
+  pages-relay:
+    descriptor: relay
+    containers:
+      service:
+        incoming:
+          events:
+            ref: inbox.pages
+        outgoing:
+          relayed-events:
+            ref: outbox.pages
 
-delivery:
-  web-delivery-service:
-    image: sample-web-delivery-service
-    incoming:
-      pages:
-        topic: outboxes/pages
-    port: 8081
+edge:
+  web-server-sink:
+    descriptor: web-server-sink
+    containers:
+      sink:
+        incoming:
+          resources:
+            ref: outbox.pages
+        environment:
+          STREAMX_BLUEPRINTS_WEB_SERVER_SINK_STORAGE_ROOT_DIRECTORY: "/srv/www"

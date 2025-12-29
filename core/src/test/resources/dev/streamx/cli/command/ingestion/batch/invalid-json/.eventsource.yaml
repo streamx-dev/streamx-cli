@@ -1,4 +1,6 @@
-channel: pages
+eventType: page_publish
+eventSource: source
+
 relativePathLevel: 0
 key: ${relativePath}
 

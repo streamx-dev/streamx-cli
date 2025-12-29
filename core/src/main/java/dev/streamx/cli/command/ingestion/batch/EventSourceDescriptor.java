@@ -5,27 +5,34 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 public class EventSourceDescriptor {
 
   public static final String FILENAME = ".eventsource.yaml";
-  private String channel;
+  private String eventType;
+  private String eventSource;
   private String key;
   private JsonNode payload;
-  private Map<String, String> properties;
   private List<String> ignorePatterns;
   private Integer relativePathLevel;
 
   @JsonIgnore
   private Path source;
 
-  public String getChannel() {
-    return channel;
+  public String getEventType() {
+    return eventType;
   }
 
-  public void setChannel(String channel) {
-    this.channel = channel;
+  public void setEventType(String eventType) {
+    this.eventType = eventType;
+  }
+
+  public String getEventSource() {
+    return eventSource;
+  }
+
+  public void setEventSource(String eventSource) {
+    this.eventSource = eventSource;
   }
 
   public List<String> getIgnorePatterns() {
@@ -58,14 +65,6 @@ public class EventSourceDescriptor {
 
   public void setPayload(JsonNode payload) {
     this.payload = payload;
-  }
-
-  public Map<String, String> getProperties() {
-    return properties;
-  }
-
-  public void setProperties(Map<String, String> properties) {
-    this.properties = properties;
   }
 
   public Path getSource() {

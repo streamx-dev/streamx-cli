@@ -1,39 +1,22 @@
 package dev.streamx.cli.command.ingestion.batch;
 
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
-import static dev.streamx.cli.OsUtils.ESCAPED_LINE_SEPARATOR;
-import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
-import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import dev.streamx.cli.command.ingestion.AuthorizedProfile;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.command.ingestion.UnauthorizedProfile;
-import dev.streamx.clients.ingestion.publisher.FailureResult;
-import dev.streamx.clients.ingestion.publisher.IngestionResult;
-import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
+import org.jose4j.base64url.Base64;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class BatchPublishCommandTest extends BaseIngestionCommandTest {
-
-  private static final String CHANNEL = "pages";
-  private static final String UNSUPPORTED_CHANNEL = "images";
-  private static final String KEY = "index.html";
 
   @Nested
   @QuarkusMainTest
@@ -41,53 +24,11 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
   class UnauthorizedTest {
 
     @Test
-    public void shouldHandleInvalidPayloadFromRestIngestionApi(QuarkusMainLauncher launcher) {
-      setupMockPublicationResponse(
-          CHANNEL,
-          SC_BAD_REQUEST,
-          new FailureResult("INVALID_INGESTION_INPUT",
-              "Data does not match the existing schema: Unknown union branch byte"
-          )
-      );
-
-      // when
-      LaunchResult result = launcher.launch(
-          "batch", "--ingestion-url=" + getIngestionUrl(),
-          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/invalid-channel"
-      );
-
-      // then
-      expectError(result, """
-          Error performing batch publication while processing \
-          'target/test-classes/dev/streamx/cli/command/ingestion/batch/invalid-channel/index.html' \
-          file.
-          
-          Details:
-          Ingestion REST endpoint known error. Code: INVALID_INGESTION_INPUT. \
-          Message: Data does not match the existing schema: Unknown union branch byte
-          
-          Full logs can be found in quarkus.log""");
-    }
-
-    @Test
-    public void shouldRejectUnknownChannel(QuarkusMainLauncher launcher) {
-      // when
-      LaunchResult result = launcher.launch(
-          "batch", "--ingestion-url=" + getIngestionUrl(),
-          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/unknown-channel"
-      );
-
-      // then
-      expectError(result,
-          "Channel 'images' not found. Available channels: [pages]");
-    }
-
-    @Test
     public void shouldRejectInvalidDataJson(QuarkusMainLauncher launcher) {
       // when
       LaunchResult result = launcher.launch(
-          "batch", "--ingestion-url=" + getIngestionUrl(),
-          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/invalid-json"
+          BatchCommand.COMMAND_NAME, "--ingestion-url=" + getIngestionUrl(),
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/invalid-json"
       );
 
       // then
@@ -109,67 +50,66 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
     public void shouldBatchPublishValidDirectory(QuarkusMainLauncher launcher) {
       // when
       LaunchResult result = launcher.launch(
-          "batch", "--ingestion-url=" + getIngestionUrl(),
-          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid"
+          BatchCommand.COMMAND_NAME, "--ingestion-url=" + getIngestionUrl(),
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish"
       );
 
       // then
       expectSuccess(result);
-      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(equalToJson("""
+      wm.verify(postRequestedFor(urlEqualTo(PUBLICATION_PATH))
+          .withRequestBody(new CloudEventJsonMatcher("""
               {
-                "key" : "valid/index.html",
-                "action" : "publish",
-                "eventTime" : null,
-                "properties" : {
-                  "sx:type" : "page/sub-page"
-                },
-                "payload" : {
-                  "dev.streamx.blueprints.data.Page" : {
-                    "content" : {
-                      "bytes" : "<h1>Hello World!</h1>%s"
-                    }
-                  }
+                "specversion" : "1.0",
+                "id" : "75a90fb7-327e-4bee-96a1-3e4224a1e71d",
+                "source" : "source",
+                "type" : "page_publish",
+                "datacontenttype" : "application/json",
+                "subject" : "publish/index.html",
+                "time" : "2025-12-23T10:28:23.435253Z",
+                "data" : {
+                  "content" : "%s",
+                  "type" : "page/sub-page"
                 }
               }
-              """.formatted(ESCAPED_LINE_SEPARATOR)))
+              """.formatted(Base64.encode("<h1>Hello World!</h1>".getBytes(UTF_8)))))
           .withoutHeader("Authorization"));
-      wm.verify(1, postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL))));
+      wm.verify(1, postRequestedFor(urlEqualTo(PUBLICATION_PATH)));
     }
 
     @Test
     public void shouldBatchPublishValidDirectoryWithJsons(QuarkusMainLauncher launcher) {
       // when
       LaunchResult result = launcher.launch(
-          "batch", "--ingestion-url=" + getIngestionUrl(),
-          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid-json"
+          BatchCommand.COMMAND_NAME, "--ingestion-url=" + getIngestionUrl(),
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid-json"
       );
 
       // then
       expectSuccess(result);
-      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(equalToJson("""
+      wm.verify(postRequestedFor(urlEqualTo(PUBLICATION_PATH))
+          .withRequestBody(new CloudEventJsonMatcher("""
               {
-                "key" : "content.json",
-                "action" : "publish",
-                "eventTime" : null,
-                "properties" : { },
-                "payload" : {
-                  "dev.streamx.blueprints.data.Page" : {
-                    "object" : {
-                      "content" : "<h1>Hello world!</h1>"
-                    },
-                    "fixed-property" : true,
-                    "list" : [ {
-                      "content" : "<h1>Hello world!</h1>"
-                    } ]
-                  }
+                "specversion" : "1.0",
+                "id" : "b0db1b2f-4069-4234-a968-9474f96ede9e",
+                "source" : "source",
+                "type" : "page_publish",
+                "datacontenttype" : "application/json",
+                "subject" : "content.json",
+                "time" : "2025-12-23T11:00:17.710136Z",
+                "data" : {
+                  "object" : {
+                    "content" : "<h1>Hello world!</h1>"
+                  },
+                  "fixed-property" : true,
+                  "list" : [ {
+                    "content" : "<h1>Hello world!</h1>"
+                  } ]
                 }
               }
               """))
           .withoutHeader("Authorization"));
 
-      wm.verify(1, postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL))));
+      wm.verify(1, postRequestedFor(urlEqualTo(PUBLICATION_PATH)));
     }
 
     @Test
@@ -177,23 +117,19 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
       // when
       String ingestionServiceUrl = "http://aaa.bbb.ccc";
       LaunchResult result = launcher.launch(
-          "batch",
+          BatchCommand.COMMAND_NAME,
           "--ingestion-url=" + ingestionServiceUrl,
-          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid");
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish");
 
       // then
       expectError(result,
-          """
-              Unable to connect to the ingestion service.
-                            
-              The ingestion service URL: http://aaa.bbb.ccc
-                            
-              Verify:
-               * if the mesh is up and running,
-               * if the ingestion service URL is set correctly\
-               (if it's not - set proper '--ingestion-url' option)
-               
-              Full logs can be found in"""
+          "Error performing batch publication while processing 'target/test-classes/"
+          + "dev/streamx/cli/command/ingestion/batch/valid/publish/index.html' file.\n"
+          + "\n"
+          + "Details:\n"
+          + "Ingestion REST error: unknown host\n"
+          + "\n"
+          + "Full logs can be found in quarkus.log"
       );
     }
   }
@@ -206,45 +142,14 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
     @Test
     public void shouldPublishAuthorizedUsing(QuarkusMainLauncher launcher) {
       // when
-      LaunchResult result = launcher.launch("batch",
+      LaunchResult result = launcher.launch(BatchCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          "publish", "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid");
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish");
 
       // then
       expectSuccess(result);
-      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
+      wm.verify(postRequestedFor(urlEqualTo(PUBLICATION_PATH))
           .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
-  }
-
-  @Override
-  protected void initializeWiremock() {
-    setupMockPublicationResponse(
-        CHANNEL,
-        SC_ACCEPTED,
-        IngestionResult.of(new SuccessResult(123456L, KEY))
-    );
-
-    setupMockPublicationResponse(
-        UNSUPPORTED_CHANNEL,
-        SC_BAD_REQUEST,
-        new FailureResult("UNSUPPORTED_CHANNEL",
-            "Channel " + UNSUPPORTED_CHANNEL + " is unsupported. Supported channels: " + CHANNEL
-        )
-    );
-
-    setupMockChannelsSchemasResponse();
-  }
-
-  private static void setupMockPublicationResponse(String channel, int httpStatus,
-      Object response) {
-    ResponseDefinitionBuilder mockResponse = responseDefinition()
-        .withStatus(httpStatus)
-        .withBody(response == null ? null : Json.write(response))
-        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
-
-    wm.stubFor(WireMock.post(getPublicationPath(channel))
-        .willReturn(mockResponse));
   }
 }

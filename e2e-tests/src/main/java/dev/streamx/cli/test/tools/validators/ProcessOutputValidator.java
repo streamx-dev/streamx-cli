@@ -1,10 +1,10 @@
 package dev.streamx.cli.test.tools.validators;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import java.time.Duration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,12 +21,12 @@ public class ProcessOutputValidator {
           + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-  public void validate(List<String> output, String expectedContent, long timeout) {
+  public void validate(List<String> output, String expectedContent, Duration timeout) {
     try {
       await()
-          .atMost(timeout, SECONDS)
+          .atMost(timeout)
           .pollInterval(100, MILLISECONDS)
-          .alias("Finding expectedContent:" + expectedContent)
+          .alias("Finding expectedContent: " + expectedContent)
           .until(() ->
               output
                   .stream()
@@ -38,9 +38,9 @@ public class ProcessOutputValidator {
     }
   }
 
-  public String validateContainsUrl(List<String> output, long timeout) {
+  public String validateContainsUrl(List<String> output, Duration timeout) {
     await()
-        .atMost(timeout, SECONDS)
+        .atMost(timeout)
         .pollInterval(100, MILLISECONDS)
         .alias("Finding any url")
         .until(() ->

@@ -3,9 +3,9 @@ package dev.streamx.cli.command.run;
 import static dev.streamx.cli.command.util.MeshTestsUtils.cleanUpMesh;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.streamx.runner.event.MeshStarted;
 import dev.streamx.cli.command.MeshStopper;
 import dev.streamx.cli.command.run.RunCommandTest.RunCommandProfile;
-import dev.streamx.runner.event.MeshStarted;
 import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
@@ -17,7 +17,6 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Set;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -33,11 +32,10 @@ public class RunCommandTest {
     Awaitility.await()
         .until(() -> {
           try {
-            Set<String> cleanedUpContainers =
-                Set.of("pulsar", "pulsar-init",
-                    "rest-ingestion", "relay", "web-delivery-service");
-            cleanUpMesh(cleanedUpContainers);
-
+            cleanUpMesh(
+                "pulsar", "pulsar-init",
+                "local-service-mesh-proxy", "rest-ingestion.proxy",
+                "pages-relay.service", "web-server-sink.sink");
             return true;
           } catch (Exception e) {
             return false;
@@ -51,7 +49,7 @@ public class RunCommandTest {
         .toAbsolutePath()
         .normalize()
         .toString();
-    LaunchResult result = launcher.launch("run", "-f=" + s);
+    LaunchResult result = launcher.launch(RunCommand.COMMAND_NAME, "-f=" + s);
 
     assertThat(result.getOutput()).contains("STREAMX IS READY!");
   }

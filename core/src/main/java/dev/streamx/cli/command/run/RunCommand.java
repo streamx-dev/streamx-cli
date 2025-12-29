@@ -1,5 +1,7 @@
 package dev.streamx.cli.command.run;
 
+import com.streamx.runner.StreamxRunner;
+import com.streamx.runner.exception.ContainerStartupTimeoutException;
 import dev.streamx.cli.BannerPrinter;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.meshprocessing.MeshConfig;
@@ -7,8 +9,6 @@ import dev.streamx.cli.command.meshprocessing.MeshManager;
 import dev.streamx.cli.command.meshprocessing.MeshResolver;
 import dev.streamx.cli.command.meshprocessing.MeshSource;
 import dev.streamx.cli.exception.DockerException;
-import dev.streamx.runner.StreamxRunner;
-import dev.streamx.runner.exception.ContainerStartupTimeoutException;
 import io.quarkus.runtime.Quarkus;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
@@ -21,7 +21,8 @@ import picocli.CommandLine.Command;
     description = "Run a StreamX Mesh locally.")
 public class RunCommand implements Runnable {
 
-  public static final String COMMAND_NAME = "run";
+  // TODO "_v2" is a temporary postfix for now
+  public static final String COMMAND_NAME = "run_v2";
 
   @ArgGroup
   MeshSource meshSource;

@@ -1,8 +1,8 @@
 package dev.streamx.cli.command.meshprocessing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streamx.mesh.model.ServiceMesh;
 import dev.streamx.cli.interpolation.Interpolating;
-import dev.streamx.mesh.model.ServiceMesh;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;

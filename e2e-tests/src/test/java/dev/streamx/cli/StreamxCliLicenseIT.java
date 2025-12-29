@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class StreamxCliLicenseIT {
 
-  private static final int CLI_SHORT_TIMEOUT_IN_SEC = 5;
+  private static final Duration CLI_TIMEOUT = Duration.ofSeconds(10);
 
   @Inject
   @Named("StreamxCommandRunner")
@@ -85,9 +86,9 @@ public class StreamxCliLicenseIT {
   private void assertIfLicenseIsAccessible(ShellProcess process) {
     String url = processOutputValidator.validateContainsUrl(
         process.getCurrentOutputLines(),
-        CLI_SHORT_TIMEOUT_IN_SEC);
+        CLI_TIMEOUT);
     httpValidator.validate(url, 200, "License",
-        CLI_SHORT_TIMEOUT_IN_SEC);
+        CLI_TIMEOUT);
   }
 
   private static void declineLicense(ShellProcess p) {
@@ -102,12 +103,12 @@ public class StreamxCliLicenseIT {
     processOutputValidator.validate(
         p.getCurrentErrorLines(),
         "License acceptance is required for using StreamX",
-        CLI_SHORT_TIMEOUT_IN_SEC);
+        CLI_TIMEOUT);
   }
 
   private void assertIfStreamxCommandWork(ShellProcess p) {
     processOutputValidator.validate(p.getCurrentOutputLines(), "streamx-cli version",
-        CLI_SHORT_TIMEOUT_IN_SEC);
+        CLI_TIMEOUT);
   }
 
   private ShellProcess runStreamxCommand() {
@@ -118,7 +119,7 @@ public class StreamxCliLicenseIT {
     processOutputValidator.validate(
         p.getCurrentOutputLines(),
         "Do you accept the license agreement?",
-        CLI_SHORT_TIMEOUT_IN_SEC);
+        CLI_TIMEOUT);
   }
 
   private static void resetLicenseAcceptance() {

@@ -1,0 +1,11 @@
+eventType: com.streamx.blueprints.page.published.v1
+eventSource: source
+
+relativePathLevel: 0
+key: ${relativePath}
+
+payload:
+  content:
+    bytes: file://${payloadPath}
+  type: page/index-page
+

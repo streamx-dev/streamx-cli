@@ -10,10 +10,11 @@ public class StringSubstitutor implements Substitutor {
 
   @Override
   public Map<String, String> createSubstitutionVariables(String payloadPath,
-      String channel, String relativePath) {
+      String eventType, String eventSource, String relativePath) {
     return Map.of(
         "payloadPath", requireNonNull(payloadPath),
-        "channel", requireNonNull(channel),
+        "eventType", requireNonNull(eventType),
+        "eventSource", requireNonNull(eventSource),
         "relativePath", requireNonNull(relativePath)
     );
   }

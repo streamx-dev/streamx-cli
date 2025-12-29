@@ -1,6 +1,6 @@
 package dev.streamx.cli.command;
 
-import dev.streamx.runner.StreamxRunner;
+import com.streamx.runner.StreamxRunner;
 import io.quarkus.runtime.ApplicationLifecycleManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

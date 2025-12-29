@@ -1,0 +1,10 @@
+eventType: page_unpublish
+eventSource: source
+
+relativePathLevel: 1
+key: ${relativePath}
+ignorePatterns:
+  - ".*/ignore\\.me"
+
+payload:
+  type: page/sub-page

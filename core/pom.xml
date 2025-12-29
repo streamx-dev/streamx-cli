@@ -44,12 +44,8 @@
       <artifactId>bcpkix-jdk18on</artifactId>
     </dependency>
     <dependency>
-      <groupId>dev.streamx</groupId>
+      <groupId>com.streamx</groupId>
       <artifactId>streamx-runner</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>dev.streamx</groupId>
-      <artifactId>streamx-operator-mesh-api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -60,7 +56,7 @@
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
     <dependency>
-      <groupId>dev.streamx</groupId>
+      <groupId>com.streamx</groupId>
       <artifactId>ingestion-client</artifactId>
     </dependency>
     <dependency>
@@ -87,11 +83,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5-mockito</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

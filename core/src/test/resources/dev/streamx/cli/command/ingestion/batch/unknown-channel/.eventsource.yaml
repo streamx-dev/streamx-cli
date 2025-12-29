@@ -1,7 +1,0 @@
-channel: images
-relativePathLevel: 1
-key: ${relativePath}
-
-payload:
-  content:
-    bytes: file://${payloadPath}

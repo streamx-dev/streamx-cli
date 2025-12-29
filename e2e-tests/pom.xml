@@ -44,7 +44,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>dev.streamx</groupId>
+      <groupId>com.streamx</groupId>
       <artifactId>streamx-runner</artifactId>
       <scope>test</scope>
     </dependency>
@@ -64,7 +64,6 @@
         <directory>src/test/resources/filtered</directory>
         <includes>
           <include>mesh.yaml</include>
-          <include>overridden-nginx-conf</include>
         </includes>
       </testResource>
     </testResources>

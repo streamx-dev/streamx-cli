@@ -1,8 +1,8 @@
 package dev.streamx.cli.command.ingestion;
 
-import dev.streamx.clients.ingestion.StreamxClient;
-import dev.streamx.clients.ingestion.StreamxClientBuilder;
-import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
+import com.streamx.clients.ingestion.StreamxClient;
+import com.streamx.clients.ingestion.StreamxClientBuilder;
+import com.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.http.impl.client.CloseableHttpClient;

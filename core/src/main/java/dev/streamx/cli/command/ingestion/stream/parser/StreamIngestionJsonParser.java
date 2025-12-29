@@ -6,8 +6,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.cli.exception.PayloadException;
-import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,7 @@ public class StreamIngestionJsonParser {
       }
       if (jsonToken != null) {
         throw new JsonParseException(
-            "Unexpected token '%s' at messages index %s".formatted(jsonToken, index));
+            "Unexpected token '%s' at events index %s".formatted(jsonToken, index));
       }
       parser.nextToken();
     } catch (JsonParseException e) {

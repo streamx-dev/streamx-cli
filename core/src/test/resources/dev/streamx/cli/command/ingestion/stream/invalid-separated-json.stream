@@ -1,30 +1,16 @@
 {
-  "key" : "homepage.html",
-  "action" : "publish",
-  "eventTime" : null,
-  "properties" : {
-    "sx:type": "page/content"
-  },
-  "payload" : {
-    "dev.streamx.blueprints.data.Page" : {
-      "content" : {
-        "bytes" : "<h1>This is Home Page!</h1>"
-      }
-    }
-  }
+  "specversion" : "1.0",
+  "id" : "11111111-327e-4bee-96a1-3e4224a1e71d",
+  "source" : "source",
+  "type" : "page_unpublish",
+  "subject" : "blogs.html",
+  "time" : "2025-12-25T10:28:23.435253Z"
 },
 {
-  "key" : "homepage.html",
-  "action" : "publish",
-  "eventTime" : null,
-  "properties" : {
-    "sx:type": "page/content"
-  },
-  "payload" : {
-    "dev.streamx.blueprints.data.Page" : {
-      "content" : {
-        "bytes" : "<h1>This is Home Page!</h1>"
-      }
-    }
-  }
+  "specversion" : "1.0",
+  "id" : "99999999-327e-4bee-96a1-3e4224a1e71d",
+  "source" : "source",
+  "type" : "page_unpublish",
+  "subject" : "products.html",
+  "time" : "2025-12-25T10:28:23.435253Z"
 }

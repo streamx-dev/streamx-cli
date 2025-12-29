@@ -1,13 +1,13 @@
 package dev.streamx.cli.test.tools.validators;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import java.time.Duration;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -22,9 +22,9 @@ public class HttpValidator {
   @Inject
   CloseableHttpClient httpClient;
 
-  public void validate(String url, int expectedStatusCode, String expectedBody, int timeout) {
+  public void validate(String url, int expectedStatusCode, String expectedBody, Duration timeout) {
     await()
-        .atMost(timeout, SECONDS)
+        .atMost(timeout)
         .alias("Assertion of response from url: " + url
             + " with expecting status:" + expectedStatusCode
             + " body:" + expectedBody

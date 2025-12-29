@@ -3,7 +3,8 @@ package dev.streamx.cli.command.meshprocessing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchException;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import dev.streamx.cli.path.CurrentDirectoryProvider;
 import dev.streamx.cli.path.FixedCurrentDirectoryProvider;
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
+import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
@@ -96,13 +97,12 @@ class MeshResolverTest {
   }
 
   private static ParseResult getParseResult() {
+    CommandSpec commandSpec = mock(CommandSpec.class);
+    doReturn(mock(CommandLine.class)).when(commandSpec).commandLine();
 
-    CommandSpec commandSpec = Mockito.mock();
-    when(commandSpec.commandLine()).thenReturn(Mockito.mock());
-
-    ParseResult parseResult = Mockito.mock();
-    when(parseResult.commandSpec()).thenReturn(commandSpec);
-    when(parseResult.subcommand()).thenReturn(parseResult);
+    ParseResult parseResult = mock(ParseResult.class);
+    doReturn(commandSpec).when(parseResult).commandSpec();
+    doReturn(parseResult).when(parseResult).subcommand();
 
     return parseResult;
   }

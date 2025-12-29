@@ -1,25 +1,12 @@
 package dev.streamx.cli.command.ingestion.stream;
 
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
-import static com.github.tomakehurst.wiremock.common.ContentTypes.CONTENT_TYPE;
-import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
-import static org.apache.hc.core5.http.HttpStatus.SC_BAD_REQUEST;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import dev.streamx.cli.command.ingestion.AuthorizedProfile;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommandTest;
 import dev.streamx.cli.command.ingestion.UnauthorizedProfile;
-import dev.streamx.clients.ingestion.publisher.FailureResult;
-import dev.streamx.clients.ingestion.publisher.IngestionResult;
-import dev.streamx.clients.ingestion.publisher.SuccessResult;
 import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
@@ -30,11 +17,6 @@ import org.junit.jupiter.api.Test;
 @QuarkusMainTest
 class StreamCommandTest extends BaseIngestionCommandTest {
 
-  private static final String CHANNEL = "pages";
-  private static final String INVALID_PAYLOAD_REQUEST_CHANNEL = "bad-request-channel";
-  private static final String UNSUPPORTED_CHANNEL = "images";
-  private static final String KEY = "index.html";
-
   @Nested
   @QuarkusMainTest
   @TestProfile(UnauthorizedProfile.class)
@@ -43,41 +25,21 @@ class StreamCommandTest extends BaseIngestionCommandTest {
     @Test
     public void shouldPublishUsingIngestionClient(QuarkusMainLauncher launcher) {
       // when
-      LaunchResult result = launcher.launch("stream",
+      LaunchResult result = launcher.launch(StreamCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          CHANNEL,
           "target/test-classes/dev/streamx/cli/command/ingestion/stream/valid-json.stream");
 
       // then
       expectSuccess(result);
-      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
-          .withoutHeader("Authorization"));
-    }
-
-    @Test
-    public void shouldPublishToUnsupportedChannel(QuarkusMainLauncher launcher) {
-      // when
-      LaunchResult result = launcher.launch("stream",
-          "--ingestion-url=" + getIngestionUrl(),
-          UNSUPPORTED_CHANNEL,
-          "target/test-classes/dev/streamx/cli/command/ingestion/stream/valid-json.stream");
-
-      // then
-      expectError(result, "Ingestion REST endpoint known error. "
-                          + "Code: UNSUPPORTED_CHANNEL. Message: Channel images is unsupported. "
-                          + "Supported channels: pages");
-      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(UNSUPPORTED_CHANNEL)))
-          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
+      wm.verify(postRequestedFor(urlEqualTo(PUBLICATION_PATH))
           .withoutHeader("Authorization"));
     }
 
     @Test
     public void shouldRejectInvalidJson(QuarkusMainLauncher launcher) {
       // when
-      LaunchResult result = launcher.launch("stream",
+      LaunchResult result = launcher.launch(StreamCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          CHANNEL,
           "target/test-classes/dev/streamx/cli/command/ingestion/stream/invalid-json.stream");
 
       // then
@@ -103,9 +65,8 @@ class StreamCommandTest extends BaseIngestionCommandTest {
     @Test
     public void shouldRejectIllegalJson(QuarkusMainLauncher launcher) {
       // when
-      LaunchResult result = launcher.launch("stream",
+      LaunchResult result = launcher.launch(StreamCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          CHANNEL,
           "target/test-classes/dev/streamx/cli/command/ingestion/stream/illegal-json.stream");
 
       // then
@@ -114,15 +75,16 @@ class StreamCommandTest extends BaseIngestionCommandTest {
                           + "stream/illegal-json.stream' file.\n"
                           + "\n"
                           + "Details:\n"
-                          + "Missing or invalid 'action' field\n");
+                          + "Invalid data: Missing mandatory specversion attribute\n"
+                          + "\n"
+                          + "Full logs can be found in quarkus.log");
     }
 
     @Test
     public void shouldRejectInvalidJsonSeparator(QuarkusMainLauncher launcher) {
       // when
-      LaunchResult result = launcher.launch("stream",
+      LaunchResult result = launcher.launch(StreamCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          CHANNEL,
           "target/test-classes/dev/streamx/cli/command/ingestion/stream"
           + "/invalid-separated-json.stream"
       );
@@ -142,7 +104,7 @@ class StreamCommandTest extends BaseIngestionCommandTest {
                           + "Details: Unexpected character (',' (code 44)): expected a value\n"
                           + " at [Source: REDACTED ("
                           + "`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); "
-                          + "line: 15, column: 2]");
+                          + "line: 8, column: 2]");
     }
   }
 
@@ -154,52 +116,14 @@ class StreamCommandTest extends BaseIngestionCommandTest {
     @Test
     public void shouldPublishAuthorizedUsing(QuarkusMainLauncher launcher) {
       // when
-      LaunchResult result = launcher.launch("stream",
+      LaunchResult result = launcher.launch(StreamCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          CHANNEL,
           "target/test-classes/dev/streamx/cli/command/ingestion/stream/valid-json.stream");
 
       // then
       expectSuccess(result);
-      wm.verify(postRequestedFor(urlEqualTo(getPublicationPath(CHANNEL)))
-          .withRequestBody(matchingJsonPath("action", equalTo("publish")))
+      wm.verify(postRequestedFor(urlEqualTo(PUBLICATION_PATH))
           .withHeader("Authorization", new ContainsPattern(AuthorizedProfile.AUTH_TOKEN)));
     }
-  }
-
-  @Override
-  protected void initializeWiremock() {
-    setupMockPublicationResponse(
-        CHANNEL,
-        SC_ACCEPTED,
-        IngestionResult.of(new SuccessResult(123456L, KEY))
-    );
-
-    setupMockPublicationResponse(
-        INVALID_PAYLOAD_REQUEST_CHANNEL,
-        SC_BAD_REQUEST,
-        IngestionResult.of(new FailureResult("INVALID_PUBLICATION_PAYLOAD", "Error message"))
-    );
-
-    setupMockPublicationResponse(
-        UNSUPPORTED_CHANNEL,
-        SC_BAD_REQUEST,
-        new FailureResult("UNSUPPORTED_CHANNEL",
-            "Channel " + UNSUPPORTED_CHANNEL + " is unsupported. Supported channels: " + CHANNEL
-        )
-    );
-
-    setupMockChannelsSchemasResponse();
-  }
-
-  private static void setupMockPublicationResponse(String channel, int httpStatus,
-      Object response) {
-    ResponseDefinitionBuilder mockResponse = responseDefinition()
-        .withStatus(httpStatus)
-        .withBody(response == null ? null : Json.write(response))
-        .withHeader(CONTENT_TYPE, APPLICATION_JSON);
-
-    wm.stubFor(WireMock.post(getPublicationPath(channel))
-        .willReturn(mockResponse));
   }
 }
