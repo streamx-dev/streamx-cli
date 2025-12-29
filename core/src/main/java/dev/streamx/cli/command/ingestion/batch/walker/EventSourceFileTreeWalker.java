@@ -5,7 +5,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dev.streamx.cli.command.ingestion.batch.EventSourceDescriptor;
 import dev.streamx.cli.command.ingestion.batch.exception.EventSourceDescriptorException;
 import dev.streamx.cli.util.FileUtils;
-import io.quarkus.logging.Log;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
@@ -16,10 +15,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Objects;
 import java.util.Stack;
+import org.jboss.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
 
+  private final Logger logger = Logger.getLogger(EventSourceFileTreeWalker.class);
   private final Stack<EventSourceDescriptor> eventSourceStack = new Stack<>();
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -36,7 +37,7 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
       EventSourceDescriptor descriptor = parseDescriptor(configFile);
 
       eventSourceStack.push(descriptor);
-      Log.debugf("Found event source in %s: %s", dir, descriptor);
+      logger.debugf("Found event source in %s: %s", dir, descriptor);
     }
 
     // Process all files in this directory with the current active event source (if any)
@@ -70,7 +71,7 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
     Path configFile = dir.resolve(EventSourceDescriptor.FILENAME);
     if (Files.exists(configFile) && Files.isRegularFile(configFile)) {
       EventSourceDescriptor popped = eventSourceStack.pop();
-      Log.debugf("Leaving %s. Reverting event source: %s", dir, popped);
+      logger.debugf("Leaving %s. Reverting event source: %s", dir, popped);
     }
     return FileVisitResult.CONTINUE;
   }
@@ -83,9 +84,9 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
    */
   private void processDirectory(Path dir, EventSourceDescriptor currentDescriptor)
       throws IOException {
-    Log.debugf("Processing directory: %s", dir);
+    logger.debugf("Processing directory: %s", dir);
     if (currentDescriptor != null) {
-      Log.debugf("Active event source: %s", currentDescriptor);
+      logger.debugf("Active event source: %s", currentDescriptor);
 
       // Iterate through all entries in the directory.
       try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
@@ -100,7 +101,7 @@ public class EventSourceFileTreeWalker extends SimpleFileVisitor<Path> {
       }
 
     } else {
-      Log.debugf("No active event source.");
+      logger.debugf("No active event source.");
     }
   }
 
