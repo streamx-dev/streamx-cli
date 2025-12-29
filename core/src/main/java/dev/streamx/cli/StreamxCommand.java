@@ -46,10 +46,14 @@ public class StreamxCommand implements QuarkusApplication {
   @Inject
   ConfigSourcesValidator configSourcesValidator;
 
+  @Inject
+  BannerPrinter bannerPrinter;
+
   @ArgGroup(exclusive = false)
   LicenseArguments licenseArguments;
 
   private CommandLine commandLine;
+  private String[] args;
 
   public static void main(String... args) {
     initializeArgumentConfigSource(args);
@@ -70,6 +74,8 @@ public class StreamxCommand implements QuarkusApplication {
 
   @Override
   public int run(String... args) {
+    this.args = args;
+
     commandLine = new CommandLine(this, factory)
         .setParameterExceptionHandler(parameterExceptionHandler)
         .setExecutionExceptionHandler(executionExceptionHandler)
@@ -107,6 +113,8 @@ public class StreamxCommand implements QuarkusApplication {
   }
 
   private void init() {
+    bannerPrinter.initialize(commandLine, args);
+
     licenseProcessorEntrypoint.process();
   }
 }
