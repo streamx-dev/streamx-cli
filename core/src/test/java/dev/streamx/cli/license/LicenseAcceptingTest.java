@@ -5,6 +5,7 @@ import static dev.streamx.cli.license.LicenseWiremockConfigs.StandardWiremockLic
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 import dev.streamx.cli.exception.LicenseException;
 import dev.streamx.cli.license.LicenseTestProfiles.AcceptProceedingTestProfile;
@@ -16,6 +17,7 @@ import dev.streamx.cli.license.model.LicenseSettings;
 import dev.streamx.cli.settings.SettingsStore;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.junit.mockito.InjectSpy;
 import jakarta.inject.Inject;
 import java.io.File;
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -35,16 +38,19 @@ class LicenseAcceptingTest {
   public static final String OLD_URL = "http://old.streamx.dev/license.html";
   public static final String OLD_NAME = "oldLicense";
 
-  LicenseArguments licenseArguments = new LicenseArguments();
+  private final LicenseArguments licenseArguments = new LicenseArguments();
+  private final AcceptingStrategy acceptingStrategy = mock(AcceptingStrategy.class);
 
   @Inject
   SettingsStore settingsStore;
 
-  @Inject
+  @InjectSpy
   LicenseProcessorEntrypoint entrypoint;
 
-  @Inject
-  AcceptingStrategy acceptingStrategy;
+  @BeforeEach
+  void setup() {
+    doReturn(acceptingStrategy).when(entrypoint).getAcceptingStrategy();
+  }
 
   @AfterEach
   void shutdown() {

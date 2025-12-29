@@ -4,7 +4,6 @@ import static dev.streamx.cli.util.Output.printf;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamx.ce.serialization.DeserializerException;
 import com.streamx.ce.serialization.json.CloudEventJsonDeserializer;
 import com.streamx.clients.ingestion.exceptions.StreamxClientException;
@@ -33,7 +32,6 @@ public class StreamCommand extends BaseIngestionCommand {
   // TODO "_v2" is a temporary postfix for now
   public static final String COMMAND_NAME = "stream_v2";
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
   private static final CloudEventJsonDeserializer deserializer = new CloudEventJsonDeserializer();
 
   @ArgGroup(exclusive = false, multiplicity = "1")

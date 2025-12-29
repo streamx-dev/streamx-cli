@@ -84,7 +84,7 @@ public class LicenseProcessorEntrypoint {
       return;
     }
 
-    if (acceptingStrategy.isLicenseAccepted()) {
+    if (getAcceptingStrategy().isLicenseAccepted()) {
       licenseSettingsStore.acceptLicense(licenseSettings, now);
     } else {
       throw LicenseException.licenseAcceptanceRejectedException();
@@ -107,5 +107,9 @@ public class LicenseProcessorEntrypoint {
         licenseSettings.licenseName(),
         licenseSettings.licenseUrl()
     );
+  }
+
+  AcceptingStrategy getAcceptingStrategy() {
+    return acceptingStrategy;
   }
 }

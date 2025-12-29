@@ -3,7 +3,6 @@ package dev.streamx.cli.command.ingestion;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
-import dev.streamx.cli.model.Resource;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.jackson.JsonCloudEventData;
 import java.net.URI;
@@ -42,10 +41,10 @@ public class CloudEventBuilder {
         .build();
   }
 
-  public static CloudEvent copyWithNewData(CloudEvent cloudEvent, Resource data) {
+  public static CloudEvent copyWithNewData(CloudEvent cloudEvent, JsonNode data) {
     return io.cloudevents.core.builder.CloudEventBuilder.v1(cloudEvent)
         .withDataContentType("application/json")
-        .withData(JsonCloudEventData.wrap(objectMapper.valueToTree(data)))
+        .withData(JsonCloudEventData.wrap(data))
         .build();
   }
 
