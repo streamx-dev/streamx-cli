@@ -13,7 +13,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'adopt'
+          distribution: 'temurin'
 
       - name: Set up Scoop
         uses: MinoruSekine/setup-scoop@v4
