@@ -48,7 +48,8 @@ public abstract class BaseIngestionCommandTest {
 
   protected static void expectError(LaunchResult result, String expectedErrorOutput) {
     assertThat(result.exitCode()).isNotZero();
-    assertThat(result.getErrorOutput().replace("\r\n", "\n")).isEqualTo(expectedErrorOutput);
+    assertThat(result.getErrorOutput().trim())
+        .isEqualToNormalizingNewlines(expectedErrorOutput.trim());
   }
 
   protected static void setupMockPublicationResponse(CloudEvent response) {
