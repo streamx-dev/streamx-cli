@@ -16,16 +16,16 @@ descriptors:
       sink:
         image: "${config.image.interpolated}"
         incoming:
-          resources: {}
+          resources:
         servicePorts:
           - "8087:8080"
         volumes:
           - "repository-volume:/srv/www"
 
 sources:
-  e2e:
+  cli:
     outgoing:
-      - ref: "inbox.pages"
+      - ref: "${config.source.interpolated:inbox.pages}"
         produces:
           - "com.streamx.blueprints.page.published.v1"
           - "com.streamx.blueprints.page.unpublished.v1"
