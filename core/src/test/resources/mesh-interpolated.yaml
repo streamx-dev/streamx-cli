@@ -16,7 +16,7 @@ descriptors:
       sink:
         image: "${config.image.interpolated}"
         incoming:
-          resources:
+          resources: {}
         servicePorts:
           - "8087:8080"
         volumes:
