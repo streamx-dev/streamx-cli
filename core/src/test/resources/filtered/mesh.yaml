@@ -14,7 +14,7 @@ descriptors:
       repository-volume: {}
     containers:
       sink:
-        image: "ghcr.io/streamx-com/streamx-blueprints/web-server-sink:3.0.7-jvm"
+        image: "ghcr.io/streamx-com/streamx-blueprints/web-server-sink:3.0.7-native"
         incoming:
           resources: {}
         servicePorts:
