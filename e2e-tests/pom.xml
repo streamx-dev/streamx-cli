@@ -31,6 +31,11 @@
       <artifactId>awaitility</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>commons-logging-jboss-logging</artifactId>
     </dependency>

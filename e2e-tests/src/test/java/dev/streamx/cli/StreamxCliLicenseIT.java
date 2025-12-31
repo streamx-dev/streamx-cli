@@ -100,14 +100,14 @@ public class StreamxCliLicenseIT {
   }
 
   private void assertIfAcceptanceLicenseErrorPresent(ShellProcess p) {
-    processOutputValidator.validate(
+    processOutputValidator.validate(p,
         p.getCurrentErrorLines(),
         "License acceptance is required for using StreamX",
         CLI_TIMEOUT);
   }
 
   private void assertIfStreamxCommandWork(ShellProcess p) {
-    processOutputValidator.validate(p.getCurrentOutputLines(), "streamx-cli version",
+    processOutputValidator.validate(p, p.getCurrentOutputLines(), "streamx-cli version",
         CLI_TIMEOUT);
   }
 
@@ -116,7 +116,7 @@ public class StreamxCliLicenseIT {
   }
 
   private void assertIfAcceptLicenseQuestionPresent(ShellProcess p) {
-    processOutputValidator.validate(
+    processOutputValidator.validate(p,
         p.getCurrentOutputLines(),
         "Do you accept the license agreement?",
         CLI_TIMEOUT);

@@ -1,0 +1,9 @@
+eventType: com.streamx.blueprints.asset.unpublished.v1
+eventSource: source
+
+relativePathLevel: 0
+key: ${relativePath}
+
+payload:
+  content: file://${payloadPath}
+  type: assets/image

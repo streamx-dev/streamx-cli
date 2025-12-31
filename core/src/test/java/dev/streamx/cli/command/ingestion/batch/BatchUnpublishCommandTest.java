@@ -27,7 +27,7 @@ public class BatchUnpublishCommandTest extends BaseIngestionCommandTest {
       LaunchResult result = launcher.launch(
           BatchCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/unpublish");
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/unpublish/page");
 
       // then
       expectSuccess(result);
@@ -39,7 +39,7 @@ public class BatchUnpublishCommandTest extends BaseIngestionCommandTest {
       LaunchResult result = launcher.launch(
           BatchCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/unpublish");
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/unpublish/page");
 
       // then
       expectSuccess(result);
@@ -60,7 +60,7 @@ public class BatchUnpublishCommandTest extends BaseIngestionCommandTest {
       LaunchResult result = launcher.launch(
           BatchCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/unpublish");
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/unpublish/page");
 
       // then
       expectSuccess(result);
@@ -74,7 +74,7 @@ public class BatchUnpublishCommandTest extends BaseIngestionCommandTest {
                     "source" : "source",
                     "type" : "page_unpublish",
                     "datacontenttype":"application/json",
-                    "subject" : "unpublish/index.html",
+                    "subject" : "page/index.html",
                     "time" : "2025-12-23T11:59:29.946127Z",
                     "data" : {
                       "type" : "page/sub-page"

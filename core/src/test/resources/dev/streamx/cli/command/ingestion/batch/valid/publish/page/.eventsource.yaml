@@ -1,0 +1,12 @@
+eventType: page_publish
+eventSource: source
+
+relativePathLevel: 1
+key: ${relativePath}
+ignorePatterns:
+  - ".*/ignore\\.me"
+
+payload:
+  content: file://${payloadPath}
+  type: page/sub-page
+

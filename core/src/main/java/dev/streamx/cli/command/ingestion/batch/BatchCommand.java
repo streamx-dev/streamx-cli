@@ -100,10 +100,9 @@ public class BatchCommand extends BaseIngestionCommand {
         state.eventSubject,
         state.eventType,
         state.eventSource,
-        state.payload
+        state.payload // TODO rename payload to data everywhere
     );
-    CloudEvent adjustedEvent = withAdjustedData(inputEvent);
-    CloudEvent responseEvent = publisher.send(adjustedEvent);
+    CloudEvent responseEvent = publisher.send(inputEvent);
 
     printf("Sent %s event using batch with key '%s' at %s%n",
         state.eventType, state.eventSubject(),

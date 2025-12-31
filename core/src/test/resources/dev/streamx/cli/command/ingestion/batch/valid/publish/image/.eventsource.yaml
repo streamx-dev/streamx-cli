@@ -1,4 +1,4 @@
-eventType: page_publish
+eventType: image_publish
 eventSource: source
 
 relativePathLevel: 1
@@ -7,7 +7,6 @@ ignorePatterns:
   - ".*/ignore\\.me"
 
 payload:
-  content:
-    bytes: file://${payloadPath}
-  type: page/sub-page
+  content: file://${payloadPath}
+  type: assets/image
 

@@ -41,11 +41,4 @@ public class CloudEventBuilder {
         .build();
   }
 
-  public static CloudEvent copyWithNewData(CloudEvent cloudEvent, JsonNode data) {
-    return io.cloudevents.core.builder.CloudEventBuilder.v1(cloudEvent)
-        .withDataContentType("application/json")
-        .withData(JsonCloudEventData.wrap(data))
-        .build();
-  }
-
 }

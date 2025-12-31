@@ -17,15 +17,6 @@ public class PayloadException extends RuntimeException {
     super(message);
   }
 
-  public static PayloadException payloadNotFound() {
-    return new PayloadException("""
-        Payload definition not found.
-
-        Make sure that:
-         * there is an optional third parameter that points to the file containing the payload,
-         * or there is at least one Payload Defining Option (-s/-b/-j)""");
-  }
-
   public static PayloadException jsonParseException(JsonParseException exception, String payload) {
     return new PayloadException("""
         Payload could not be parsed.

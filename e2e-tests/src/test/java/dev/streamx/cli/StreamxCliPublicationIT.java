@@ -9,8 +9,12 @@ import dev.streamx.cli.test.tools.validators.ProcessOutputValidator;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,7 +27,7 @@ public class StreamxCliPublicationIT {
 
   private static final Duration CLI_TIMEOUT = Duration.ofSeconds(10);
   @ConfigProperty(name = "streamx.cli.e2e.web.delivery.url", defaultValue = "http://localhost:8087/")
-  String webDeliveryPortUrl;
+  String webDeliveryUrl;
 
   @ConfigProperty(name = "streamx.cli.e2e.setup.timeoutInSec", defaultValue = "60")
   int setupTimeoutInSec;
@@ -48,7 +52,7 @@ public class StreamxCliPublicationIT {
 
   private void runStreamxCommand(String command, String expectedOutput, Duration timeout) {
     ShellProcess p = terminalCommandRunner.run(command);
-    processOutputValidator.validate(p.getCurrentOutputLines(), expectedOutput, timeout);
+    processOutputValidator.validate(p, p.getCurrentOutputLines(), expectedOutput, timeout);
   }
 
   private void runStreamxIngestionCommand(String commandName, String path, String expectedOutput) {
@@ -64,7 +68,7 @@ public class StreamxCliPublicationIT {
         "Sent com.streamx.blueprints.page.published.v1 event using stream with key 'hello.html'"
     );
 
-    validateStreamxPage("hello.html", 200, "<b>Hello World!</b>");
+    validateStreamxPage("hello.html", "<b>Hello World!</b>");
 
     runStreamxIngestionCommand(
         "stream_v2",
@@ -72,31 +76,61 @@ public class StreamxCliPublicationIT {
         "Sent com.streamx.blueprints.page.unpublished.v1 event using stream with key 'hello.html'"
     );
 
-    validateStreamxPage("hello.html", 404, "");
+    validateStreamxPageNotAvailable("hello.html");
   }
 
   @Test
   public void shouldPublishAndUnpublishPageUsingBatchOperation() {
     runStreamxIngestionCommand(
         "batch_v2",
-        "src/test/resources/batch/publish",
+        "src/test/resources/batch/publish/page",
         "Sent com.streamx.blueprints.page.published.v1 event using batch with key 'index.html'"
     );
 
-    validateStreamxPage("index.html", 200, "<h1>Hello World!</h1>");
+    validateStreamxPage("index.html", "<h1>Hello World!</h1>");
 
     runStreamxIngestionCommand(
         "batch_v2",
-        "src/test/resources/batch/unpublish",
+        "src/test/resources/batch/unpublish/page",
         "Sent com.streamx.blueprints.page.unpublished.v1 event using batch with key 'index.html'"
     );
 
-    validateStreamxPage("index.html", 404, "");
+    validateStreamxPageNotAvailable("index.html");
   }
 
-  private void validateStreamxPage(String resourcePath, int expectedStatusCode,
-      String expectedBody) {
-    String url = webDeliveryPortUrl + resourcePath;
-    httpValidator.validate(url, expectedStatusCode, expectedBody, CLI_TIMEOUT);
+  @Test
+  public void shouldPublishAndUnpublishAssetUsingBatchOperation() throws IOException {
+    runStreamxIngestionCommand(
+        "batch_v2",
+        "src/test/resources/batch/publish/asset",
+        "Sent com.streamx.blueprints.asset.published.v1 event using batch with key 'ds.png'"
+    );
+
+    validateStreamxPage("ds.png",
+        Files.readAllBytes(Path.of("src/test/resources/batch/publish/asset/ds.png")));
+
+    runStreamxIngestionCommand(
+        "batch_v2",
+        "src/test/resources/batch/unpublish/asset",
+        "Sent com.streamx.blueprints.asset.unpublished.v1 event using batch with key 'ds.png'"
+    );
+
+    validateStreamxPageNotAvailable("ds.png");
+  }
+
+  private void validateStreamxPage(String resourcePath, String expectedBody) {
+    httpValidator.validate(url(resourcePath), 200, expectedBody, CLI_TIMEOUT);
+  }
+
+  private void validateStreamxPage(String resourcePath, byte[] expectedBody) {
+    httpValidator.validate(url(resourcePath), 200, expectedBody, CLI_TIMEOUT);
+  }
+
+  private void validateStreamxPageNotAvailable(String resourcePath) {
+    httpValidator.validate(url(resourcePath), 404, "", CLI_TIMEOUT);
+  }
+
+  private String url(String resourcePath) {
+    return webDeliveryUrl + resourcePath;
   }
 }

@@ -1,7 +1,6 @@
 package dev.streamx.cli.license.input;
 
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -50,6 +49,6 @@ class StdInLineReadStrategyTest {
   }
 
   private static void givenStdIn(String source) {
-    System.setIn(new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8)));
+    System.setIn(new ByteArrayInputStream(source.getBytes()));
   }
 }

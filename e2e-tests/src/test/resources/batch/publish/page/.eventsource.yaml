@@ -5,7 +5,5 @@ relativePathLevel: 0
 key: ${relativePath}
 
 payload:
-  content:
-    bytes: file://${payloadPath}
+  content: file://${payloadPath}
   type: page/index-page
-

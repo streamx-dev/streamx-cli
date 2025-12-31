@@ -1,15 +1,15 @@
 package dev.streamx.cli.command.ingestion.batch.resolver.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
 import dev.streamx.cli.exception.PayloadException;
-import dev.streamx.cli.util.FileSourceUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 @ApplicationScoped
 public class BinaryResolverStep implements ResolverStep {
 
-  private static final ObjectMapper BINARY_SERIALIZATION_OBJECT_MAPPER = new ObjectMapper();
+  private static final String FILE_STRATEGY_PREFIX = "file://";
 
   @Override
   public JsonNode resolve(JsonNode payload, Map<String, String> variables) {
@@ -31,8 +31,9 @@ public class BinaryResolverStep implements ResolverStep {
   private JsonNode evaluateBinary(JsonNode evaluatedPayload) {
     if (evaluatedPayload.isTextual()) {
       String text = evaluatedPayload.textValue();
-      if (FileSourceUtils.applies(text)) {
-        return toJsonNode(FileSourceUtils.resolve(text));
+      if (isFileReference(text)) {
+        byte[] content = readFileContent(text);
+        return new BinaryNode(content);
       } else {
         return evaluatedPayload;
       }
@@ -55,18 +56,20 @@ public class BinaryResolverStep implements ResolverStep {
     }
   }
 
-  /**
-   * Converts binary data into a JSON node by writing it as an ISO_8859_1 string.
-   */
-  private static JsonNode toJsonNode(byte[] datum) {
-    if (datum == null) {
-      return null;
-    }
-    try (var generator = new TokenBuffer(BINARY_SERIALIZATION_OBJECT_MAPPER, false)) {
-      generator.writeString(new String(datum, StandardCharsets.ISO_8859_1));
-      return BINARY_SERIALIZATION_OBJECT_MAPPER.readTree(generator.asParser());
+  public static boolean isFileReference(String rawSource) {
+    return rawSource != null && rawSource.startsWith(FILE_STRATEGY_PREFIX);
+  }
+
+  public static byte[] readFileContent(String rawSource) {
+    String sourceFile = rawSource.substring(FILE_STRATEGY_PREFIX.length());
+    Path path = Path.of(sourceFile);
+    try {
+      return Files.readAllBytes(path);
+    } catch (NoSuchFileException e) {
+      throw PayloadException.noSuchFileException(e, path);
     } catch (IOException e) {
-      throw PayloadException.ioException(e);
+      throw PayloadException.fileReadingException(e, path);
     }
   }
+
 }

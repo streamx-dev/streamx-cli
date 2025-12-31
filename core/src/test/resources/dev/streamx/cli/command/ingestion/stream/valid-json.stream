@@ -7,9 +7,7 @@
   "subject" : "homepage.html",
   "time" : "2025-12-23T10:28:23.435253Z",
   "data" : {
-    "content" : {
-      "bytes" : "<h1>This is Home Page!</h1>"
-    },
+    "content" : "<h1>This is Home Page!</h1>",
     "type" : "page/content"
   }
 }

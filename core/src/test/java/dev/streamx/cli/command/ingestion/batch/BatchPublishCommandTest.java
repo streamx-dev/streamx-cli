@@ -2,7 +2,6 @@ package dev.streamx.cli.command.ingestion.batch;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.matching.ContainsPattern;
 import dev.streamx.cli.command.ingestion.AuthorizedProfile;
@@ -12,6 +11,9 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainLauncher;
 import io.quarkus.test.junit.main.QuarkusMainTest;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.jose4j.base64url.Base64;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,11 +49,11 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
     }
 
     @Test
-    public void shouldBatchPublishValidDirectory(QuarkusMainLauncher launcher) {
+    public void shouldBatchPublishValidDirectoryWithPage(QuarkusMainLauncher launcher) {
       // when
       LaunchResult result = launcher.launch(
           BatchCommand.COMMAND_NAME, "--ingestion-url=" + getIngestionUrl(),
-          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish"
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish/page"
       );
 
       // then
@@ -64,14 +66,47 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
                 "source" : "source",
                 "type" : "page_publish",
                 "datacontenttype" : "application/json",
-                "subject" : "publish/index.html",
+                "subject" : "page/index.html",
                 "time" : "2025-12-23T10:28:23.435253Z",
                 "data" : {
                   "content" : "%s",
                   "type" : "page/sub-page"
                 }
               }
-              """.formatted(Base64.encode("<h1>Hello World!</h1>".getBytes(UTF_8)))))
+              """.formatted(Base64.encode("<h1>Hello World!</h1>".getBytes()))))
+          .withoutHeader("Authorization"));
+      wm.verify(1, postRequestedFor(urlEqualTo(PUBLICATION_PATH)));
+    }
+
+    @Test
+    public void shouldBatchPublishValidDirectoryWithImage(QuarkusMainLauncher launcher)
+        throws IOException {
+      // when
+      LaunchResult result = launcher.launch(
+          BatchCommand.COMMAND_NAME, "--ingestion-url=" + getIngestionUrl(),
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish/image"
+      );
+
+      // then
+      expectSuccess(result);
+      wm.verify(postRequestedFor(urlEqualTo(PUBLICATION_PATH))
+          .withRequestBody(new CloudEventJsonMatcher("""
+              {
+                "specversion" : "1.0",
+                "id" : "75a90fb7-327e-4bee-96a1-3e4224a1e71d",
+                "source" : "source",
+                "type" : "image_publish",
+                "datacontenttype" : "application/json",
+                "subject" : "image/ds.png",
+                "time" : "2025-12-23T10:28:23.435253Z",
+                "data" : {
+                  "content" : "%s",
+                  "type" : "assets/image"
+                }
+              }
+              """.formatted(Base64.encode(Files.readAllBytes(Path.of(
+                  "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/"
+                  + "publish/image/ds.png"))))))
           .withoutHeader("Authorization"));
       wm.verify(1, postRequestedFor(urlEqualTo(PUBLICATION_PATH)));
     }
@@ -119,12 +154,12 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
       LaunchResult result = launcher.launch(
           BatchCommand.COMMAND_NAME,
           "--ingestion-url=" + ingestionServiceUrl,
-          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish");
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish/page");
 
       // then
       expectError(result,
           "Error performing batch publication while processing 'target/test-classes/"
-          + "dev/streamx/cli/command/ingestion/batch/valid/publish/index.html' file.\n"
+          + "dev/streamx/cli/command/ingestion/batch/valid/publish/page/index.html' file.\n"
           + "\n"
           + "Details:\n"
           + "Ingestion REST error: unknown host\n"
@@ -144,7 +179,7 @@ public class BatchPublishCommandTest extends BaseIngestionCommandTest {
       // when
       LaunchResult result = launcher.launch(BatchCommand.COMMAND_NAME,
           "--ingestion-url=" + getIngestionUrl(),
-          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish");
+          "target/test-classes/dev/streamx/cli/command/ingestion/batch/valid/publish/page");
 
       // then
       expectSuccess(result);

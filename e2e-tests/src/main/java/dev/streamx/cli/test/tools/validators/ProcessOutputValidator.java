@@ -1,8 +1,10 @@
 package dev.streamx.cli.test.tools.validators;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
+import dev.streamx.cli.test.tools.terminal.process.ShellProcess;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Duration;
 import java.util.List;
@@ -21,15 +23,19 @@ public class ProcessOutputValidator {
           + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-  public void validate(List<String> output, String expectedContent, Duration timeout) {
+  public void validate(ShellProcess process, List<String> output, String expectedContent,
+      Duration timeout) {
     try {
       await()
           .atMost(timeout)
           .pollInterval(100, MILLISECONDS)
           .alias("Finding expectedContent: " + expectedContent)
-          .until(() ->
-              output
-                  .stream()
+          .untilAsserted(() ->
+              assertThat(output)
+                  .describedAs(() -> "Full output is:\n"
+                                     + String.join("\n", process.getCurrentOutputLines())
+                                     + "\n"
+                                     + String.join("\n", process.getCurrentErrorLines()))
                   .anyMatch(line -> line.contains(expectedContent))
           );
     } catch (ConditionTimeoutException e) {
@@ -43,10 +49,8 @@ public class ProcessOutputValidator {
         .atMost(timeout)
         .pollInterval(100, MILLISECONDS)
         .alias("Finding any url")
-        .until(() ->
-            output
-                .stream()
-                .anyMatch(line -> urlPattern.matcher(line).find())
+        .untilAsserted(() ->
+            assertThat(output).anyMatch(line -> urlPattern.matcher(line).find())
         );
 
     return output.stream()

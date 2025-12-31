@@ -29,6 +29,10 @@ sources:
         produces:
           - "com.streamx.blueprints.page.published.v1"
           - "com.streamx.blueprints.page.unpublished.v1"
+      - ref: "inbox.assets"
+        produces:
+          - "com.streamx.blueprints.asset.published.v1"
+          - "com.streamx.blueprints.asset.unpublished.v1"
 
 ingestion:
   rest-ingestion:
@@ -49,6 +53,17 @@ processing:
           relayed-events:
             ref: outbox.pages
 
+  assets-relay:
+    descriptor: relay
+    containers:
+      service:
+        incoming:
+          events:
+            ref: inbox.assets
+        outgoing:
+          relayed-events:
+            ref: outbox.assets
+
 edge:
   web-server-sink:
     descriptor: web-server-sink
@@ -56,6 +71,6 @@ edge:
       sink:
         incoming:
           resources:
-            ref: outbox.pages
+            ref: outbox.pages,outbox.assets
         environment:
           STREAMX_BLUEPRINTS_WEB_SERVER_SINK_STORAGE_ROOT_DIRECTORY: "/srv/www"
