@@ -7,7 +7,6 @@ import com.streamx.clients.ingestion.exceptions.StreamxClientException;
 import com.streamx.clients.ingestion.publisher.Publisher;
 import dev.streamx.cli.VersionProvider;
 import dev.streamx.cli.command.ingestion.BaseIngestionCommand;
-import dev.streamx.cli.command.ingestion.CloudEventBuilder;
 import dev.streamx.cli.command.ingestion.batch.exception.EventSourceDescriptorException;
 import dev.streamx.cli.command.ingestion.batch.exception.FileIngestionException;
 import dev.streamx.cli.command.ingestion.batch.resolver.BatchPayloadResolver;

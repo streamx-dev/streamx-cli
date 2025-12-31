@@ -6,10 +6,12 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.streamx.clients.ingestion.StreamxClient.INGESTION_ENDPOINT_PATH_V2;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.streamx.ce.serialization.json.CloudEventJsonSerializer;
+import dev.streamx.cli.command.ingestion.batch.CloudEventBuilder;
 import io.cloudevents.CloudEvent;
 import io.quarkus.test.junit.main.LaunchResult;
 import org.apache.hc.core5.http.HttpStatus;
@@ -33,7 +35,7 @@ public abstract class BaseIngestionCommandTest {
 
   private void initializeWiremock() {
     setupMockPublicationResponse(
-        CloudEventBuilder.build("index.html", "some-event-type", "source", "mock-response")
+        CloudEventBuilder.build("index.html", "some-event-type", "source", new TextNode("mock-response"))
     );
   }
 

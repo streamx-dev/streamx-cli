@@ -1,7 +1,6 @@
-package dev.streamx.cli.command.ingestion;
+package dev.streamx.cli.command.ingestion.batch;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.jackson.JsonCloudEventData;
@@ -12,15 +11,8 @@ import java.util.UUID;
 
 public class CloudEventBuilder {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
-
   private CloudEventBuilder() {
     // no instance
-  }
-
-  public static CloudEvent build(String subject, String type, String source, Object data) {
-    JsonNode dataNode = objectMapper.valueToTree(data);
-    return build(subject, type, source, dataNode);
   }
 
   public static CloudEvent build(String subject, String type, String source, JsonNode data) {
