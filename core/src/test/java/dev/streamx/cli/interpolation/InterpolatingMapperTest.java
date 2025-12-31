@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.shaded.org.bouncycastle.oer.its.etsi102941.Url;
 
 @QuarkusTest
 public class InterpolatingMapperTest {
@@ -114,7 +113,7 @@ public class InterpolatingMapperTest {
     assertEquals("interpolatedValue", result.getString());
     assertEquals(-1, result.getLongField());
     assertEquals(-1, result.getInteger());
-    assertEquals("http://interpolatedValue", result.getUrl().getUrl());
+    assertEquals("http://interpolatedValue", result.getUrl());
   }
 
 
@@ -124,7 +123,7 @@ public class InterpolatingMapperTest {
     private String string;
     private Integer integer;
     private Long longField;
-    private Url url;
+    private String url;
 
     public boolean isBool() {
       return bool;
@@ -158,11 +157,11 @@ public class InterpolatingMapperTest {
       this.longField = longField;
     }
 
-    public Url getUrl() {
+    public String getUrl() {
       return url;
     }
 
-    public void setUrl(Url url) {
+    public void setUrl(String url) {
       this.url = url;
     }
   }
