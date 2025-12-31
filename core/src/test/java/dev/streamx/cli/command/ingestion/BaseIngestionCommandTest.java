@@ -35,7 +35,8 @@ public abstract class BaseIngestionCommandTest {
 
   private void initializeWiremock() {
     setupMockPublicationResponse(
-        CloudEventBuilder.build("index.html", "some-event-type", "source", new TextNode("mock-response"))
+        CloudEventBuilder.build(
+            "index.html", "some-event-type", "source", new TextNode("mock-response"))
     );
   }
 

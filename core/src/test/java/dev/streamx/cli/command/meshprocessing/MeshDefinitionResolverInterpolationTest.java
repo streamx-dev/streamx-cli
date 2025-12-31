@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 class MeshDefinitionResolverInterpolationTest {
 
-  private static final String TEST_MESH_LOCATION = "src/test/resources/mesh-interpolated.yaml";
+  private static final String TEST_MESH_LOCATION = "src/test/resources/filtered/mesh-interpolated.yaml";
   private static final Path TEST_MESH_PATH = Path.of(TEST_MESH_LOCATION);
 
   @Inject
