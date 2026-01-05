@@ -8,7 +8,7 @@ on:
 
 permissions:
   id-token: write
-  contents: write
+  contents: read
 
 jobs:
   linux-test-build:
@@ -33,28 +33,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Configure Git
-        run: |
-          git config --global user.email "github.actions@streamx.dev"
-          git config --global user.name "${GITHUB_ACTOR}"
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_SECRET_KEY }}" > ~/.ssh/id_rsa
-          chmod 0600 ~/.ssh/id_rsa
-
       - name: Build project
         run: |
           ./mvnw clean verify -P all-tests
-
-      - name: Preview release prepare
-        run: ./mvnw -B clean install -DskipTests -P preview
-
-      - name: Preview release perform
-        env:
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.JRELEASER_PREVIEW_GITHUB_TOKEN }}
-          JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.JRELEASER_HOMEBREW_PREVIEW_GITHUB_TOKEN }}
-          JRELEASER_SCOOP_GITHUB_TOKEN: ${{ secrets.JRELEASER_SCOOP_PREVIEW_GITHUB_TOKEN }}
-        run: |
-          ./mvnw -pl distribution jreleaser:assemble jreleaser:full-release -P preview
 
   windows-test-build:
     runs-on: windows-latest

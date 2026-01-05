@@ -28,7 +28,7 @@ release:
     owner: streamx-dev
     name: streamx-cli-preview
     tagName: "${git.commit.id.describe}"
-    branch: DXP-2486-add-run-stream-and-batch-commands-for-streamx-2.0
+    branch: main
     overwrite: false
     update:
       enabled: true
