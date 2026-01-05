@@ -8,7 +8,6 @@ on:
 
 permissions:
   id-token: write
-  # TODO restore to "contents: read" after removing the release steps
   contents: write
 
 jobs:
@@ -34,11 +33,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build project
-        run: |
-          ./mvnw clean verify -P all-tests
-
-# TODO remove the release preview section
       - name: Configure Git
         run: |
           git config --global user.email "github.actions@streamx.dev"
@@ -46,6 +40,10 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.SSH_SECRET_KEY }}" > ~/.ssh/id_rsa
           chmod 0600 ~/.ssh/id_rsa
+
+      - name: Build project
+        run: |
+          ./mvnw clean verify -P all-tests
 
       - name: Preview release prepare
         run: ./mvnw -B clean install -DskipTests -P preview
@@ -57,7 +55,6 @@ jobs:
           JRELEASER_SCOOP_GITHUB_TOKEN: ${{ secrets.JRELEASER_SCOOP_PREVIEW_GITHUB_TOKEN }}
         run: |
           ./mvnw -pl distribution jreleaser:assemble jreleaser:full-release -P preview
-# TODO end
 
   windows-test-build:
     runs-on: windows-latest
