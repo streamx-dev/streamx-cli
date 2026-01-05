@@ -19,8 +19,6 @@ descriptors:
           resources: {}
         servicePorts:
           - "8087:8080"
-        volumes:
-          - "repository-volume:/srv/www"
 
 sources:
   cli:
@@ -57,5 +55,3 @@ edge:
         incoming:
           resources:
             ref: outbox.pages
-        environment:
-          STREAMX_BLUEPRINTS_WEB_SERVER_SINK_STORAGE_ROOT_DIRECTORY: "/srv/www"
