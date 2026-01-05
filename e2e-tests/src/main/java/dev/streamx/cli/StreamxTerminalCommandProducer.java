@@ -1,6 +1,7 @@
 package dev.streamx.cli;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -39,7 +40,10 @@ public class StreamxTerminalCommandProducer {
         .filter(File::exists)
         .map(File::listFiles)
         .flatMap(Stream::of)
-        .map(File::getAbsolutePath)
+        .map(File::toPath)
+        .map(Path::toAbsolutePath)
+        .map(Path::normalize)
+        .map(Path::toString)
         .filter(p -> pattern.matcher(p.replace("\\", "/")).matches())
         .findFirst()
         .orElseThrow(() -> new RuntimeException("Could not find streamx Jar"));

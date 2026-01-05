@@ -25,7 +25,6 @@ public class OsTerminalCommandRunner implements TerminalCommandRunner {
   }
 
   public ShellProcess run(String command) {
-    logger.info("Running terminal command: " + command);
     ProcessBuilder processBuilder = osCommand.create(command);
     try {
       ShellProcess shellProcess = ShellProcess.run(processBuilder);
@@ -33,6 +32,7 @@ public class OsTerminalCommandRunner implements TerminalCommandRunner {
       processes.add(shellProcess);
       return shellProcess;
     } catch (IOException e) {
+      logger.info("Error running terminal command: " + command);
       throw new RuntimeException(e);
     }
   }
