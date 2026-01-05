@@ -1,7 +1,6 @@
 package dev.streamx.cli;
 
 import static dev.streamx.cli.test.tools.ResourcePathResolver.absolutePath;
-import static org.assertj.core.api.Assertions.fail;
 
 import dev.streamx.cli.test.tools.terminal.TerminalCommandRunner;
 import dev.streamx.cli.test.tools.terminal.process.ShellProcess;
@@ -11,14 +10,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -72,19 +67,7 @@ public class StreamxCliPublicationIT {
         "Sent com.streamx.blueprints.page.published.v1 event using stream with key 'hello.html'"
     );
 
-    // TODO remove the catch
-    try {
-      validateStreamxPage("hello.html", "<b>Hello World!</b>");
-    } catch (Throwable t) {
-      String dockerPsOutput = readProcessOutput("docker ps");
-      String containerLine = dockerPsOutput.lines()
-          .filter(line -> line.contains("web-server-sink"))
-          .findFirst().orElseThrow();
-      String containerId = StringUtils.substringBefore(containerLine, " ");
-      String logs = readProcessOutput("docker logs " + containerId);
-      Logger log = Logger.getLogger(StreamxCliPublicationIT.class);
-      log.info("\n---- DOCKER CONTAINER LOGS ---\n" + logs);
-    }
+    validateStreamxPage("hello.html", "<b>Hello World!</b>");
 
     runStreamxIngestionCommand(
         "stream_v2",
@@ -93,18 +76,6 @@ public class StreamxCliPublicationIT {
     );
 
     validateStreamxPageNotAvailable("hello.html");
-  }
-
-  private static String readProcessOutput(String command) {
-    String[] words = command.split(" ");
-    ProcessBuilder builder = new ProcessBuilder(words);
-    builder.redirectErrorStream(true);  // merge STDOUT + STDERR
-    try {
-      Process process = builder.start();
-      return IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-    } catch (IOException ex) {
-      return fail("Error reading output of command", ex);
-    }
   }
 
   @Test

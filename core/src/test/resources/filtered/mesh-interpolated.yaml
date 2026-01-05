@@ -10,8 +10,6 @@ descriptors:
 
   web-server-sink:
     type: "edge"
-    volumes:
-      repository-volume: {}
     containers:
       sink:
         image: "${config.image.interpolated}"
