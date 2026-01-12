@@ -15,21 +15,21 @@ class StreamProperties {
 
   private static final Logger logger = Logger.getLogger(StreamProperties.class);
   private static final String PROPERTIES_FILE_NAME = ".stream.properties";
-  private static final String BASE64_PATHS_PROPERTY_NAME = "json.paths.to.encode.to.base64";
+  private static final String JSON_FIELDS_AS_BASE64 = "json.fields.as-base64";
 
   private StreamProperties() {
     // no instances
   }
 
-  public static List<String> getJsonPathsToEncodeToBase64(Path streamFile) {
+  public static List<String> getJsonFieldsToEncodeToBase64(Path streamFile) {
     Path propertiesFile = streamFile.resolveSibling(PROPERTIES_FILE_NAME);
     if (Files.exists(propertiesFile)) {
       try (InputStream fileStream = Files.newInputStream(propertiesFile)) {
         Properties properties = new Properties();
         properties.load(fileStream);
-        String paths = properties.getProperty(BASE64_PATHS_PROPERTY_NAME);
-        if (StringUtils.isNotBlank(paths)) {
-          return Arrays.stream(paths.split(","))
+        String fields = properties.getProperty(JSON_FIELDS_AS_BASE64);
+        if (StringUtils.isNotBlank(fields)) {
+          return Arrays.stream(fields.split(","))
               .map(String::trim)
               .filter(StringUtils::isNotEmpty)
               .toList();

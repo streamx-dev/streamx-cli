@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.Base64;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class JsonBase64Encoder {
 
@@ -12,16 +13,17 @@ public class JsonBase64Encoder {
     // no instances
   }
 
-  public static void encodeFields(JsonNode root, List<String> jsonPaths) {
-    for (String jsonPath : jsonPaths) {
-      JsonNode node = root.at(jsonPath);
+  public static void encodeFields(JsonNode root, List<String> fieldPaths) {
+    for (String fieldPath : fieldPaths) {
+      fieldPath = StringUtils.prependIfMissing(fieldPath, "/");
+      JsonNode node = root.at(fieldPath);
 
       if (node.isMissingNode() || !node.isTextual()) {
         continue;
       }
 
       TextNode encodedTextNode = createTextNodeWithEncodedContent(node);
-      replaceNode(root, jsonPath, encodedTextNode);
+      replaceNode(root, fieldPath, encodedTextNode);
     }
   }
 
@@ -30,12 +32,11 @@ public class JsonBase64Encoder {
     return TextNode.valueOf(encodedText);
   }
 
-  private static void replaceNode(JsonNode root, String jsonPath, JsonNode newValue) {
-    int lastSlash = jsonPath.lastIndexOf('/');
-    String parentNodePath = jsonPath.substring(0, lastSlash);
-    String fieldName = jsonPath.substring(lastSlash + 1);
+  private static void replaceNode(JsonNode root, String fieldPath, JsonNode newValue) {
+    String parentPath = StringUtils.substringBeforeLast(fieldPath, "/");
+    String fieldName = StringUtils.substringAfterLast(fieldPath, "/");
 
-    JsonNode parentNode = root.at(parentNodePath);
+    JsonNode parentNode = root.at(parentPath);
     if (parentNode instanceof ObjectNode obj) {
       obj.set(fieldName, newValue);
     }

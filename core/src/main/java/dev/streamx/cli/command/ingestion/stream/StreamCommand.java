@@ -47,13 +47,13 @@ public class StreamCommand extends BaseIngestionCommand {
   @Override
   protected void perform(Publisher publisher) throws StreamxClientException {
     Path streamFile = Paths.get(streamIngestionArguments.getSourceFile());
-    List<String> jsonPathsToEncodeToBase64 = StreamProperties
-        .getJsonPathsToEncodeToBase64(streamFile);
+    List<String> jsonFieldsToEncodeToBase64 = StreamProperties
+        .getJsonFieldsToEncodeToBase64(streamFile);
 
     try (FileInputStream fis = new FileInputStream(streamFile.toFile())) {
 
       ingestionJsonParser.parse(fis, cloudEventNode -> {
-        JsonBase64Encoder.encodeFields(cloudEventNode, jsonPathsToEncodeToBase64);
+        JsonBase64Encoder.encodeFields(cloudEventNode, jsonFieldsToEncodeToBase64);
         CloudEvent inputEvent = toCloudEvent(cloudEventNode);
         CloudEvent responseEvent = publisher.send(inputEvent);
         printf("Sent %s event using stream with key '%s' at %s%n",
