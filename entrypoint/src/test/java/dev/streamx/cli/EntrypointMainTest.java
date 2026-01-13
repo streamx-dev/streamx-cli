@@ -31,32 +31,6 @@ public class EntrypointMainTest {
     Assertions.assertTrue(StreamxCommand.isLaunched());
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {
-      "1.8.0_211",
-      "9.0.1",
-      "11.0.4",
-      "12",
-      "12.0.1"
-  })
-  void shouldFailTooLowJavaVersions(String javaVersion) {
-    // given
-    System.clearProperty("java.version");
-    System.setProperty("java.version", javaVersion);
-
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(byteArrayOutputStream));
-
-    // when
-    EntrypointMain.main(new String[] {});
-
-    // then
-    Assertions.assertFalse(StreamxCommand.isLaunched());
-    Assertions.assertTrue(
-        byteArrayOutputStream.toString().contains("Java 17 or higher is required!")
-    );
-  }
-
   @Test
   void shouldOverrideProdFileLogName() throws IOException {
     // given

@@ -12,28 +12,8 @@ public class EntrypointMain {
   private static final String STREAMX_LOG_FILE_NAME_PATTERN = "%s/.streamx/logs/streamx-%s.log";
 
   public static void main(String[] args) {
-    int javaVersion = getJavaVersion();
-
-    if (javaVersion < 17) {
-      System.out.println("Java 17 or higher is required!");
-      return;
-    }
-
     overrideLogFileName();
     runStreamxCommand(args);
-  }
-
-  private static int getJavaVersion() {
-    String version = System.getProperty("java.version");
-    if (version.startsWith("1.")) {
-      version = version.substring(2, 3);
-    } else {
-      int dot = version.indexOf(".");
-      if (dot != -1) {
-        version = version.substring(0, dot);
-      }
-    }
-    return Integer.parseInt(version);
   }
 
   private static void overrideLogFileName() {
