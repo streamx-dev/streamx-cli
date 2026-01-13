@@ -1,10 +1,10 @@
 package dev.streamx.cli.config.validation;
 
+import com.google.common.collect.HashMultimap;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 import org.jetbrains.annotations.NotNull;
-import org.testcontainers.shaded.com.google.common.collect.HashMultimap;
 
 @ApplicationScoped
 class ConfigSourcesHelper {

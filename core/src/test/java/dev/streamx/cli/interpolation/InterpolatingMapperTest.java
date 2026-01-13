@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import java.util.Set;
+import org.bouncycastle.oer.its.etsi102941.Url;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.shaded.org.bouncycastle.oer.its.etsi102941.Url;
 
 @QuarkusTest
 public class InterpolatingMapperTest {

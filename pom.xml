@@ -77,11 +77,6 @@
 
       <dependency>
         <groupId>dev.streamx</groupId>
-        <artifactId>streamx-runner</artifactId>
-        <version>${streamx.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>dev.streamx</groupId>
         <artifactId>ingestion-client</artifactId>
         <version>${ingestion-client.version}</version>
       </dependency>

@@ -1,5 +1,6 @@
 package dev.streamx.cli.config.validation;
 
+import com.google.common.collect.HashMultimap;
 import dev.streamx.cli.exception.PropertiesException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -7,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 import org.jetbrains.annotations.NotNull;
-import org.testcontainers.shaded.com.google.common.collect.HashMultimap;
 
 @ApplicationScoped
 public class ConfigSourcesValidator {
