@@ -12,49 +12,6 @@ public class StreamxCommandTest {
   private static final String STREAMX_LOG_REGEX =
       ".*/\\.streamx/logs/streamx-" + TIMESTAMP_REGEX + "\\.log";
 
-<<<<<<< HEAD:entrypoint/src/test/java/dev/streamx/cli/EntrypointMainTest.java
-  @BeforeEach
-  void setup() {
-    StreamxCommand.clearLaunched();
-  }
-
-  @Test
-  void shouldLaunchStreamxCommand() {
-    // when
-    EntrypointMain.main(new String[] {});
-
-    // then
-    Assertions.assertTrue(StreamxCommand.isLaunched());
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-      "1.8.0_211",
-      "9.0.1",
-      "11.0.4",
-      "12",
-      "12.0.1"
-  })
-  void shouldFailTooLowJavaVersions(String javaVersion) {
-    // given
-    System.clearProperty("java.version");
-    System.setProperty("java.version", javaVersion);
-
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(byteArrayOutputStream));
-
-    // when
-    EntrypointMain.main(new String[] {});
-
-    // then
-    Assertions.assertFalse(StreamxCommand.isLaunched());
-    Assertions.assertTrue(
-        byteArrayOutputStream.toString().contains("Java 17 or higher is required!")
-    );
-  }
-
-=======
->>>>>>> d870d23 ([DXP-2558] Remove Java wrapper):core/src/test/java/dev/streamx/cli/StreamxCommandTest.java
   @Test
   void shouldOverrideProdFileLogName() throws IOException {
     // given
