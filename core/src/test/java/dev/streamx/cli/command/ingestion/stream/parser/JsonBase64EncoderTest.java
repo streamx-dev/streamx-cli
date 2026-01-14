@@ -16,10 +16,10 @@ class JsonBase64EncoderTest {
   private static final ObjectMapper objectMapper = new ObjectMapper();
   public static final String INITIAL_JSON = """
       {
-        "foo" : {
-          "bar" : "foobar"
+        "foo": {
+          "bar": "foobar"
         },
-        "foo2" : "bar2"
+        "foo2": "bar2"
       }""";
 
   static Stream<Arguments> testArguments() {
@@ -72,7 +72,8 @@ class JsonBase64EncoderTest {
     JsonBase64Encoder.encodeFields(jsonNode, List.of(jsonFieldsAsBase64));
 
     // then
-    assertThat(jsonNode.toPrettyString()).isEqualTo(expectedResultJson);
+    JsonNode expectedNode = objectMapper.readTree(expectedResultJson);
+    assertThat(jsonNode.toPrettyString()).isEqualTo(expectedNode.toPrettyString());
   }
 
 }
