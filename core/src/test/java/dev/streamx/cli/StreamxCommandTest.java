@@ -1,22 +1,18 @@
 package dev.streamx.cli;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
-public class EntrypointMainTest {
+public class StreamxCommandTest {
 
   public static final String TIMESTAMP_REGEX =
       "[0-9]{4}_[0-9]{2}_[0-9]{2}__[0-9]{2}_[0-9]{2}_[0-9]{2}_[0-9]{3}";
   private static final String STREAMX_LOG_REGEX =
       ".*/\\.streamx/logs/streamx-" + TIMESTAMP_REGEX + "\\.log";
 
+<<<<<<< HEAD:entrypoint/src/test/java/dev/streamx/cli/EntrypointMainTest.java
   @BeforeEach
   void setup() {
     StreamxCommand.clearLaunched();
@@ -57,6 +53,8 @@ public class EntrypointMainTest {
     );
   }
 
+=======
+>>>>>>> d870d23 ([DXP-2558] Remove Java wrapper):core/src/test/java/dev/streamx/cli/StreamxCommandTest.java
   @Test
   void shouldOverrideProdFileLogName() throws IOException {
     // given
@@ -65,7 +63,7 @@ public class EntrypointMainTest {
     System.setProperty("user.home", userHome);
 
     // when
-    EntrypointMain.main(new String[] {});
+    StreamxCommand.main(new String[] {});
 
     // then
     String fileName = System.getProperty("%prod.quarkus.log.file.path");
@@ -79,7 +77,7 @@ public class EntrypointMainTest {
     System.setProperty("%prod.quarkus.log.file.path", ".streamx.log");
 
     // when
-    EntrypointMain.main(new String[] {});
+    StreamxCommand.main(new String[] {});
 
     // then
     String fileName = System.getProperty("%prod.quarkus.log.file.path");

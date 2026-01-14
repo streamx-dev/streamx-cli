@@ -18,6 +18,8 @@ import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.jetbrains.annotations.Nullable;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
@@ -39,6 +41,10 @@ import picocli.CommandLine.ParseResult;
     },
     versionProvider = VersionProvider.class)
 public class StreamxCommand implements QuarkusApplication {
+  private static final SimpleDateFormat DATE_FORMAT =
+          new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss_SSS");
+  private static final String LOG_FILE_PATH_PROPERTY_NAME = "%prod.quarkus.log.file.path";
+  private static final String STREAMX_LOG_FILE_NAME_PATTERN = "%s/.streamx/logs/streamx-%s.log";
 
   @Inject
   CommandLine.IFactory factory;
@@ -66,6 +72,8 @@ public class StreamxCommand implements QuarkusApplication {
 
   public static void main(String... args) {
     initializeArgumentConfigSource(args);
+
+    overrideLogFileName();
 
     Quarkus.run(StreamxCommand.class, args);
   }
@@ -119,6 +127,18 @@ public class StreamxCommand implements QuarkusApplication {
       executionExceptionHandler.handleExecutionException(e, commandLine, parseResult);
       return 1;
     }
+  }
+
+  private static void overrideLogFileName() {
+    if (System.getProperty(LOG_FILE_PATH_PROPERTY_NAME) != null) {
+      return;
+    }
+
+    String userHome = System.getProperty("user.home");
+    String date = DATE_FORMAT.format(new Date());
+    String streamxLogPath = String.format(STREAMX_LOG_FILE_NAME_PATTERN, userHome, date);
+
+    System.setProperty(LOG_FILE_PATH_PROPERTY_NAME, streamxLogPath);
   }
 
   private void init() {
