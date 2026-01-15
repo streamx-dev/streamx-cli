@@ -18,19 +18,17 @@ public class Main implements Runnable {
   CommandLine.Model.CommandSpec commandSpec;
 
   @CommandLine.Option(
-    names = {"--log-level"},
-    description = "Set logging level (TRACE, DEBUG, INFO, WARN, ERROR)",
-    defaultValue = "INFO"
+    names = {"-v", "--verbose"},
+    description = "Print debug information"
   )
-  private String logLevel;
-
-  private void setLogLevel(String level) {
-    System.setProperty("quarkus.log.level", level);
-  }
+  private Boolean verbose = false;
 
   @Override
   public void run() {
-    setLogLevel(logLevel);
+    if (verbose) {
+      System.setProperty("quarkus.log.level", "DEBUG");
+    }
+
     commandSpec.commandLine().usage(System.out);
   }
 }
