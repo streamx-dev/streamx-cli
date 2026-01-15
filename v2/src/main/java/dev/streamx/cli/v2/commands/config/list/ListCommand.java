@@ -1,6 +1,7 @@
 package dev.streamx.cli.v2.commands.config.list;
 
 import dev.streamx.cli.v2.commands.config.ConfigFile;
+import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
@@ -19,7 +20,16 @@ import java.util.TreeMap;
 public class ListCommand implements Runnable {
   private static final Logger logger = Logger.getLogger(ListCommand.class);
 
-  private HashMap<String, String> getProperties(URL url) {
+  @Override
+  public void run() {
+    printProperties().mapLeft(e -> {
+      logger.error(e.getMessage());
+      System.exit(1);
+      return null;
+    });
+  }
+
+  private Either<RuntimeException, HashMap<String, String>> getProperties(URL url) {
     return Try.withResources(url::openStream)
       .of(input -> {
         Properties properties = new Properties();
@@ -32,46 +42,33 @@ public class ListCommand implements Runnable {
 
         return propertyMap;
       })
-      .onFailure(e -> {
-        logger.error("Failed to load properties from " + url);
-        logger.debug(e);
-      })
-      .getOrElse(new HashMap<>());
+      .toEither().mapLeft(e -> new RuntimeException("Failed to load properties from " + url, e));
   }
 
-  private void printProperties(HashMap<String, String> properties) {
-    Map<String, String> sortedProperties = new TreeMap<>(properties);
+  private Either<RuntimeException, Void> printProperties() {
+    return ConfigFile.getUrl()
+      .flatMap(this::getProperties)
+      .flatMap(properties -> {
+        Map<String, String> sortedProperties = new TreeMap<>(properties);
 
-    int maxKeyLength = sortedProperties.keySet().stream()
-      .mapToInt(String::length)
-      .max()
-      .orElse(0);
+        int maxKeyLength = sortedProperties.keySet().stream()
+          .mapToInt(String::length)
+          .max()
+          .orElse(0);
 
-    System.out.println("\nConfiguration properties:");
-    String repeat = "=".repeat(Math.min(80, maxKeyLength + 40));
-    System.out.println(repeat);
+        logger.info("\nConfiguration properties:");
+        String repeat = "=".repeat(Math.min(80, maxKeyLength + 40));
+        logger.info(repeat);
 
-    sortedProperties.forEach((key, value) -> {
-      String paddedKey = String.format("%-" + maxKeyLength + "s", key);
-      System.out.println(paddedKey + " = " + value);
-    });
+        sortedProperties.forEach((key, value) -> {
+          String paddedKey = String.format("%-" + maxKeyLength + "s", key);
+          logger.info(paddedKey + " = " + value);
+        });
 
-    System.out.println(repeat);
-    System.out.println("Total properties: " + properties.size());
-  }
+        logger.info(repeat);
+        logger.info("Total properties: " + properties.size());
 
-  @Override
-  public void run() {
-    ConfigFile.getUrl().fold(
-      err -> {
-        logger.error(err);
-        System.exit(1);
-        return null;
-      },
-      url -> {
-        printProperties(getProperties(url));
-        return null;
-      }
-    );
+        return Either.right(null);
+      });
   }
 }

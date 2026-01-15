@@ -10,7 +10,7 @@ import java.nio.file.Path;
 public class ConfigFile {
   private static final Logger logger = Logger.getLogger(ConfigFile.class);
 
-  public static Either<String, URL> getUrl() {
+  public static Either<RuntimeException, URL> getUrl() {
     String rootDir = System.getProperty("user.home");
     String dotStreamxConfig = rootDir + "/.streamx/config";
 
@@ -19,10 +19,6 @@ public class ConfigFile {
 
     return Try.of(() -> pathToFile.toUri().toURL())
       .toEither()
-      .mapLeft(e -> {
-        logger.debug(e);
-
-        return "Unable to get StreamX config path";
-      });
+      .mapLeft(e -> new RuntimeException("Unable to get StreamX config path", e));
   }
 }

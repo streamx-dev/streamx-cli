@@ -27,50 +27,43 @@ public class SetCommand implements Runnable {
 
   @Override
   public void run() {
-    ConfigFile.getUrl().fold(
-      err -> {
-        logger.error(err);
-        System.exit(1);
-        return null;
-      },
-      url -> {
-        return setProperty(url, key, value).fold(
-          e -> {
-            System.exit(1);
-            return null;
-          },
-          s -> null
-        );
-      }
-    );
-  }
-
-  private Either<String, Void> setProperty(URL url, String key, String value) {
-    Try<Void> result = Try.of(() -> {
-      Properties properties = new Properties();
-
-      Try.withResources(url::openStream)
-        .of(input -> {
-          properties.load(input);
-          properties.setProperty(key, value);
-          return null;
-        })
-        .getOrElseThrow(e -> new RuntimeException("Couldn't load config", e));
-
-      Try.withResources(() -> Files.newOutputStream(Paths.get(url.getPath())))
-        .of(output -> {
-          properties.store(output, null);
-          return null;
-        })
-        .getOrElseThrow(e -> new RuntimeException("Failed to save properties", e));
-
+    setProperty(key, value).mapLeft(e -> {
+      logger.error(e.getMessage());
+      System.exit(1);
       return null;
     });
+  }
 
-    return result.toEither().mapLeft((e) -> {
-      logger.error("Failed to set property '" + key + "'");
-      logger.debug(e);
-      return e.getMessage();
-    });
+  private Either<RuntimeException, Void> setProperty(String key, String value) {
+    return ConfigFile.getUrl()
+      .flatMap(url -> Try.withResources(url::openStream)
+        .of(input -> {
+          Properties properties = new Properties();
+          properties.load(input);
+          return properties;
+        })
+        .toEither()
+        .mapLeft(e -> new RuntimeException("Unable to load config file", e))
+        .flatMap(properties -> {
+          Try.withResources(url::openStream)
+            .of(input -> {
+              properties.load(input);
+              properties.setProperty(key, value);
+              return null;
+            })
+            .toEither()
+            .mapLeft(e -> new RuntimeException("Couldn't load config", e));
+
+          Try.withResources(() -> Files.newOutputStream(Paths.get(url.getPath())))
+            .of(output -> {
+              properties.store(output, null);
+              return null;
+            })
+            .toEither()
+            .mapLeft(e -> new RuntimeException("Failed to save properties", e));
+
+          return Either.right(null);
+        })
+      );
   }
 }
