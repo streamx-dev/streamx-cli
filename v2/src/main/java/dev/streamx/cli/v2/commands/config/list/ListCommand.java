@@ -1,6 +1,8 @@
 package dev.streamx.cli.v2.commands.config.list;
 
+import dev.streamx.cli.v2.commands.config.ConfigCommand;
 import dev.streamx.cli.v2.commands.config.ConfigFile;
+import dev.streamx.cli.v2.errors.ErrorPrinter;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.jboss.logging.Logger;
@@ -20,10 +22,13 @@ import java.util.TreeMap;
 public class ListCommand implements Runnable {
   private static final Logger logger = Logger.getLogger(ListCommand.class);
 
+  @CommandLine.ParentCommand
+  public ConfigCommand configCommand;
+
   @Override
   public void run() {
     printProperties().mapLeft(e -> {
-      logger.error(e.getMessage());
+      ErrorPrinter.print(logger, e, configCommand.mainCommand.verbose);
       System.exit(1);
       return null;
     });

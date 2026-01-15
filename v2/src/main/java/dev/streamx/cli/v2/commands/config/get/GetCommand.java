@@ -1,12 +1,13 @@
 package dev.streamx.cli.v2.commands.config.get;
 
+import dev.streamx.cli.v2.commands.config.ConfigCommand;
 import dev.streamx.cli.v2.commands.config.ConfigFile;
+import dev.streamx.cli.v2.errors.ErrorPrinter;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
-import java.net.URL;
 import java.util.Properties;
 
 @CommandLine.Command(
@@ -17,13 +18,16 @@ import java.util.Properties;
 public class GetCommand implements Runnable {
   private static final Logger logger = Logger.getLogger(GetCommand.class);
 
+  @CommandLine.ParentCommand
+  public ConfigCommand configCommand;
+
   @CommandLine.Parameters(index = "0", description = "Property key")
   private String key;
 
   @Override
   public void run() {
     printPropertyIfExists(key).mapLeft(e -> {
-      logger.error(e.getMessage());
+      ErrorPrinter.print(logger, e, configCommand.mainCommand.verbose);
       System.exit(1);
       return null;
     });
@@ -42,7 +46,7 @@ public class GetCommand implements Runnable {
         .flatMap(properties -> {
           var value = properties.getProperty(key);
           if (value == null) {
-              return Either.left(new RuntimeException("No such config property found: " + key));
+            return Either.left(new RuntimeException("No such config property found: " + key));
           }
 
           logger.info(value);

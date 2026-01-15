@@ -21,14 +21,10 @@ public class Main implements Runnable {
     names = {"-v", "--verbose"},
     description = "Print debug information"
   )
-  private Boolean verbose = false;
+  public boolean verbose;
 
   @Override
   public void run() {
-    if (verbose) {
-      System.setProperty("quarkus.log.level", "DEBUG");
-    }
-
     commandSpec.commandLine().usage(System.out);
   }
 }

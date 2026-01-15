@@ -1,12 +1,13 @@
 package dev.streamx.cli.v2.commands.config.set;
 
+import dev.streamx.cli.v2.commands.config.ConfigCommand;
 import dev.streamx.cli.v2.commands.config.ConfigFile;
+import dev.streamx.cli.v2.errors.ErrorPrinter;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -19,6 +20,9 @@ import java.util.Properties;
 public class SetCommand implements Runnable {
   private static final Logger logger = Logger.getLogger(SetCommand.class);
 
+  @CommandLine.ParentCommand
+  public ConfigCommand configCommand;
+
   @CommandLine.Parameters(index = "0", description = "Property key")
   private String key;
 
@@ -28,7 +32,7 @@ public class SetCommand implements Runnable {
   @Override
   public void run() {
     setProperty(key, value).mapLeft(e -> {
-      logger.error(e.getMessage());
+      ErrorPrinter.print(logger, e, configCommand.mainCommand.verbose);
       System.exit(1);
       return null;
     });
