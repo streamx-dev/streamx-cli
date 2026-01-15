@@ -1,7 +1,7 @@
-package dev.streamx.cli.v2.commands.config.list;
+package dev.streamx.cli.v2.commands.settings.list;
 
-import dev.streamx.cli.v2.commands.config.ConfigCommand;
-import dev.streamx.cli.v2.commands.config.ConfigFile;
+import dev.streamx.cli.v2.commands.settings.SettingsCommand;
+import dev.streamx.cli.v2.commands.settings.SettingsFile;
 import dev.streamx.cli.v2.errors.ErrorPrinter;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
@@ -23,12 +23,12 @@ public class ListCommand implements Runnable {
   private static final Logger logger = Logger.getLogger(ListCommand.class);
 
   @CommandLine.ParentCommand
-  public ConfigCommand configCommand;
+  public SettingsCommand settingsCommand;
 
   @Override
   public void run() {
     printProperties().mapLeft(e -> {
-      ErrorPrinter.print(logger, e, configCommand.mainCommand.verbose);
+      ErrorPrinter.print(logger, e, settingsCommand.mainCommand.verbose);
       System.exit(1);
       return null;
     });
@@ -51,7 +51,7 @@ public class ListCommand implements Runnable {
   }
 
   private Either<RuntimeException, Void> printProperties() {
-    return ConfigFile.getUrl()
+    return SettingsFile.getUrl()
       .flatMap(this::getProperties)
       .flatMap(properties -> {
         Map<String, String> sortedProperties = new TreeMap<>(properties);

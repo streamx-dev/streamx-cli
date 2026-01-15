@@ -1,4 +1,4 @@
-package dev.streamx.cli.v2.commands.config;
+package dev.streamx.cli.v2.commands.settings;
 
 import io.vavr.control.Either;
 import io.vavr.control.Try;
@@ -7,8 +7,8 @@ import org.jboss.logging.Logger;
 import java.net.URL;
 import java.nio.file.Path;
 
-public class ConfigFile {
-  private static final Logger logger = Logger.getLogger(ConfigFile.class);
+public class SettingsFile {
+  private static final Logger logger = Logger.getLogger(SettingsFile.class);
 
   public static Either<RuntimeException, URL> getUrl() {
     String rootDir = System.getProperty("user.home");
@@ -19,6 +19,6 @@ public class ConfigFile {
 
     return Try.of(() -> pathToFile.toUri().toURL())
       .toEither()
-      .mapLeft(e -> new RuntimeException("Unable to get StreamX config path", e));
+      .mapLeft(e -> new RuntimeException("Unable to get StreamX settings path", e));
   }
 }

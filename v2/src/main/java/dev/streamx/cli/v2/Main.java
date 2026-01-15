@@ -1,6 +1,6 @@
 package dev.streamx.cli.v2;
 
-import dev.streamx.cli.v2.commands.config.ConfigCommand;
+import dev.streamx.cli.v2.commands.settings.SettingsCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import picocli.CommandLine;
 
@@ -10,7 +10,7 @@ import picocli.CommandLine;
   mixinStandardHelpOptions = true,
   description = "StreamX CLI. More info at https://streamx.dev",
   subcommands = {
-    ConfigCommand.class
+    SettingsCommand.class
   }
 )
 public class Main implements Runnable {

@@ -1,15 +1,15 @@
-package dev.streamx.cli.v2.commands.config;
+package dev.streamx.cli.v2.commands.settings;
 
 import dev.streamx.cli.v2.Main;
-import dev.streamx.cli.v2.commands.config.get.GetCommand;
-import dev.streamx.cli.v2.commands.config.list.ListCommand;
-import dev.streamx.cli.v2.commands.config.set.SetCommand;
+import dev.streamx.cli.v2.commands.settings.get.GetCommand;
+import dev.streamx.cli.v2.commands.settings.list.ListCommand;
+import dev.streamx.cli.v2.commands.settings.set.SetCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(
-  name = "config",
+  name = "settings",
   mixinStandardHelpOptions = true,
-  description = "Modify StreamX config",
+  description = "Modify StreamX settings",
   abbreviateSynopsis = true,
   synopsisHeading = "Synopsis example",
   subcommands = {
@@ -18,7 +18,7 @@ import picocli.CommandLine;
     GetCommand.class
   }
 )
-public class ConfigCommand implements Runnable {
+public class SettingsCommand implements Runnable {
   @CommandLine.Spec
   CommandLine.Model.CommandSpec commandSpec;
 

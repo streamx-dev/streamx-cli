@@ -1,7 +1,7 @@
-package dev.streamx.cli.v2.commands.config.set;
+package dev.streamx.cli.v2.commands.settings.set;
 
-import dev.streamx.cli.v2.commands.config.ConfigCommand;
-import dev.streamx.cli.v2.commands.config.ConfigFile;
+import dev.streamx.cli.v2.commands.settings.SettingsCommand;
+import dev.streamx.cli.v2.commands.settings.SettingsFile;
 import dev.streamx.cli.v2.errors.ErrorPrinter;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
@@ -21,7 +21,7 @@ public class SetCommand implements Runnable {
   private static final Logger logger = Logger.getLogger(SetCommand.class);
 
   @CommandLine.ParentCommand
-  public ConfigCommand configCommand;
+  public SettingsCommand settingsCommand;
 
   @CommandLine.Parameters(index = "0", description = "Property key")
   private String key;
@@ -32,14 +32,14 @@ public class SetCommand implements Runnable {
   @Override
   public void run() {
     setProperty(key, value).mapLeft(e -> {
-      ErrorPrinter.print(logger, e, configCommand.mainCommand.verbose);
+      ErrorPrinter.print(logger, e, settingsCommand.mainCommand.verbose);
       System.exit(1);
       return null;
     });
   }
 
   private Either<RuntimeException, Void> setProperty(String key, String value) {
-    return ConfigFile.getUrl()
+    return SettingsFile.getUrl()
       .flatMap(url -> Try.withResources(url::openStream)
         .of(input -> {
           Properties properties = new Properties();
@@ -47,7 +47,7 @@ public class SetCommand implements Runnable {
           return properties;
         })
         .toEither()
-        .mapLeft(e -> new RuntimeException("Unable to load config file", e))
+        .mapLeft(e -> new RuntimeException("Unable to load settings file", e))
         .flatMap(properties -> {
           Try.withResources(url::openStream)
             .of(input -> {
@@ -56,7 +56,7 @@ public class SetCommand implements Runnable {
               return null;
             })
             .toEither()
-            .mapLeft(e -> new RuntimeException("Couldn't load config", e));
+            .mapLeft(e -> new RuntimeException("Couldn't load settings", e));
 
           Try.withResources(() -> Files.newOutputStream(Paths.get(url.getPath())))
             .of(output -> {
@@ -64,7 +64,7 @@ public class SetCommand implements Runnable {
               return null;
             })
             .toEither()
-            .mapLeft(e -> new RuntimeException("Failed to save properties", e));
+            .mapLeft(e -> new RuntimeException("Failed to save settings", e));
 
           return Either.right(null);
         })
