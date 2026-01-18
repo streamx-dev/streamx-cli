@@ -1,5 +1,6 @@
 package dev.streamx.cli.v2;
 
+import dev.streamx.cli.v2.cli.ShortErrorMessageHandler;
 import dev.streamx.cli.v2.commands.settings.SettingsCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import picocli.CommandLine;
@@ -17,14 +18,11 @@ public class Main implements Runnable {
   @CommandLine.Spec
   CommandLine.Model.CommandSpec commandSpec;
 
-  @CommandLine.Option(
-    names = {"-v", "--verbose"},
-    description = "Print debug information"
-  )
-  public boolean verbose;
-
   @Override
   public void run() {
-    commandSpec.commandLine().usage(System.out);
+    commandSpec
+      .commandLine()
+      .setParameterExceptionHandler(new ShortErrorMessageHandler())
+      .usage(System.out);
   }
 }
