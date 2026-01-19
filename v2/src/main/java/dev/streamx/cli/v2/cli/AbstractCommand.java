@@ -7,9 +7,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 
-// Each CLI command should extend this class
+// Each CLI command should extend this class.
 public abstract class AbstractCommand implements Runnable {
-  // Override this method to implement the command logic
+  // Override this method to implement the command logic.
   public abstract CommandResult runCommand() throws RuntimeException;
 
   // Override this method to hide specific command line options.
@@ -51,7 +51,25 @@ public abstract class AbstractCommand implements Runnable {
   )
   private OutputFormat outputFormat;
 
+  private void validateSubcommands() {
+    for (CommandLine subcommand : spec.subcommands().values()) {
+      Object userObject = subcommand.getCommandSpec().userObject();
+      if (!(userObject instanceof AbstractCommand)) {
+        throw new RuntimeException(
+          "All subcommands must extend AbstractCommand: " +
+            subcommand.getCommandName()
+        );
+      }
+    }
+  }
+
+  public void printUsage() {
+    spec.commandLine().usage(System.out);
+  }
+
   public void run() {
+    validateSubcommands();
+
     try {
       var result = this.runCommand();
       result.print(outputFormat);

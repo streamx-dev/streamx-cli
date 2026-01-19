@@ -1,15 +1,13 @@
 package dev.streamx.cli.v2.commands.settings.set;
 
-import dev.streamx.cli.v2.cli.AbstractCommand;
+import dev.streamx.cli.v2.cli.AbstractSilentCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
-import dev.streamx.cli.v2.cli.CommonOption;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Properties;
 
 @CommandLine.Command(
@@ -17,17 +15,12 @@ import java.util.Properties;
   mixinStandardHelpOptions = true,
   description = "Set configuration property"
 )
-public class SetCommand extends AbstractCommand {
+public class SetCommand extends AbstractSilentCommand {
   @CommandLine.Parameters(index = "0", description = "Property key")
   private String key;
 
   @CommandLine.Parameters(index = "1", description = "Property value")
   private String value;
-
-  @Override
-  public List<String> getHiddenOptions() {
-    return List.of(CommonOption.OUTPUT_LONG);
-  }
 
   @Override
   public CommandResult runCommand() throws RuntimeException {

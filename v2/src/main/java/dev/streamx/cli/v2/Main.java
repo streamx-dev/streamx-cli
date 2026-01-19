@@ -1,5 +1,7 @@
 package dev.streamx.cli.v2;
 
+import dev.streamx.cli.v2.cli.AbstractCommand;
+import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.cli.ShortErrorMessageHandler;
 import dev.streamx.cli.v2.commands.settings.SettingsCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
@@ -14,15 +16,17 @@ import picocli.CommandLine;
     SettingsCommand.class
   }
 )
-public class Main implements Runnable {
+public class Main extends AbstractCommand {
   @CommandLine.Spec
   CommandLine.Model.CommandSpec commandSpec;
 
   @Override
-  public void run() {
+  public CommandResult runCommand() throws RuntimeException {
     commandSpec
       .commandLine()
       .setParameterExceptionHandler(new ShortErrorMessageHandler())
       .usage(System.out);
+
+    return CommandResult.empty();
   }
 }

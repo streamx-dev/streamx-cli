@@ -1,7 +1,8 @@
 package dev.streamx.cli.v2.commands.settings;
 
-import dev.streamx.cli.v2.Main;
+import dev.streamx.cli.v2.cli.AbstractCommandGroup;
 import dev.streamx.cli.v2.commands.settings.get.GetCommand;
+import dev.streamx.cli.v2.commands.settings.list.ListCommand;
 import dev.streamx.cli.v2.commands.settings.set.SetCommand;
 import picocli.CommandLine;
 
@@ -12,19 +13,10 @@ import picocli.CommandLine;
   abbreviateSynopsis = true,
   synopsisHeading = "Synopsis example",
   subcommands = {
-//    ListCommand.class,
+    ListCommand.class,
     SetCommand.class,
     GetCommand.class
   }
 )
-public class SettingsCommand implements Runnable {
-  @CommandLine.Spec
-  CommandLine.Model.CommandSpec commandSpec;
-
-  @CommandLine.ParentCommand
-  public Main mainCommand;
-
-  public void run() {
-    commandSpec.commandLine().usage(System.out);
-  }
+public class SettingsCommand extends AbstractCommandGroup {
 }
