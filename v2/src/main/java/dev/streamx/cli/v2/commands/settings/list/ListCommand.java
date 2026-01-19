@@ -19,8 +19,6 @@ import java.util.*;
   description = "Display configuration properties"
 )
 public class ListCommand extends AbstractCommand {
-  private static final Logger logger = Logger.getLogger(ListCommand.class);
-
   @Override
   public CommandResult runCommand() throws RuntimeException {
     var url = SettingsFile.getUrl();
