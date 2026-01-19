@@ -1,21 +1,36 @@
 package dev.streamx.cli.v2.cli;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Optional;
 
-// Each CLI command should extend this class.
-public abstract class AbstractCommand implements Runnable {
+/**
+ Each CLI command should extend this class.
+ *
+ * @param <ResultT> Must be serializable by Jackson (POJO, JsonSerializable, etc.)
+ */
+public abstract class AbstractCommand<ResultT> implements Runnable {
   // Override this method to implement the command logic.
-  public abstract CommandResult runCommand() throws RuntimeException;
+  public abstract CommandResult<ResultT> runCommand() throws RuntimeException;
 
   // Override this method to hide specific command line options.
   // May be useful to hide the "--output" option for commands that don't print anything in case of success.
   public List<String> getHiddenOptions() {
     return List.of();
+  }
+
+  // Override this method to provide human-readable output.
+  public Optional<String> getTextOutput(CommandResult<ResultT> result) throws RuntimeException {
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode jsonNode = mapper.valueToTree(result.result);
+
+    return Optional.of(jsonNode.toPrettyString());
   }
 
   private void applyHiddenOptions() {
@@ -73,7 +88,12 @@ public abstract class AbstractCommand implements Runnable {
 
     try {
       var result = this.runCommand();
-      result.print(outputFormat);
+
+      if (outputFormat == OutputFormat.text) {
+        this.getTextOutput(result).ifPresent(System.out::println);
+      } else {
+        result.print(outputFormat);
+      }
     } catch (Exception e) {
       int exitCode = ShortErrorMessageHandler.shortErrorMessage(e, spec.commandLine());
       if (verbose) {

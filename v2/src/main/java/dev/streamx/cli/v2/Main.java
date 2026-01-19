@@ -21,12 +21,12 @@ public class Main extends AbstractCommandGroup {
   CommandLine.Model.CommandSpec commandSpec;
 
   @Override
-  public CommandResult runCommand() throws RuntimeException {
+  public CommandResult<Void> runCommand() throws RuntimeException {
     commandSpec
       .commandLine()
       .setParameterExceptionHandler(new ShortErrorMessageHandler())
       .usage(System.out);
 
-    return CommandResult.empty();
+    return new CommandResult<>(null);
   }
 }

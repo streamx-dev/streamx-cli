@@ -3,11 +3,11 @@ package dev.streamx.cli.v2.cli;
 import java.util.List;
 
 // Extend this class for commands that don't do anything except display their subcommands.
-public class AbstractCommandGroup extends AbstractCommand {
+public class AbstractCommandGroup extends AbstractCommand<Void> {
   @Override
-  public CommandResult runCommand() {
+  public CommandResult<Void> runCommand() {
     this.printUsage();
-    return CommandResult.empty();
+    return new CommandResult<>(null);
   }
 
   @Override

@@ -1,86 +1,67 @@
 package dev.streamx.cli.v2.commands.settings.list;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.streamx.cli.v2.cli.AbstractCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
-import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CommandLine.Command(
   name = "list",
   mixinStandardHelpOptions = true,
   description = "Display configuration properties"
 )
-public class ListCommand extends AbstractCommand {
+public class ListCommand extends AbstractCommand<List<Property>> {
   @Override
-  public CommandResult runCommand() throws RuntimeException {
+  public CommandResult<List<Property>> runCommand() throws RuntimeException {
     var url = SettingsFile.getUrl();
     var properties = getProperties(url);
 
-    return new CommandResult(
-      Optional.of(convertToText(properties)),
-      Optional.of(convertToJson(properties))
-    );
+    return new CommandResult<>(properties);
   }
 
-  private HashMap<String, String> getProperties(URL url) throws RuntimeException {
-    try (var input = url.openStream()) {
-      Properties properties = new Properties();
-      properties.load(input);
+  @Override
+  public Optional<String> getTextOutput(CommandResult<List<Property>> result) throws RuntimeException {
+    StringBuilder stringOutput = new StringBuilder();
 
-      HashMap<String, String> propertyMap = new HashMap<>();
-      for (String key : properties.stringPropertyNames()) {
-        propertyMap.put(key, properties.getProperty(key));
-      }
+    Map<String, String> map = result.result.stream()
+      .collect(Collectors.toMap(Property::key, Property::value));
 
-      return propertyMap;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to load properties from " + url, e);
-    }
-  }
-
-  public static JsonNode convertToJson(HashMap<String, String> map) {
-    ObjectMapper mapper = new ObjectMapper();
-    ArrayNode arrayNode = mapper.createArrayNode();
-
-    for (Map.Entry<String, String> entry : map.entrySet()) {
-      ObjectNode objectNode = mapper.createObjectNode();
-      objectNode.put("key", entry.getKey());
-      objectNode.put("value", entry.getValue());
-      arrayNode.add(objectNode);
-    }
-
-    return arrayNode;
-  }
-
-  private String convertToText(HashMap<String, String> properties) {
-    StringBuilder result = new StringBuilder();
-    Map<String, String> sortedProperties = new TreeMap<>(properties);
+    Map<String, String> sortedProperties = new TreeMap<>(map);
 
     int maxKeyLength = sortedProperties.keySet().stream()
       .mapToInt(String::length)
       .max()
       .orElse(0);
 
-    result.append("\nConfiguration properties:\n");
+    stringOutput.append("\nConfiguration properties:\n");
     String repeat = "=".repeat(Math.min(80, maxKeyLength + 40));
-    result.append(repeat).append("\n");
+    stringOutput.append(repeat).append("\n");
 
     for (Map.Entry<String, String> entry : sortedProperties.entrySet()) {
       String paddedKey = String.format("%-" + maxKeyLength + "s", entry.getKey());
-      result.append(paddedKey).append(" = ").append(entry.getValue()).append("\n");
+      stringOutput.append(paddedKey).append(" = ").append(entry.getValue()).append("\n");
     }
 
-    result.append(repeat).append("\n");
-    result.append("Total properties: ").append(properties.size()).append("\n");
+    stringOutput.append(repeat).append("\n");
+    stringOutput.append("Total properties: ").append(result.result.size()).append("\n");
 
-    return result.toString();
+    return Optional.of(stringOutput.toString());
+  }
+
+  private List<Property> getProperties(URL url) throws RuntimeException {
+    try (var input = url.openStream()) {
+      Properties properties = new Properties();
+      properties.load(input);
+
+      return properties.stringPropertyNames().stream()
+        .map(key -> new Property(key, properties.getProperty(key)))
+        .toList();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to load properties from " + url, e);
+    }
   }
 }

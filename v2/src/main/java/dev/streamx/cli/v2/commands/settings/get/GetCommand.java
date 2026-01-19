@@ -1,7 +1,5 @@
 package dev.streamx.cli.v2.commands.settings.get;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.v2.cli.AbstractCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
@@ -16,12 +14,12 @@ import java.util.Properties;
   mixinStandardHelpOptions = true,
   description = "Get configuration property"
 )
-public class GetCommand extends AbstractCommand {
+public class GetCommand extends AbstractCommand<GetCommandResult> {
   @CommandLine.Parameters(index = "0", description = "Property key")
   private String key;
 
   @Override
-  public CommandResult runCommand() throws RuntimeException {
+  public CommandResult<GetCommandResult> runCommand() throws RuntimeException {
     var url = SettingsFile.getUrl();
 
     try (var inputStream = url.openStream()) {
@@ -33,14 +31,16 @@ public class GetCommand extends AbstractCommand {
         throw new RuntimeException("No such settings property found: " + key);
       }
 
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode json = mapper.createObjectNode()
-        .put("key", key)
-        .put("value", value);
+      var result = new GetCommandResult(key, value);
 
-      return new CommandResult(Optional.of(value), Optional.of(json));
+      return new CommandResult<>(result);
     } catch (IOException e) {
       throw new RuntimeException("Unable to get settings property", e);
     }
+  }
+
+  @Override
+  public Optional<String> getTextOutput(CommandResult<GetCommandResult> result) throws RuntimeException {
+    return Optional.of(result.result.value());
   }
 }

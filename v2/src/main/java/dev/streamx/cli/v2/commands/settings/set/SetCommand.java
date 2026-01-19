@@ -1,6 +1,6 @@
 package dev.streamx.cli.v2.commands.settings.set;
 
-import dev.streamx.cli.v2.cli.AbstractPlainTextCommand;
+import dev.streamx.cli.v2.cli.AbstractSilentCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
 import picocli.CommandLine;
@@ -15,7 +15,7 @@ import java.util.Properties;
   mixinStandardHelpOptions = true,
   description = "Set configuration property"
 )
-public class SetCommand extends AbstractPlainTextCommand {
+public class SetCommand extends AbstractSilentCommand {
   @CommandLine.Parameters(index = "0", description = "Property key")
   private String key;
 
@@ -23,7 +23,7 @@ public class SetCommand extends AbstractPlainTextCommand {
   private String value;
 
   @Override
-  public CommandResult runCommand() throws RuntimeException {
+  public CommandResult<Void> runCommand() throws RuntimeException {
     var url = SettingsFile.getUrl();
 
     try (
@@ -38,6 +38,6 @@ public class SetCommand extends AbstractPlainTextCommand {
       throw new RuntimeException("Unable to set settings property", e);
     }
 
-    return CommandResult.empty();
+    return new CommandResult<>(null);
   }
 }
