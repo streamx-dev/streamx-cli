@@ -1,6 +1,7 @@
 package dev.streamx.cli.v2;
 
 import dev.streamx.cli.v2.cli.AbstractCommand;
+import dev.streamx.cli.v2.cli.AbstractCommandGroup;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.cli.ShortErrorMessageHandler;
 import dev.streamx.cli.v2.commands.settings.SettingsCommand;
@@ -16,7 +17,7 @@ import picocli.CommandLine;
     SettingsCommand.class
   }
 )
-public class Main extends AbstractCommand {
+public class Main extends AbstractCommandGroup {
   @CommandLine.Spec
   CommandLine.Model.CommandSpec commandSpec;
 
