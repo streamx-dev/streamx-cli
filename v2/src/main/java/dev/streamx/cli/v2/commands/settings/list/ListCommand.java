@@ -16,14 +16,6 @@ import java.util.stream.Collectors;
 )
 public class ListCommand extends AbstractCommand<List<Property>> {
   @Override
-  public CommandResult<List<Property>> runCommand() throws RuntimeException {
-    var url = SettingsFile.getUrl();
-    var properties = getProperties(url);
-
-    return new CommandResult<>(properties);
-  }
-
-  @Override
   public Optional<String> getTextOutput(CommandResult<List<Property>> result) throws RuntimeException {
     StringBuilder stringOutput = new StringBuilder();
 
@@ -50,6 +42,14 @@ public class ListCommand extends AbstractCommand<List<Property>> {
     stringOutput.append("Total properties: ").append(result.result.size()).append("\n");
 
     return Optional.of(stringOutput.toString());
+  }
+
+  @Override
+  public CommandResult<List<Property>> runCommand() throws RuntimeException {
+    var url = SettingsFile.getUrl();
+    var properties = getProperties(url);
+
+    return new CommandResult<>(properties);
   }
 
   private List<Property> getProperties(URL url) throws RuntimeException {
