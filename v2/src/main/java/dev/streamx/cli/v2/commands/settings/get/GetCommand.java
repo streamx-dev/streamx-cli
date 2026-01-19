@@ -19,6 +19,11 @@ public class GetCommand extends AbstractCommand<GetCommandResult> {
   private String key;
 
   @Override
+  public Optional<String> getTextOutput(CommandResult<GetCommandResult> result) throws RuntimeException {
+    return Optional.of(result.result.value());
+  }
+
+  @Override
   public CommandResult<GetCommandResult> runCommand() throws RuntimeException {
     var url = SettingsFile.getUrl();
 
@@ -37,10 +42,5 @@ public class GetCommand extends AbstractCommand<GetCommandResult> {
     } catch (IOException e) {
       throw new RuntimeException("Unable to get settings property", e);
     }
-  }
-
-  @Override
-  public Optional<String> getTextOutput(CommandResult<GetCommandResult> result) throws RuntimeException {
-    return Optional.of(result.result.value());
   }
 }
