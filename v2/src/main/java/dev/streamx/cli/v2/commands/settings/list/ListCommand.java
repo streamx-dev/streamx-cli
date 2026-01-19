@@ -28,7 +28,7 @@ public class ListCommand extends AbstractCommand {
 
     return new CommandResult(
       Optional.of(convertToText(properties)),
-      Optional.of(convertToJson(properties).toString())
+      Optional.of(convertToJson(properties))
     );
   }
 

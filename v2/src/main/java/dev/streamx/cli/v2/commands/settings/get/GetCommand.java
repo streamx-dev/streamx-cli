@@ -1,5 +1,7 @@
 package dev.streamx.cli.v2.commands.settings.get;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.cli.v2.cli.AbstractCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
@@ -31,7 +33,10 @@ public class GetCommand extends AbstractCommand {
         throw new RuntimeException("No such settings property found: " + key);
       }
 
-      var json = String.format("{\"key\": \"%s\", \"value\": \"%s\"}", key, value);
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode json = mapper.createObjectNode()
+        .put("key", key)
+        .put("value", value);
 
       return new CommandResult(Optional.of(value), Optional.of(json));
     } catch (IOException e) {

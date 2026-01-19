@@ -51,6 +51,7 @@ public abstract class AbstractCommand implements Runnable {
   )
   private OutputFormat outputFormat;
 
+  // Force all subcommands to extend the AbstractCommand.
   private void validateSubcommands() {
     for (CommandLine subcommand : spec.subcommands().values()) {
       Object userObject = subcommand.getCommandSpec().userObject();

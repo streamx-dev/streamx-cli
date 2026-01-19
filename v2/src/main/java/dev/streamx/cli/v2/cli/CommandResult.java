@@ -8,13 +8,13 @@ import java.util.Optional;
 
 public class CommandResult {
   public Optional<String> text;
-  public Optional<String> json;
+  public Optional<JsonNode> json;
 
   public static CommandResult empty() {
     return new CommandResult(Optional.empty(), Optional.empty());
   }
 
-  public CommandResult(Optional<String> text, Optional<String> json) {
+  public CommandResult(Optional<String> text, Optional<JsonNode> json) {
     this.text = text;
     this.json = json;
   }
@@ -31,8 +31,7 @@ public class CommandResult {
       }
 
       ObjectMapper mapper = new ObjectMapper();
-      JsonNode jsonNode = mapper.readTree(json.get());
-      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json.get()));
       return;
     }
 
@@ -42,8 +41,7 @@ public class CommandResult {
       }
 
       ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-      JsonNode jsonNode = mapper.readTree(json.get());
-      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json.get()));
     }
   }
 }
