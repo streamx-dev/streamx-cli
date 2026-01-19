@@ -22,7 +22,6 @@ public class CommandResult<ResultT> {
       return;
     }
 
-    System.out.println(outputFormat);
     if (outputFormat == OutputFormat.yaml) {
       ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
       JsonNode jsonNode = mapper.valueToTree(result);
