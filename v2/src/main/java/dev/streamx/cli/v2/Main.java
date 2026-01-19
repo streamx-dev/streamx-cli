@@ -1,6 +1,5 @@
 package dev.streamx.cli.v2;
 
-import dev.streamx.cli.v2.cli.AbstractCommand;
 import dev.streamx.cli.v2.cli.AbstractCommandGroup;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.cli.ShortErrorMessageHandler;
