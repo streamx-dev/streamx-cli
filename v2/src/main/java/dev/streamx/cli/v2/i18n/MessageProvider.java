@@ -34,4 +34,7 @@ public interface MessageProvider {
 
   @Message(id = 107, value = "Failed to handle interactive input")
   String failedToHandleInteractiveInput();
+
+  @Message(id = 108, value = "Unsupported output format")
+  String unsupportedOutputFormat();
 }

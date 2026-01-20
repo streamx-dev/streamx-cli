@@ -3,7 +3,9 @@ package dev.streamx.cli.v2.commands.settings.list;
 import dev.streamx.cli.v2.cli.AbstractCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
+
 import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
+
 import picocli.CommandLine;
 
 import java.net.URL;

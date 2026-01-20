@@ -1,11 +1,8 @@
 package dev.streamx.cli.v2.cli;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
 
-import jakarta.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -38,10 +35,11 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
 
   // Override this method to provide human-readable output.
   public Optional<String> getTextOutput(CommandResult<ResultT> result) throws RuntimeException {
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode jsonNode = mapper.valueToTree(result.result);
+    if (result.result == null) {
+      return Optional.empty();
+    }
 
-    return Optional.of(jsonNode.toPrettyString());
+    return result.toText(OutputFormat.json, null);
   }
 
   private void applyHiddenOptions() {
@@ -75,7 +73,8 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
     description = "Specify output format: text, json, yaml",
     defaultValue = "text"
   )
-  private OutputFormat outputFormat;
+  // Explicitly set default value here as a fallback for commands with the hidden output option.
+  private OutputFormat outputFormat = OutputFormat.text;
 
   public void printUsage() {
     spec.commandLine().usage(System.out);
@@ -103,13 +102,9 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
 
   public void run() {
     try {
-      var result = this.runCommand();
-
-      if (outputFormat == OutputFormat.text) {
-        this.getTextOutput(result).ifPresent(System.out::println);
-      } else {
-        result.print(outputFormat);
-      }
+      this.runCommand()
+        .toText(outputFormat, this::getTextOutput)
+        .ifPresent(System.out::println);
     } catch (Exception e) {
       int exitCode = ShortErrorMessageHandler.shortErrorMessage(e, spec.commandLine());
       if (verbose) {
