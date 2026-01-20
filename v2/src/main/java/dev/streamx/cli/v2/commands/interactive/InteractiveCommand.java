@@ -58,7 +58,6 @@ public class InteractiveCommand extends AbstractSilentCommand {
 
   private String promptForKey() throws IOException {
     var autocompleteOptions = List.of("streamx.mesh.url", "streamx.some.property", "streamx.mesh.auth.token");
-
     return this.promptForInput("Enter property key", autocompleteOptions);
   }
 
