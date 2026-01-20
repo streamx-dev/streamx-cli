@@ -2,16 +2,26 @@ package dev.streamx.cli.v2.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
+
+import jakarta.annotation.Nullable;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Optional;
 
 /**
- Each CLI command should extend this class.
+ * Each CLI command should extend this class.
  *
  * @param <ResultT> Must be serializable by Jackson (POJO, JsonSerializable, etc.)
  */
@@ -68,6 +78,24 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
 
   public void printUsage() {
     spec.commandLine().usage(System.out);
+  }
+
+  // Use this method for asking user input in interactive commands.
+  public String promptForInput(String prompt, @Nullable Completer completer) throws RuntimeException {
+    try (Terminal terminal = TerminalBuilder.builder().system(true).build()) {
+      LineReaderBuilder builder = LineReaderBuilder.builder()
+        .terminal(terminal);
+
+      if (completer != null) {
+        builder.completer(completer);
+      }
+
+      LineReader reader = builder.build();
+
+      return reader.readLine(completer == null ? prompt : prompt + " (TAB for autocomplete):").strip();
+    } catch (IOException e) {
+      throw new RuntimeException(msg.failedToHandleInteractiveInput(), e);
+    }
   }
 
   public void run() {

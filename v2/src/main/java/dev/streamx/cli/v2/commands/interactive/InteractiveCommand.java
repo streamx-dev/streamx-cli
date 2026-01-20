@@ -3,13 +3,8 @@ package dev.streamx.cli.v2.commands.interactive;
 import dev.streamx.cli.v2.cli.AbstractSilentCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
-import jakarta.annotation.Nullable;
 import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -49,7 +44,7 @@ public class InteractiveCommand extends AbstractSilentCommand {
       }
 
       if (value == null || value.isBlank()) {
-        value = promptForInput("Enter property value: ", null);
+        value = this.promptForInput("Enter property value: ", null);
       }
 
       saveProperty(key, value);
@@ -65,22 +60,7 @@ public class InteractiveCommand extends AbstractSilentCommand {
     List<String> existingKeys = List.of("streamx.mesh.url", "streamx.some.property", "streamx.mesh.auth.token");
     Completer completer = new StringsCompleter(existingKeys);
 
-    return promptForInput("Enter property key (TAB for autocomplete): ", completer);
-  }
-
-  private String promptForInput(String prompt, @Nullable Completer completer) throws IOException {
-    try (Terminal terminal = TerminalBuilder.builder().system(true).build()) {
-      LineReaderBuilder builder = LineReaderBuilder.builder()
-        .terminal(terminal);
-
-      if (completer != null) {
-        builder.completer(completer);
-      }
-
-      LineReader reader = builder.build();
-
-      return reader.readLine(prompt).strip();
-    }
+    return this.promptForInput("Enter property key", completer);
   }
 
   private void saveProperty(String key, String value) {

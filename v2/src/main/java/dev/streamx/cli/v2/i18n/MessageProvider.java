@@ -31,4 +31,7 @@ public interface MessageProvider {
 
   @Message(id = 106, value = "Failed to read user input")
   String failedToReadUserInput();
+
+  @Message(id = 107, value = "Failed to handle interactive input")
+  String failedToHandleInteractiveInput();
 }
