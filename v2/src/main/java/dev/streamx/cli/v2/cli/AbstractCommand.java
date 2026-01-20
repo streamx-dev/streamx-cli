@@ -9,6 +9,7 @@ import jakarta.annotation.Nullable;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
@@ -81,12 +82,14 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
   }
 
   // Use this method for asking user input in interactive commands.
-  public String promptForInput(String prompt, @Nullable Completer completer) throws RuntimeException {
+  public String promptForInput(String prompt, @Nullable List<String> autocompleteOptions) throws RuntimeException {
     try (Terminal terminal = TerminalBuilder.builder().system(true).build()) {
       LineReaderBuilder builder = LineReaderBuilder.builder()
         .terminal(terminal);
 
-      if (completer != null) {
+      Completer completer = null;
+      if (autocompleteOptions != null) {
+        completer = new StringsCompleter(autocompleteOptions);
         builder.completer(completer);
       }
 
