@@ -28,14 +28,19 @@ public class SetCommand extends AbstractSilentCommand {
   @Override
   public CommandResult<Void> runCommand() throws RuntimeException {
     var url = SettingsFile.getUrl();
+    var path = Paths.get(url.getPath());
 
-    try (
-      var inputStream = url.openStream();
-      var outputStream = Files.newOutputStream(Paths.get(url.getPath()));
-    ) {
-      Properties properties = new Properties();
+    Properties properties = new Properties();
+
+    try (var inputStream = url.openStream()) {
       properties.load(inputStream);
-      properties.setProperty(key, value);
+    } catch (IOException e) {
+      throw new RuntimeException(msg.unableToSetSettingsProperty(), e);
+    }
+
+    properties.setProperty(key, value);
+
+    try (var outputStream = Files.newOutputStream(path)) {
       properties.store(outputStream, null);
     } catch (IOException e) {
       throw new RuntimeException(msg.unableToSetSettingsProperty(), e);

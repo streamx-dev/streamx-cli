@@ -28,4 +28,7 @@ public interface MessageProvider {
 
   @Message(id = 105, value = "Try '%s%s' for more information on the available options.%n")
   String tryForMoreInformationOnAvailableOptions(String qualifiedCommandName, String helpOptionName);
+
+  @Message(id = 106, value = "Failed to read user input")
+  String failedToReadUserInput();
 }

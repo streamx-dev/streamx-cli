@@ -3,6 +3,7 @@ package dev.streamx.cli.v2;
 import dev.streamx.cli.v2.cli.AbstractCommandGroup;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.cli.ShortErrorMessageHandler;
+import dev.streamx.cli.v2.commands.interactive.InteractiveCommand;
 import dev.streamx.cli.v2.commands.settings.SettingsCommand;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import picocli.CommandLine;
@@ -13,7 +14,8 @@ import picocli.CommandLine;
   mixinStandardHelpOptions = true,
   description = "StreamX CLI. More info at https://streamx.dev",
   subcommands = {
-    SettingsCommand.class
+    SettingsCommand.class,
+    InteractiveCommand.class
   }
 )
 public class Main extends AbstractCommandGroup {
