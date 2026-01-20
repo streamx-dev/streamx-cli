@@ -9,7 +9,7 @@ import java.lang.invoke.MethodHandles;
 @MessageBundle(projectCode = "STREAMXCLI")
 public interface MessageProvider {
 
-  MessageProvider msg = Messages.getBundle(MessageProvider.class);
+  MessageProvider msg = Messages.getBundle(MethodHandles.lookup(), MessageProvider.class);
 
   @Message(id = 100, value = "No such settings property found: %s")
   String noSettingsPropertyFound(String key);
