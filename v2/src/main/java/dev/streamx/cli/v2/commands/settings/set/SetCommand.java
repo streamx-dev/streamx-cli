@@ -3,6 +3,9 @@ package dev.streamx.cli.v2.commands.settings.set;
 import dev.streamx.cli.v2.cli.AbstractSilentCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
+
+import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
+
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -35,7 +38,7 @@ public class SetCommand extends AbstractSilentCommand {
       properties.setProperty(key, value);
       properties.store(outputStream, null);
     } catch (IOException e) {
-      throw new RuntimeException("Unable to set settings property", e);
+      throw new RuntimeException(msg.unableToSetSettingsProperty(), e);
     }
 
     return new CommandResult<>(null);

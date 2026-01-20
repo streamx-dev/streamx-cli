@@ -1,5 +1,7 @@
 package dev.streamx.cli.v2.commands.settings;
 
+import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -15,7 +17,7 @@ public class SettingsFile {
     try {
       return pathToFile.toUri().toURL();
     } catch (MalformedURLException e) {
-      throw new RuntimeException("Unable to get StreamX settings path", e);
+      throw new RuntimeException(msg.unableToGetSettingsFilePath(), e);
     }
   }
 }

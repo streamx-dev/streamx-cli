@@ -3,6 +3,9 @@ package dev.streamx.cli.v2.commands.settings.get;
 import dev.streamx.cli.v2.cli.AbstractCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
+
+import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
+
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -33,14 +36,14 @@ public class GetCommand extends AbstractCommand<GetCommandResult> {
 
       var value = properties.getProperty(key);
       if (value == null) {
-        throw new RuntimeException("No such settings property found: " + key);
+        throw new RuntimeException(msg.noSettingsPropertyFound(key));
       }
 
       var result = new GetCommandResult(key, value);
 
       return new CommandResult<>(result);
     } catch (IOException e) {
-      throw new RuntimeException("Unable to get settings property", e);
+      throw new RuntimeException(msg.unableToGetSettingsProperty(), e);
     }
   }
 }

@@ -9,6 +9,8 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.UnmatchedArgumentException;
 
+import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
+
 public class ShortErrorMessageHandler implements IParameterExceptionHandler {
 
   @Override
@@ -28,7 +30,7 @@ public class ShortErrorMessageHandler implements IParameterExceptionHandler {
 
     if (ex instanceof ParameterException || ex instanceof IllegalArgumentException) {
       CommandSpec spec = cmd.getCommandSpec();
-      writer.printf("Try '%s%s' for more information on the available options.%n", spec.qualifiedName(), "help".equals(spec.name()) ? "" : " --help");
+      writer.printf(msg.tryForMoreInformationOnAvailableOptions(spec.qualifiedName(), "help".equals(spec.name()) ? "" : " --help"));
       return cmd.getCommandSpec().exitCodeOnInvalidInput();
     }
     return cmd.getCommandSpec().exitCodeOnExecutionException();

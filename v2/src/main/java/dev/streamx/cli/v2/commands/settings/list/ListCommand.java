@@ -3,6 +3,7 @@ package dev.streamx.cli.v2.commands.settings.list;
 import dev.streamx.cli.v2.cli.AbstractCommand;
 import dev.streamx.cli.v2.cli.CommandResult;
 import dev.streamx.cli.v2.commands.settings.SettingsFile;
+import static dev.streamx.cli.v2.i18n.MessageProvider.msg;
 import picocli.CommandLine;
 
 import java.net.URL;
@@ -61,7 +62,7 @@ public class ListCommand extends AbstractCommand<List<Property>> {
         .map(key -> new Property(key, properties.getProperty(key)))
         .toList();
     } catch (Exception e) {
-      throw new RuntimeException("Failed to load properties from " + url, e);
+      throw new RuntimeException(msg.failedToLoadPropertiesFrom(url.getPath()), e);
     }
   }
 }
