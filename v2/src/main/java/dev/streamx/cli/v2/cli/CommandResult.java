@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -32,9 +33,12 @@ public class CommandResult<ResultT> {
           return Optional.of(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
         }
         case OutputFormat.yaml -> {
-          ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+          var yamlFactory = YAMLFactory.builder()
+            .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+            .build();
+          ObjectMapper mapper = new ObjectMapper(yamlFactory);
           JsonNode jsonNode = mapper.valueToTree(result);
-          return Optional.of(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+          return Optional.of(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode).strip());
         }
       }
 

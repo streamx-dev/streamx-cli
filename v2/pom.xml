@@ -101,6 +101,13 @@
             <version>3.27.5</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.instancio</groupId>
+            <artifactId>instancio-junit</artifactId>
+            <version>5.5.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
