@@ -11,6 +11,11 @@ public class AbstractCommandGroup extends AbstractCommand<Void> {
   }
 
   @Override
+  public String getTextOutput(CommandResult<Void> result) throws RuntimeException {
+    return "";
+  }
+
+  @Override
   public List<String> getHiddenOptions() {
     return List.of(
       CommonOption.OUTPUT_LONG,

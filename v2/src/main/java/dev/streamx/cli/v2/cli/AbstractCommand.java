@@ -34,11 +34,7 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
   }
 
   // Override this method to provide human-readable output.
-  public Optional<String> getTextOutput(CommandResult<ResultT> result) throws RuntimeException {
-    if (result.result == null) {
-      return Optional.empty();
-    }
-
+  public String getTextOutput(CommandResult<ResultT> result) throws RuntimeException {
     return result.toText(OutputFormat.json, null);
   }
 
@@ -54,10 +50,10 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
   }
 
   @CommandLine.Spec
-  private CommandSpec spec;
+  public CommandSpec spec;
 
   @CommandLine.Spec
-  private void setSpec(CommandSpec spec) {
+  public void setSpec(CommandSpec spec) {
     this.spec = spec;
     applyHiddenOptions();
   }
@@ -66,7 +62,7 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
     names = {CommonOption.VERBOSE_SHORT, CommonOption.VERBOSE_LONG},
     description = "Print debug information"
   )
-  private boolean verbose;
+  public boolean verbose;
 
   @CommandLine.Option(
     names = {CommonOption.OUTPUT_SHORT, CommonOption.OUTPUT_LONG},
@@ -74,15 +70,20 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
     defaultValue = "text"
   )
   // Explicitly set default value here as a fallback for commands with the hidden output option.
-  private OutputFormat outputFormat = OutputFormat.text;
+  public OutputFormat output = OutputFormat.text;
 
   public void printUsage() {
     spec.commandLine().usage(System.out);
   }
 
+  // For testing purposes mostly.
+  protected Terminal createTerminal() throws IOException {
+    return TerminalBuilder.builder().system(true).build();
+  }
+
   // Use this method for asking user input in interactive commands.
   public String promptForInput(String prompt, @Nullable List<String> autocompleteOptions) throws RuntimeException {
-    try (Terminal terminal = TerminalBuilder.builder().system(true).build()) {
+    try (Terminal terminal = createTerminal()) {
       LineReaderBuilder builder = LineReaderBuilder.builder()
         .terminal(terminal);
 
@@ -100,13 +101,16 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
     }
   }
 
-  public void run() {
+  public int execute() {
+    int exitCode = 0;
+
     try {
-      this.runCommand()
-        .toText(outputFormat, this::getTextOutput)
-        .ifPresent(System.out::println);
+      var textOutput = this.runCommand().toText(output, this::getTextOutput);
+      if (!textOutput.isEmpty()) {
+        System.out.println(textOutput);
+      }
     } catch (Exception e) {
-      int exitCode = ShortErrorMessageHandler.shortErrorMessage(e, spec.commandLine());
+      exitCode = ShortErrorMessageHandler.shortErrorMessage(e, spec.commandLine());
       if (verbose) {
         // Print exception stacktrace
         StringWriter sw = new StringWriter();
@@ -114,8 +118,13 @@ public abstract class AbstractCommand<ResultT> implements Runnable {
         e.printStackTrace(pw);
         System.err.println(sw);
       }
-
-      System.exit(exitCode);
     }
+
+    return exitCode;
+  }
+
+  public void run() {
+    int exitCode = execute();
+    System.exit(exitCode);
   }
 }

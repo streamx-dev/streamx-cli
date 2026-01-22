@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -21,7 +20,7 @@ public class CommandResult<ResultT> {
     this.result = result;
   }
 
-  public Optional<String> toText(OutputFormat outputFormat, Function<CommandResult<ResultT>, Optional<String>> textFormatter) throws RuntimeException {
+  public String toText(OutputFormat outputFormat, Function<CommandResult<ResultT>, String> textFormatter) throws RuntimeException {
     try {
       switch (outputFormat) {
         case OutputFormat.text -> {
@@ -30,7 +29,7 @@ public class CommandResult<ResultT> {
         case OutputFormat.json -> {
           ObjectMapper mapper = new ObjectMapper();
           JsonNode jsonNode = mapper.valueToTree(result);
-          return Optional.of(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+          return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode);
         }
         case OutputFormat.yaml -> {
           var yamlFactory = YAMLFactory.builder()
@@ -38,7 +37,7 @@ public class CommandResult<ResultT> {
             .build();
           ObjectMapper mapper = new ObjectMapper(yamlFactory);
           JsonNode jsonNode = mapper.valueToTree(result);
-          return Optional.of(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode).strip());
+          return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode).strip();
         }
       }
 

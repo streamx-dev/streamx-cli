@@ -22,8 +22,8 @@ public class GetCommand extends AbstractCommand<GetCommandResult> {
   private String key;
 
   @Override
-  public Optional<String> getTextOutput(CommandResult<GetCommandResult> result) throws RuntimeException {
-    return Optional.of(result.result.value());
+  public String getTextOutput(CommandResult<GetCommandResult> result) throws RuntimeException {
+    return result.result.value();
   }
 
   @Override

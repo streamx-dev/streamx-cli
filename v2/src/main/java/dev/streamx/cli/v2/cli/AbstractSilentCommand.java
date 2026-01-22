@@ -8,4 +8,9 @@ public abstract class AbstractSilentCommand extends AbstractCommand<Void> {
   public List<String> getHiddenOptions() {
     return List.of(CommonOption.OUTPUT_LONG);
   }
+
+  @Override
+  public String getTextOutput(CommandResult<Void> result) throws RuntimeException {
+    return "";
+  }
 }

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 )
 public class ListCommand extends AbstractCommand<List<Property>> {
   @Override
-  public Optional<String> getTextOutput(CommandResult<List<Property>> result) throws RuntimeException {
+  public String getTextOutput(CommandResult<List<Property>> result) throws RuntimeException {
     StringBuilder stringOutput = new StringBuilder();
 
     Map<String, String> map = result.result.stream()
@@ -44,7 +44,7 @@ public class ListCommand extends AbstractCommand<List<Property>> {
     stringOutput.append(repeat).append("\n");
     stringOutput.append("Total properties: ").append(result.result.size()).append("\n");
 
-    return Optional.of(stringOutput.toString());
+    return stringOutput.toString();
   }
 
   @Override
