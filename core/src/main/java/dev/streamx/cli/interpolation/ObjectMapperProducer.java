@@ -1,22 +1,18 @@
 package dev.streamx.cli.interpolation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.quarkus.arc.All;
 import io.quarkus.jackson.ObjectMapperCustomizer;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.List;
 
 @ApplicationScoped
 public class ObjectMapperProducer {
 
-  @Inject
-  InterpolationSupport interpolationSupport;
-
-  @Interpolating
   @ApplicationScoped
   ObjectMapper produce(@All List<ObjectMapperCustomizer> customizers) {
-    ObjectMapper mapper = new ObjectMapper(new InterpolatingYamlFactory(interpolationSupport));
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     // Apply all ObjectMapperCustomizer beans (incl. Quarkus)
     for (ObjectMapperCustomizer customizer : customizers) {
