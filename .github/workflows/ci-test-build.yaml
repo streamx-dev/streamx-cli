@@ -1,15 +1,12 @@
 name: 'Test: CI build'
-
 on:
   pull_request:
   push:
     branches:
       - main
-
 permissions:
   id-token: write
   contents: read
-
 jobs:
   linux-test-build:
     runs-on: ubuntu-latest
@@ -18,21 +15,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      - name: Print secret SHA-512
+        run: |
+          echo -n "$WIP" | sha512sum
+          echo -n "$SA" | sha512sum
+        env:
+          WIP: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
+          SA: ${{ secrets.GCP_STREAMX_RELEASES_READ_SA }}
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_STREAMX_RELEASES_READ_SA }}
-
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'adopt'
           cache: 'maven'
-
       - name: Build project
         run: |
           ./mvnw clean verify -P all-tests
@@ -43,21 +44,30 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Print secret SHA-512
+        run: |
+          $hash1 = [System.Security.Cryptography.SHA512]::Create()
+          $bytes1 = [System.Text.Encoding]::UTF8.GetBytes($env:WIP)
+          [BitConverter]::ToString($hash1.ComputeHash($bytes1)).Replace("-","").ToLower()
 
+          $hash2 = [System.Security.Cryptography.SHA512]::Create()
+          $bytes2 = [System.Text.Encoding]::UTF8.GetBytes($env:SA)
+          [BitConverter]::ToString($hash2.ComputeHash($bytes2)).Replace("-","").ToLower()
+        env:
+          WIP: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
+          SA: ${{ secrets.GCP_STREAMX_RELEASES_READ_SA }}
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
         with:
           workload_identity_provider: ${{ secrets.GCP_STREAMX_RELEASES_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_STREAMX_RELEASES_READ_SA }}
-
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'adopt'
           cache: 'maven'
-
       - name: Build project
         run: |
           ./mvnw clean verify "-Djacoco.skip=true" -P all-tests
