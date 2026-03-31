@@ -1,7 +1,7 @@
 package dev.streamx.githhub.action;
 
-import static dev.streamx.githhub.Constants.INGESTION_CHANNEL;
 import static dev.streamx.githhub.Constants.INGESTION_SOURCE_PROVIDER;
+import static dev.streamx.githhub.Constants.PUBLISH_EVENT_TYPE;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_URL;
 
 import dev.streamx.exception.GitHubActionException;
@@ -17,7 +17,7 @@ public class PublishGitHubAction extends AbstractGitHubAction {
   public static final String ACTION_NAME = "publish";
 
   private static final String[] ACTION_REQUIRED_INPUT_PARAMETERS = new String[]{
-      STREAMX_INGESTION_URL, INGESTION_CHANNEL, INGESTION_SOURCE_PROVIDER};
+      STREAMX_INGESTION_URL, PUBLISH_EVENT_TYPE, INGESTION_SOURCE_PROVIDER};
 
   @Action(PublishGitHubAction.ACTION_NAME)
   void publishAction(Commands commands, Inputs inputs, Context context)

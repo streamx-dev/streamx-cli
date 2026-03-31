@@ -1,42 +1,28 @@
 package dev.streamx.ingestion.payload;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.ingestion.IngestionPayload;
-import dev.streamx.ingestion.IngestionPayloadJsonFactory;
-import java.util.Collections;
+import io.cloudevents.CloudEvent;
 import org.jboss.logging.Logger;
 
 public class KeyPayload implements IngestionPayload {
 
   private static final Logger log = Logger.getLogger(KeyPayload.class);
 
-  private final String action;
-
+  private final String eventType;
   private final String key;
 
-  public KeyPayload(String action, String key) {
-    this.action = action;
+  public KeyPayload(String eventType, String key) {
+    this.eventType = eventType;
     this.key = key;
   }
 
   @Override
-  public String getAction() {
-    return action;
-  }
-
-  @Override
-  public JsonNode resolve() throws GitHubActionException {
-    JsonNode message = IngestionPayloadJsonFactory.createMessage(
-        key,
-        getAction(),
-        null,
-        Collections.emptyMap(),
-        null
-    );
+  public CloudEvent resolve() throws GitHubActionException {
+    CloudEvent event = CloudEventFactory.createUnpublishEvent(eventType, key);
     if (log.isDebugEnabled()) {
-      log.debugf("Message: %s", message.toPrettyString());
+      log.debugf("CloudEvent: type=%s, subject=%s", event.getType(), event.getSubject());
     }
-    return message;
+    return event;
   }
 }

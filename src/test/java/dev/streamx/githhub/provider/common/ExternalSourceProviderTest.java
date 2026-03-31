@@ -3,19 +3,16 @@ package dev.streamx.githhub.provider.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dev.streamx.clients.ingestion.publisher.Message;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.AbstractSourceProviderTest;
 import dev.streamx.ingestion.IngestionConfig;
-import dev.streamx.ingestion.schema.SchemaProvider;
+import io.cloudevents.CloudEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -32,11 +29,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ExternalSourceProviderTest extends AbstractSourceProviderTest {
 
+  private static final String PUBLISH_EVENT_TYPE =
+      "com.streamx.blueprints.web-resource.published.v1";
+
   private ExternalSourceProvider provider;
   @Mock
   private CloseableHttpClient httpClient;
-  @Mock
-  private SchemaProvider schemaProvider;
   @Mock
   private IngestionConfig ingestionConfig;
   @Mock
@@ -49,7 +47,6 @@ class ExternalSourceProviderTest extends AbstractSourceProviderTest {
     provider = new ExternalSourceProvider();
     provider.httpClient = httpClient;
     provider.objectMapper = objectMapper;
-    provider.schemaProvider = schemaProvider;
     provider.ingestionConfig = ingestionConfig;
     lenient().when(httpClient.execute(any())).thenReturn(httpResponse);
     lenient().when(httpResponse.getEntity()).thenReturn(httpEntity);
@@ -73,7 +70,7 @@ class ExternalSourceProviderTest extends AbstractSourceProviderTest {
   }
 
   @Test
-  public void testShouldThrowAnExceptionWhenChannelParameterMissing() {
+  public void testShouldThrowAnExceptionWhenEventTypeParameterMissing() {
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
 
@@ -81,7 +78,7 @@ class ExternalSourceProviderTest extends AbstractSourceProviderTest {
         MissingRequiredInputException.class, () ->
             provider.createPayload(inputs, context, payload)
     );
-    assertEquals("Provider is missing required input parameter: channel",
+    assertEquals("Provider is missing required input parameter: publish-event-type",
         exception.getMessage());
   }
 
@@ -89,8 +86,8 @@ class ExternalSourceProviderTest extends AbstractSourceProviderTest {
   public void testShouldThrowAnExceptionWhenExternalResourceUrlParameterMissing() {
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
 
     MissingRequiredInputException exception = assertThrows(
         MissingRequiredInputException.class, () ->
@@ -104,8 +101,8 @@ class ExternalSourceProviderTest extends AbstractSourceProviderTest {
   public void testShouldThrowAnExceptionWhenKeyParameterMissing() {
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
     when(inputs.get(Constants.EXTERNAL_RESOURCE_URL)).thenReturn(
         Optional.of("https://test.dev/my/resource"));
 
@@ -118,96 +115,22 @@ class ExternalSourceProviderTest extends AbstractSourceProviderTest {
   }
 
   @Test
-  public void testShouldRequestSchemaTypeForChannel()
+  public void testShouldCreateCloudEventWithCorrectType()
       throws GitHubActionException {
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(
-        Optional.of("ingestion_token"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
-
-    when(inputs.get(Constants.INGESTION_ACTION)).thenReturn(
-        Optional.of(Message.PUBLISH_ACTION));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
     when(inputs.get(Constants.EXTERNAL_RESOURCE_URL)).thenReturn(
         Optional.of("https://test.dev/my/resource"));
     when(inputs.get(Constants.INGESTION_MESSAGE_KEY)).thenReturn(
         Optional.of("my/resource/key"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "ingestion_token", "pages"))
-        .thenReturn("dev.streamx.blueprints.data.Page");
 
-    List<JsonNode> result = provider.createPayload(inputs, context, payload);
+    List<CloudEvent> result = provider.createPayload(inputs, context, payload);
     assertNotNull(result);
     assertEquals(1, result.size());
-    assertTrue(result.get(0).get("payload").has("dev.streamx.blueprints.data.Page"));
+    assertEquals(PUBLISH_EVENT_TYPE, result.get(0).getType());
+    assertEquals("my/resource/key", result.get(0).getSubject());
   }
-
-  @Test
-  public void testShouldMakeIngestionMessageWithSxTypeParam()
-      throws GitHubActionException {
-    when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
-        Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(
-        Optional.of("ingestion_token"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
-
-    when(inputs.get(Constants.INGESTION_ACTION)).thenReturn(
-        Optional.of(Message.PUBLISH_ACTION));
-    when(inputs.get(Constants.EXTERNAL_RESOURCE_URL)).thenReturn(
-        Optional.of("https://test.dev/my/resource"));
-    when(inputs.get(Constants.INGESTION_MESSAGE_KEY)).thenReturn(
-        Optional.of("my/resource/key"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "ingestion_token", "pages"))
-        .thenReturn("dev.streamx.blueprints.data.Page");
-
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.of("page/eds"));
-
-    List<JsonNode> result = provider.createPayload(inputs, context, payload);
-    assertNotNull(result);
-    assertEquals(1, result.size());
-    assertTrue(result.get(0).has("properties"));
-    JsonNode propertiesNode = result.get(0).get("properties");
-    assertEquals("page/eds", propertiesNode.get("sx:type").asText());
-  }
-
-  @Test
-  public void testShouldMakeIngestionMessageWithIndexableParam()
-      throws GitHubActionException {
-    when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
-        Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(
-        Optional.of("ingestion_token"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
-
-    when(inputs.get(Constants.INGESTION_ACTION)).thenReturn(
-        Optional.of(Message.PUBLISH_ACTION));
-    when(inputs.get(Constants.EXTERNAL_RESOURCE_URL)).thenReturn(
-        Optional.of("https://test.dev/my/resource"));
-    when(inputs.get(Constants.INGESTION_MESSAGE_KEY)).thenReturn(
-        Optional.of("my/resource/key"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "ingestion_token", "pages"))
-        .thenReturn("dev.streamx.blueprints.data.Page");
-
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.empty());
-    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.of("true"));
-
-    List<JsonNode> result = provider.createPayload(inputs, context, payload);
-    assertNotNull(result);
-    assertEquals(1, result.size());
-    JsonNode node = result.get(0);
-    assertEquals("true", node.get("properties").get("indexable").asText());
-  }
-
 
 }

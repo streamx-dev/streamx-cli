@@ -1,16 +1,10 @@
 package dev.streamx.ingestion;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.exception.GitHubActionException;
+import io.cloudevents.CloudEvent;
 
 public interface IngestionPayload {
 
-  String TYPE_KEY = "sx:type";
-
-  String INDEXABLE_KEY = "indexable";
-
-  String getAction();
-
-  JsonNode resolve() throws GitHubActionException;
+  CloudEvent resolve() throws GitHubActionException;
 
 }

@@ -1,19 +1,17 @@
 package dev.streamx.githhub.action;
 
-import static dev.streamx.githhub.Constants.INGESTION_CHANNEL;
 import static dev.streamx.githhub.Constants.INGESTION_MESSAGE_KEY;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_TOKEN;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_URL;
+import static dev.streamx.githhub.Constants.UNPUBLISH_EVENT_TYPE;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dev.streamx.clients.ingestion.StreamxClient;
-import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
-import dev.streamx.clients.ingestion.publisher.Message;
-import dev.streamx.clients.ingestion.publisher.Publisher;
-import dev.streamx.clients.ingestion.publisher.SuccessResult;
+import com.streamx.clients.ingestion.StreamxClient;
+import com.streamx.clients.ingestion.exceptions.StreamxClientException;
+import com.streamx.clients.ingestion.publisher.Publisher;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.ingestion.payload.KeyPayload;
+import io.cloudevents.CloudEvent;
 import io.quarkiverse.githubaction.Action;
 import io.quarkiverse.githubaction.Commands;
 import io.quarkiverse.githubaction.Inputs;
@@ -28,7 +26,7 @@ public class UnpublishGitHubAction extends AbstractGitHubAction {
   public static final String ACTION_NAME = "unpublish";
 
   private static final String[] ACTION_REQUIRED_INPUT_PARAMETERS = new String[]{
-      STREAMX_INGESTION_URL, INGESTION_CHANNEL, INGESTION_MESSAGE_KEY};
+      STREAMX_INGESTION_URL, UNPUBLISH_EVENT_TYPE, INGESTION_MESSAGE_KEY};
 
   @Inject
   Logger log;
@@ -44,20 +42,20 @@ public class UnpublishGitHubAction extends AbstractGitHubAction {
     }
 
     String key = inputs.getRequired(INGESTION_MESSAGE_KEY);
-    String channel = inputs.getRequired(INGESTION_CHANNEL);
+    String eventType = inputs.getRequired(UNPUBLISH_EVENT_TYPE);
     String streamxIngestionUrl = inputs.getRequired(STREAMX_INGESTION_URL);
     Optional<String> streamxIngestionToken = inputs.get(STREAMX_INGESTION_TOKEN);
 
     try (StreamxClient streamxClient = streamxClientProvider.createStreamxClient(
         streamxIngestionUrl, streamxIngestionToken)) {
-      KeyPayload unpublishPayload = new KeyPayload(Message.UNPUBLISH_ACTION, key);
+      KeyPayload unpublishPayload = new KeyPayload(eventType, key);
 
-      JsonNode unpublishMessage = unpublishPayload.resolve();
-      logMessageNotice(commands, unpublishMessage);
+      CloudEvent unpublishEvent = unpublishPayload.resolve();
+      logMessageNotice(commands, unpublishEvent);
 
-      Publisher<JsonNode> publisher = streamxClient.newPublisher(channel, JsonNode.class);
-      SuccessResult successResult = publisher.send(unpublishMessage);
-      logSuccessNotice(commands, successResult);
+      Publisher publisher = streamxClient.newPublisher();
+      publisher.send(unpublishEvent);
+      commands.notice(String.format(PUBLISHING_SUCCESSFUL_MSG_FMT, key));
     } catch (GitHubActionException exc) {
       log.error(exc.getMessage(), exc);
       commands.error(exc.getMessage());

@@ -3,10 +3,10 @@ package dev.streamx.githhub.provider;
 import static dev.streamx.githhub.Constants.INGESTION_INCLUDE_PATTERNS;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.githhub.Constants;
+import io.cloudevents.CloudEvent;
 import io.quarkiverse.githubaction.Context;
 import io.quarkiverse.githubaction.Inputs;
 import java.util.List;
@@ -19,7 +19,7 @@ public interface DataSourceProvider {
 
   ObjectMapper getMapper();
 
-  List<JsonNode> createPayload(Inputs inputs, Context context, GHEventPayload payload)
+  List<CloudEvent> createPayload(Inputs inputs, Context context, GHEventPayload payload)
       throws GitHubActionException;
 
   default String getWorkspace(Inputs inputs, String defaultWorkspace) {

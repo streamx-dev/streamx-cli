@@ -1,8 +1,8 @@
 package dev.streamx.githhub.action;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -10,14 +10,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
-import dev.streamx.clients.ingestion.publisher.Message;
+import com.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.DataSourceProvider;
-import dev.streamx.ingestion.IngestionPayloadJsonFactory;
+import dev.streamx.ingestion.payload.CloudEventFactory;
+import io.cloudevents.CloudEvent;
 import io.quarkiverse.githubaction.Context;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +50,6 @@ class PublishGitHubActionTest extends AbstractGitHubActionTest {
     when(dataSourceProvider.getName()).thenReturn("action_source_provider");
     action.dataSourceProviders = Collections.singletonList(dataSourceProvider);
     action.ingestionConfig = ingestionConfig;
-    action.objectMapper = objectMapper;
   }
 
   @Test
@@ -67,13 +65,13 @@ class PublishGitHubActionTest extends AbstractGitHubActionTest {
     assertThrows(MissingRequiredInputException.class,
         () -> action.publishAction(commands, inputs, context));
     verify(commands, times(1)).error(
-        "Missing required channel input parameter. StreamX ingestion skipped.");
+        "Missing required publish-event-type input parameter. StreamX ingestion skipped.");
 
     reset(commands);
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("page"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of("com.streamx.blueprints.web-resource.published.v1"));
     assertThrows(MissingRequiredInputException.class,
         () -> action.publishAction(commands, inputs, context));
     verify(commands, times(1)).error(
@@ -90,30 +88,27 @@ class PublishGitHubActionTest extends AbstractGitHubActionTest {
       GitHubActionException {
     mockInputParameters();
 
-    JsonNode message = IngestionPayloadJsonFactory.createMessage(
+    CloudEvent event = CloudEventFactory.createPublishEvent(
+        "com.streamx.blueprints.web-resource.published.v1",
         "/test/streamx.key",
-        Message.PUBLISH_ACTION,
-        createTestPayloadContent("Test content"),
-        null,
-        "web-resource/static"
+        "Test content".getBytes()
     );
-    List<JsonNode> requestPayload = new ArrayList<>();
-    requestPayload.add(message);
+    List<CloudEvent> requestPayload = new ArrayList<>();
+    requestPayload.add(event);
     when(dataSourceProvider.createPayload(inputs, context, null))
         .thenReturn(requestPayload);
 
     action.publishAction(commands, inputs, context);
 
-    verify(streamxClient, times(1))
-        .newPublisher("page", JsonNode.class);
-    verify(publisher, times(1)).send(eq(requestPayload));
+    verify(streamxClient, times(1)).newPublisher();
+    verify(publisher, times(1)).send(anyList());
   }
 
   private void mockInputParameters() {
     mockBaseInputParameters();
-    String page = "page";
-    lenient().when(inputs.getRequired(Constants.INGESTION_CHANNEL)).thenReturn(page);
-    lenient().when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(Optional.of(page));
+    String eventType = "com.streamx.blueprints.web-resource.published.v1";
+    lenient().when(inputs.getRequired(Constants.PUBLISH_EVENT_TYPE)).thenReturn(eventType);
+    lenient().when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(Optional.of(eventType));
 
     String pageKey = "page_key";
     lenient().when(inputs.getRequired(Constants.INGESTION_MESSAGE_KEY)).thenReturn(pageKey);

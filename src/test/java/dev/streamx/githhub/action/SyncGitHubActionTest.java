@@ -10,14 +10,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import dev.streamx.clients.ingestion.exceptions.StreamxClientException;
-import dev.streamx.clients.ingestion.publisher.Message;
+import com.streamx.clients.ingestion.exceptions.StreamxClientException;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.DataSourceProvider;
-import dev.streamx.ingestion.IngestionPayloadJsonFactory;
+import dev.streamx.ingestion.payload.CloudEventFactory;
+import io.cloudevents.CloudEvent;
 import io.quarkiverse.githubaction.Context;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +52,6 @@ class SyncGitHubActionTest extends AbstractGitHubActionTest {
     when(dataSourceProvider.getName()).thenReturn("sync_action_source_provider");
     action.dataSourceProviders = Collections.singletonList(dataSourceProvider);
     action.ingestionConfig = ingestionConfig;
-    action.objectMapper = objectMapper;
   }
 
   @Test
@@ -69,13 +67,25 @@ class SyncGitHubActionTest extends AbstractGitHubActionTest {
     assertThrows(MissingRequiredInputException.class,
         () -> action.syncAction(commands, inputs, context, eventPayload));
     verify(commands, times(1)).error(
-        "Missing required channel input parameter. StreamX ingestion skipped.");
+        "Missing required publish-event-type input parameter. StreamX ingestion skipped.");
 
     reset(commands);
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("webresource"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of("com.streamx.blueprints.web-resource.published.v1"));
+    assertThrows(MissingRequiredInputException.class,
+        () -> action.syncAction(commands, inputs, context, eventPayload));
+    verify(commands, times(1)).error(
+        "Missing required unpublish-event-type input parameter. StreamX ingestion skipped.");
+
+    reset(commands);
+    when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
+        Optional.of("https://ingestion.streamx.dev"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of("com.streamx.blueprints.web-resource.published.v1"));
+    when(inputs.get(Constants.UNPUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of("com.streamx.blueprints.web-resource.unpublished.v1"));
     assertThrows(MissingRequiredInputException.class,
         () -> action.syncAction(commands, inputs, context, eventPayload));
     verify(commands, times(1)).error(
@@ -92,22 +102,19 @@ class SyncGitHubActionTest extends AbstractGitHubActionTest {
       GitHubActionException {
     mockInputParameters();
 
-    JsonNode message = IngestionPayloadJsonFactory.createMessage(
+    CloudEvent event = CloudEventFactory.createPublishEvent(
+        "com.streamx.blueprints.web-resource.published.v1",
         "/test/streamx.key",
-        Message.PUBLISH_ACTION,
-        createTestPayloadContent("Test content"),
-        null,
-        "web-resource/static"
+        "Test content".getBytes()
     );
-    List<JsonNode> requestPayload = new ArrayList<>();
-    requestPayload.add(message);
+    List<CloudEvent> requestPayload = new ArrayList<>();
+    requestPayload.add(event);
     when(dataSourceProvider.createPayload(inputs, context, eventPayload)).thenReturn(
         requestPayload);
 
     action.syncAction(commands, inputs, context, eventPayload);
 
-    verify(streamxClient, times(1))
-        .newPublisher("webresource", JsonNode.class);
+    verify(streamxClient, times(1)).newPublisher();
     verify(publisher, times(1)).send(anyList());
   }
 
@@ -116,26 +123,24 @@ class SyncGitHubActionTest extends AbstractGitHubActionTest {
       GitHubActionException {
     mockInputParameters();
     reset(ingestionConfig);
-    when(ingestionConfig.batchSourceProviderBatchSizeInBytes()).thenReturn(150L);
+    // Each CloudEvent is ~320 bytes; set limit so only one fits per batch
+    when(ingestionConfig.batchSourceProviderBatchSizeInBytes()).thenReturn(400L);
 
-    JsonNode message = IngestionPayloadJsonFactory.createMessage(
+    CloudEvent event = CloudEventFactory.createPublishEvent(
+        "com.streamx.blueprints.web-resource.published.v1",
         "/test/streamx.key",
-        Message.PUBLISH_ACTION,
-        createTestPayloadContent("Test content"),
-        null,
-        "web-resource/static"
+        "Test content".getBytes()
     );
-    List<JsonNode> requestPayload = new ArrayList<>();
-    requestPayload.add(message);
-    requestPayload.add(message);
-    requestPayload.add(message);
+    List<CloudEvent> requestPayload = new ArrayList<>();
+    requestPayload.add(event);
+    requestPayload.add(event);
+    requestPayload.add(event);
     when(dataSourceProvider.createPayload(inputs, context, eventPayload)).thenReturn(
         requestPayload);
 
     action.syncAction(commands, inputs, context, eventPayload);
 
-    verify(streamxClient, times(1))
-        .newPublisher("webresource", JsonNode.class);
+    verify(streamxClient, times(1)).newPublisher();
     verify(publisher, times(3)).send(anyList());
   }
 
@@ -144,41 +149,47 @@ class SyncGitHubActionTest extends AbstractGitHubActionTest {
       GitHubActionException {
     mockInputParameters();
     reset(ingestionConfig);
-    when(ingestionConfig.batchSourceProviderBatchSizeInBytes()).thenReturn(150L);
+    // Set limit so the small event fits but the large one does not
+    when(ingestionConfig.batchSourceProviderBatchSizeInBytes()).thenReturn(400L);
 
-    JsonNode message = IngestionPayloadJsonFactory.createMessage(
+    CloudEvent event = CloudEventFactory.createPublishEvent(
+        "com.streamx.blueprints.web-resource.published.v1",
         "/test/streamx.key",
-        Message.PUBLISH_ACTION,
-        createTestPayloadContent("Test content"),
-        null,
-        "web-resource/static"
+        "Test content".getBytes()
     );
-    JsonNode inValidMessage = IngestionPayloadJsonFactory.createMessage(
+    // Create a large event that exceeds the batch size limit
+    byte[] largeContent = new byte[500];
+    java.util.Arrays.fill(largeContent, (byte) 'X');
+    CloudEvent invalidEvent = CloudEventFactory.createPublishEvent(
+        "com.streamx.blueprints.web-resource.published.v1",
         "/test/streamx2.key",
-        Message.PUBLISH_ACTION,
-        createTestPayloadContent("Test content with invalid size. Message should not get send."),
-        null,
-        "web-resource/static"
+        largeContent
     );
-    List<JsonNode> requestPayload = new ArrayList<>();
-    requestPayload.add(message);
-    requestPayload.add(inValidMessage);
+    List<CloudEvent> requestPayload = new ArrayList<>();
+    requestPayload.add(event);
+    requestPayload.add(invalidEvent);
     when(dataSourceProvider.createPayload(inputs, context, eventPayload)).thenReturn(
         requestPayload);
 
     action.syncAction(commands, inputs, context, eventPayload);
 
-    verify(streamxClient, times(1))
-        .newPublisher("webresource", JsonNode.class);
+    verify(streamxClient, times(1)).newPublisher();
     verify(publisher, times(1)).send(anyList());
   }
 
   private void mockInputParameters() {
     mockBaseInputParameters();
-    String page = "webresource";
-    lenient().when(inputs.getRequired(Constants.INGESTION_CHANNEL)).thenReturn(page);
-    lenient().when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of(page));
+    String publishEventType = "com.streamx.blueprints.web-resource.published.v1";
+    lenient().when(inputs.getRequired(Constants.PUBLISH_EVENT_TYPE))
+        .thenReturn(publishEventType);
+    lenient().when(inputs.get(Constants.PUBLISH_EVENT_TYPE))
+        .thenReturn(Optional.of(publishEventType));
+
+    String unpublishEventType = "com.streamx.blueprints.web-resource.unpublished.v1";
+    lenient().when(inputs.getRequired(Constants.UNPUBLISH_EVENT_TYPE))
+        .thenReturn(unpublishEventType);
+    lenient().when(inputs.get(Constants.UNPUBLISH_EVENT_TYPE))
+        .thenReturn(Optional.of(unpublishEventType));
 
     String pageKey = "webresource_key";
     lenient().when(inputs.getRequired(Constants.INGESTION_MESSAGE_KEY)).thenReturn(pageKey);

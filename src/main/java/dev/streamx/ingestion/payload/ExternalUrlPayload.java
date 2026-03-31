@@ -1,9 +1,8 @@
 package dev.streamx.ingestion.payload;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.ingestion.IngestionPayload;
-import dev.streamx.ingestion.IngestionPayloadJsonFactory;
+import io.cloudevents.CloudEvent;
 import java.io.IOException;
 import java.util.Objects;
 import org.apache.http.client.config.RequestConfig;
@@ -13,37 +12,25 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jboss.logging.Logger;
 
-public class ExternalUrlPayload extends AbstractSchemaTypePayload implements IngestionPayload {
+public class ExternalUrlPayload implements IngestionPayload {
 
   private static final Logger log = Logger.getLogger(ExternalUrlPayload.class);
 
   private static final int DEFAULT_SOCKET_TIMEOUT = 1000;
-
   private static final int DEFAULT_CONNECTION_TIMEOUT = 5000;
 
   private final CloseableHttpClient httpClient;
-
-  private final String action;
-
+  private final String eventType;
   private final String url;
 
   private String key;
-
   private int socketTimeout = DEFAULT_SOCKET_TIMEOUT;
-
   private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
 
-  public ExternalUrlPayload(CloseableHttpClient httpClient, String action, String url,
-      String schemaType) {
-    super(schemaType);
+  public ExternalUrlPayload(CloseableHttpClient httpClient, String eventType, String url) {
     this.httpClient = httpClient;
-    this.action = action;
+    this.eventType = eventType;
     this.url = url;
-  }
-
-  @Override
-  public String getAction() {
-    return action;
   }
 
   public void setKey(String key) {
@@ -59,23 +46,17 @@ public class ExternalUrlPayload extends AbstractSchemaTypePayload implements Ing
   }
 
   @Override
-  public JsonNode resolve() throws GitHubActionException {
+  public CloudEvent resolve() throws GitHubActionException {
     byte[] bytes = requestBytes();
     if (log.isDebugEnabled()) {
       log.debugf("Read external resource: %s, bytes length: %d", url, bytes.length);
     }
-    JsonNode bytesNode = toJsonNode(bytes);
-    JsonNode message = IngestionPayloadJsonFactory.createMessage(
-        Objects.toString(key, url),
-        getAction(),
-        IngestionPayloadJsonFactory.createPayloadContent(bytesNode),
-        getIngestionProperties(),
-        getSchemaType()
-    );
+    String subject = Objects.toString(key, url);
+    CloudEvent event = CloudEventFactory.createPublishEvent(eventType, subject, bytes);
     if (log.isDebugEnabled()) {
-      log.debugf("Message: %s", message.toPrettyString());
+      log.debugf("CloudEvent: type=%s, subject=%s", event.getType(), event.getSubject());
     }
-    return message;
+    return event;
   }
 
   private byte[] requestBytes() throws GitHubActionException {
@@ -94,6 +75,5 @@ public class ExternalUrlPayload extends AbstractSchemaTypePayload implements Ing
     }
     return byteArray;
   }
-
 
 }

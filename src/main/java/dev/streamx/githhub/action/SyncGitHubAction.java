@@ -1,8 +1,9 @@
 package dev.streamx.githhub.action;
 
-import static dev.streamx.githhub.Constants.INGESTION_CHANNEL;
 import static dev.streamx.githhub.Constants.INGESTION_SOURCE_PROVIDER;
+import static dev.streamx.githhub.Constants.PUBLISH_EVENT_TYPE;
 import static dev.streamx.githhub.Constants.STREAMX_INGESTION_URL;
+import static dev.streamx.githhub.Constants.UNPUBLISH_EVENT_TYPE;
 
 import dev.streamx.exception.GitHubActionException;
 import io.quarkiverse.githubaction.Action;
@@ -19,7 +20,8 @@ public class SyncGitHubAction extends AbstractGitHubAction {
   public static final String ACTION_NAME = "sync";
 
   private static final String[] ACTION_REQUIRED_INPUT_PARAMETERS = new String[]{
-      STREAMX_INGESTION_URL, INGESTION_CHANNEL, INGESTION_SOURCE_PROVIDER};
+      STREAMX_INGESTION_URL, PUBLISH_EVENT_TYPE, UNPUBLISH_EVENT_TYPE,
+      INGESTION_SOURCE_PROVIDER};
 
   @Action(SyncGitHubAction.ACTION_NAME)
   void syncAction(Commands commands, Inputs inputs, Context context,

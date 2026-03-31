@@ -10,12 +10,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.AbstractSourceProviderTest;
-import dev.streamx.ingestion.schema.SchemaProvider;
+import io.cloudevents.CloudEvent;
 import io.quarkiverse.githubaction.Context;
 import io.quarkiverse.githubaction.Inputs;
 import java.io.IOException;
@@ -35,14 +34,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PullRequestDiffSourceProviderTest extends AbstractSourceProviderTest {
 
-  private static final String PAGE_SCHEMA_TYPE = "dev.streamx.blueprints.data.Page";
+  private static final String PUBLISH_EVENT_TYPE =
+      "com.streamx.blueprints.web-resource.published.v1";
+  private static final String UNPUBLISH_EVENT_TYPE =
+      "com.streamx.blueprints.web-resource.unpublished.v1";
   private static final DiffResult EMPTY_DIFF_RESULT = new DiffResult();
   private PullRequestDiffDataSourceProvider provider;
 
   @Mock
   private GitService gitService;
-  @Mock
-  private SchemaProvider schemaProvider;
   @Mock
   private GHEventPayload.PullRequest pullRequestPayload;
   @Mock
@@ -52,7 +52,6 @@ class PullRequestDiffSourceProviderTest extends AbstractSourceProviderTest {
   public void setUp() {
     provider = new PullRequestDiffDataSourceProvider();
     provider.objectMapper = objectMapper;
-    provider.schemaProvider = schemaProvider;
     provider.gitService = gitService;
 
     lenient().when(pullRequestPayload.getPullRequest()).thenReturn(ghPullRequest);
@@ -84,14 +83,26 @@ class PullRequestDiffSourceProviderTest extends AbstractSourceProviderTest {
         Optional.of("https://ingestion.streamx.dev"));
     exception = requestCreatePayloadAndGetException(inputs, context,
         pullRequestPayload);
-    assertEquals("Provider is missing required input parameter: channel",
+    assertEquals("Provider is missing required input parameter: publish-event-type",
         exception.getMessage());
 
     reset(inputs);
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
+    exception = requestCreatePayloadAndGetException(inputs, context,
+        pullRequestPayload);
+    assertEquals("Provider is missing required input parameter: unpublish-event-type",
+        exception.getMessage());
+
+    reset(inputs);
+    when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
+        Optional.of("https://ingestion.streamx.dev"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
+    when(inputs.get(Constants.UNPUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(UNPUBLISH_EVENT_TYPE));
     exception = requestCreatePayloadAndGetException(inputs, context,
         pullRequestPayload);
     assertEquals("Provider is missing required input parameter: include-patterns",
@@ -100,17 +111,17 @@ class PullRequestDiffSourceProviderTest extends AbstractSourceProviderTest {
     reset(inputs);
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
+    when(inputs.get(Constants.UNPUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(UNPUBLISH_EVENT_TYPE));
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS)).thenReturn(
         Optional.of("[\"styles/*.css\"]"));
     when(inputs.get(Constants.INGESTION_WORKSPACE)).thenReturn(
         Optional.of("/opt/streamx/ingestion"));
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(null);
-    when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(null);
     when(ghPullRequest.getCommits()).thenReturn(1);
     when(gitService.getDiff(eq("/opt/streamx/ingestion"), eq(1))).thenReturn(EMPTY_DIFF_RESULT);
-    List<JsonNode> result = provider.createPayload(inputs, context, pullRequestPayload);
+    List<CloudEvent> result = provider.createPayload(inputs, context, pullRequestPayload);
     assertTrue(result.isEmpty());
   }
 
@@ -130,25 +141,22 @@ class PullRequestDiffSourceProviderTest extends AbstractSourceProviderTest {
 
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(
-        Optional.of("streamx_token"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
+    when(inputs.get(Constants.UNPUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(UNPUBLISH_EVENT_TYPE));
     when(inputs.get(Constants.INGESTION_WORKSPACE)).thenReturn(Optional.of(testWorkspace));
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS)).thenReturn(
         Optional.of("[\"**.css\"]"));
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.of("page/eds"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "streamx_token", "pages")).thenReturn(PAGE_SCHEMA_TYPE);
     when(ghPullRequest.getCommits()).thenReturn(1);
     DiffResult diffResult = mock(DiffResult.class);
     when(gitService.getDiff(eq(testWorkspace), eq(1))).thenReturn(diffResult);
     when(diffResult.getModifiedPaths()).thenReturn(
         Set.of("test_1/file_1_1.css", "test_1/file_1_2.css"));
 
-    List<JsonNode> result = provider.createPayload(inputs, context, pullRequestPayload);
+    List<CloudEvent> result = provider.createPayload(inputs, context, pullRequestPayload);
     assertFalse(result.isEmpty());
-    result.forEach(node -> node.get("action").toString().equals("publish"));
+    result.forEach(event -> assertEquals(PUBLISH_EVENT_TYPE, event.getType()));
   }
 
   @Test
@@ -159,29 +167,26 @@ class PullRequestDiffSourceProviderTest extends AbstractSourceProviderTest {
 
     when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(
-        Optional.of("streamx_token"));
-    when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
+    when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
+    when(inputs.get(Constants.UNPUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(UNPUBLISH_EVENT_TYPE));
     when(inputs.get(Constants.INGESTION_WORKSPACE)).thenReturn(Optional.of(testWorkspace));
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS)).thenReturn(
         Optional.of("[\"**.css\", \"**.js\"]"));
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.of("page/eds"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "streamx_token", "pages")).thenReturn(PAGE_SCHEMA_TYPE);
     when(ghPullRequest.getCommits()).thenReturn(1);
     DiffResult diffResult = mock(DiffResult.class);
     when(gitService.getDiff(eq(testWorkspace), eq(1))).thenReturn(diffResult);
     when(diffResult.getDeletedPaths()).thenReturn(
         Set.of("test_2/file_2_1.css", "test_2/file_2_1.js"));
 
-    List<JsonNode> result = provider.createPayload(inputs, context, pullRequestPayload);
+    List<CloudEvent> result = provider.createPayload(inputs, context, pullRequestPayload);
     assertFalse(result.isEmpty());
-    result.forEach(node -> {
-      assertTrue(node.get("key").textValue().equals("test_2/file_2_1.css")
-          || node.get("key").textValue().equals("test_2/file_2_1.js"));
-      assertEquals("unpublish", node.get("action").textValue());
-      assertTrue(node.get("payload").isNull());
+    result.forEach(event -> {
+      assertTrue(event.getSubject().equals("test_2/file_2_1.css")
+          || event.getSubject().equals("test_2/file_2_1.js"));
+      assertEquals(UNPUBLISH_EVENT_TYPE, event.getType());
+      assertTrue(event.getData() == null);
     });
   }
 

@@ -3,16 +3,14 @@ package dev.streamx.githhub.provider.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.exception.MissingRequiredInputException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.AbstractSourceProviderTest;
-import dev.streamx.ingestion.schema.SchemaProvider;
+import io.cloudevents.CloudEvent;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -27,18 +25,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class BatchSourceProviderTest extends AbstractSourceProviderTest {
 
+  private static final String PUBLISH_EVENT_TYPE =
+      "com.streamx.blueprints.web-resource.published.v1";
+
   private BatchSourceProvider provider;
   @Mock
   private Logger log;
-  @Mock
-  private SchemaProvider schemaProvider;
 
   @BeforeEach
   public void setUp() {
     provider = new BatchSourceProvider();
     provider.log = log;
     provider.objectMapper = objectMapper;
-    provider.schemaProvider = schemaProvider;
   }
 
   @Test
@@ -48,7 +46,7 @@ public class BatchSourceProviderTest extends AbstractSourceProviderTest {
 
   @Test
   public void testShouldThrowAnExceptionWhenIncludePatternsParameterMissing() {
-    mockIngestionSchemaInputParameters();
+    mockIngestionInputParameters();
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS))
         .thenReturn(Optional.empty());
     MissingRequiredInputException exception = assertThrows(
@@ -61,78 +59,47 @@ public class BatchSourceProviderTest extends AbstractSourceProviderTest {
 
   @Test
   public void testShouldFindMatchingScriptFilesForGivenWorkspace() throws GitHubActionException {
-    mockIngestionSchemaInputParameters();
+    mockIngestionInputParameters();
     Path testWorkspacePath = getTestWorkspacePath();
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.empty());
-    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.empty());
     when(inputs.get(Constants.INGESTION_WORKSPACE))
         .thenReturn(Optional.of(testWorkspacePath.toAbsolutePath().toString()));
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS))
         .thenReturn(Optional.of("[\"**/*.js\"]"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "ingestion_token", "pages"))
-        .thenReturn("dev.streamx.blueprints.data.WebResource");
 
-    List<JsonNode> result = provider.createPayload(inputs, context, payload);
+    List<CloudEvent> result = provider.createPayload(inputs, context, payload);
 
     assertFalse(result.isEmpty());
-    result.forEach(node -> {
-      assertTrue(StringUtils.endsWith(node.get("key").asText(), ".js"));
+    result.forEach(event -> {
+      assertFalse(StringUtils.isBlank(event.getSubject()));
+      assertFalse(StringUtils.isBlank(event.getType()));
+      assertEquals(PUBLISH_EVENT_TYPE, event.getType());
     });
   }
 
   @Test
-  public void testShouldFindMatchingScriptFilesForFallbackWorkspace() throws GitHubActionException {
-    mockIngestionSchemaInputParameters();
+  public void testShouldFindMatchingScriptFilesForFallbackWorkspace()
+      throws GitHubActionException {
+    mockIngestionInputParameters();
     Path testWorkspacePath = getTestWorkspacePath();
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.empty());
-    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.empty());
     when(inputs.get(Constants.INGESTION_WORKSPACE)).thenReturn(null);
     when(context.getGitHubWorkspace()).thenReturn(testWorkspacePath.toAbsolutePath().toString());
     when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS))
         .thenReturn(Optional.of("[\"**/*.js\"]"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "ingestion_token", "pages"))
-        .thenReturn("dev.streamx.blueprints.data.WebResource");
 
-    List<JsonNode> result = provider.createPayload(inputs, context, payload);
+    List<CloudEvent> result = provider.createPayload(inputs, context, payload);
 
     assertFalse(result.isEmpty());
-    result.forEach(node -> {
-      assertTrue(StringUtils.endsWith(node.get("key").asText(), ".js"));
+    result.forEach(event -> {
+      assertFalse(StringUtils.isBlank(event.getSubject()));
+      assertEquals(PUBLISH_EVENT_TYPE, event.getType());
     });
   }
 
-  @Test
-  public void testShouldSetGivenIngestionPayloadProperties() throws GitHubActionException {
-    mockIngestionSchemaInputParameters();
-    Path testWorkspacePath = getTestWorkspacePath();
-    when(inputs.get(Constants.INGESTION_TYPE)).thenReturn(Optional.of("page/blog"));
-    when(inputs.get(Constants.INGESTION_INDEXABLE)).thenReturn(Optional.of("true"));
-    when(inputs.get(Constants.INGESTION_WORKSPACE)).thenReturn(null);
-    when(context.getGitHubWorkspace()).thenReturn(testWorkspacePath.toAbsolutePath().toString());
-    when(inputs.get(Constants.INGESTION_INCLUDE_PATTERNS))
-        .thenReturn(Optional.of("[\"**/*.js\"]"));
-    when(schemaProvider.getSchemaType("https://ingestion.streamx.dev",
-        "ingestion_token", "pages"))
-        .thenReturn("dev.streamx.blueprints.data.WebResource");
-
-    List<JsonNode> result = provider.createPayload(inputs, context, payload);
-
-    assertFalse(result.isEmpty());
-    result.forEach(node -> {
-      assertEquals(node.get("properties").get("sx:type").asText(), "page/blog");
-      assertEquals(node.get("properties").get("indexable").asText(), "true");
-    });
-  }
-
-  private void mockIngestionSchemaInputParameters() {
+  private void mockIngestionInputParameters() {
     lenient().when(inputs.get(Constants.STREAMX_INGESTION_URL)).thenReturn(
         Optional.of("https://ingestion.streamx.dev"));
-    lenient().when(inputs.get(Constants.STREAMX_INGESTION_TOKEN)).thenReturn(
-        Optional.of("ingestion_token"));
-    lenient().when(inputs.get(Constants.INGESTION_CHANNEL)).thenReturn(
-        Optional.of("pages"));
+    lenient().when(inputs.get(Constants.PUBLISH_EVENT_TYPE)).thenReturn(
+        Optional.of(PUBLISH_EVENT_TYPE));
   }
 
 }

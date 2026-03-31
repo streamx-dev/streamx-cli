@@ -1,8 +1,8 @@
 package dev.streamx.ingestion.payload;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import dev.streamx.exception.GitHubActionException;
-import dev.streamx.ingestion.IngestionPayloadJsonFactory;
+import dev.streamx.ingestion.IngestionPayload;
+import io.cloudevents.CloudEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,19 +11,17 @@ import java.nio.file.Path;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 
-public class FilePayload extends AbstractSchemaTypePayload {
+public class FilePayload implements IngestionPayload {
 
   private static final Logger log = Logger.getLogger(FilePayload.class);
 
-  private final String action;
+  private final String eventType;
   private final String workspace;
   private final String filePath;
   private final String absolutePath;
 
-  public FilePayload(String action, String workspace, String filePath,
-      String schemaType) {
-    super(schemaType);
-    this.action = action;
+  public FilePayload(String eventType, String workspace, String filePath) {
+    this.eventType = eventType;
     this.workspace = workspace;
     this.filePath = filePath;
     this.absolutePath = resolveAbsolutPath();
@@ -36,27 +34,16 @@ public class FilePayload extends AbstractSchemaTypePayload {
   }
 
   @Override
-  public String getAction() {
-    return action;
-  }
-
-  public JsonNode resolve() throws GitHubActionException {
+  public CloudEvent resolve() throws GitHubActionException {
     byte[] bytes = readBytes(absolutePath);
     if (log.isDebugEnabled()) {
       log.debugf("Read file: %s, bytes length: %d", absolutePath, bytes.length);
     }
-    JsonNode bytesNode = toJsonNode(bytes);
-    JsonNode message = IngestionPayloadJsonFactory.createMessage(
-        filePath,
-        getAction(),
-        IngestionPayloadJsonFactory.createPayloadContent(bytesNode),
-        getIngestionProperties(),
-        getSchemaType()
-    );
+    CloudEvent event = CloudEventFactory.createPublishEvent(eventType, filePath, bytes);
     if (log.isDebugEnabled()) {
-      log.debugf("Message: %s", message.toPrettyString());
+      log.debugf("CloudEvent: type=%s, subject=%s", event.getType(), event.getSubject());
     }
-    return message;
+    return event;
   }
 
   private byte[] readBytes(String data) throws GitHubActionException {

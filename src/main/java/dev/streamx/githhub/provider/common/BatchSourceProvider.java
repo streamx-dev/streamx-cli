@@ -1,17 +1,14 @@
 package dev.streamx.githhub.provider.common;
 
-import static dev.streamx.githhub.Constants.INGESTION_INDEXABLE;
-import static dev.streamx.githhub.Constants.INGESTION_TYPE;
+import static dev.streamx.githhub.Constants.PUBLISH_EVENT_TYPE;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.streamx.clients.ingestion.publisher.Message;
 import dev.streamx.exception.GitHubActionException;
 import dev.streamx.githhub.Constants;
 import dev.streamx.githhub.provider.AbstractSourceProvider;
 import dev.streamx.githhub.utils.FilesUtils;
 import dev.streamx.ingestion.payload.FilePayload;
-import dev.streamx.ingestion.schema.SchemaProvider;
+import io.cloudevents.CloudEvent;
 import io.quarkiverse.githubaction.Context;
 import io.quarkiverse.githubaction.Inputs;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -32,8 +29,6 @@ public class BatchSourceProvider extends AbstractSourceProvider {
 
   @Inject
   Logger log;
-  @Inject
-  SchemaProvider schemaProvider;
 
   ObjectMapper objectMapper = new ObjectMapper();
 
@@ -48,50 +43,37 @@ public class BatchSourceProvider extends AbstractSourceProvider {
   }
 
   @Override
-  public List<JsonNode> createPayload(Inputs inputs, Context context, GHEventPayload payload)
+  public List<CloudEvent> createPayload(Inputs inputs, Context context, GHEventPayload payload)
       throws GitHubActionException {
     assertProviderRequiredInputParameters(inputs, Constants.STREAMX_INGESTION_URL,
-        Constants.INGESTION_CHANNEL, Constants.INGESTION_INCLUDE_PATTERNS);
+        Constants.PUBLISH_EVENT_TYPE, Constants.INGESTION_INCLUDE_PATTERNS);
     try {
-      String schemaType = getIngestionSchemaType(schemaProvider, inputs);
-      String ingestionType = getInputString(inputs, INGESTION_TYPE);
-      String ingestionIndexable = getInputString(inputs, INGESTION_INDEXABLE);
+      String eventType = getInputString(inputs, PUBLISH_EVENT_TYPE);
       String workspace = getWorkspace(inputs, context.getGitHubWorkspace());
       String[] includePatterns = getIncludePatterns(inputs);
       if (log.isDebugEnabled()) {
         log.debug("Creating ingestion payload for options:");
-        log.debug("schema type: " + schemaType);
-        log.debug("type: " + ingestionType);
-        log.debug("indexable: " + ingestionIndexable);
+        log.debug("event type: " + eventType);
         log.debug("workspace: " + workspace);
         log.debug("include patterns: " + includePatterns);
       }
       Set<String> paths = FilesUtils.listFilteredFiles(workspace, includePatterns);
-      return tranformToIngestionMessages(paths, Message.PUBLISH_ACTION, workspace,
-          schemaType, ingestionType, ingestionIndexable);
+      return transformToCloudEvents(paths, eventType, workspace);
     } catch (IOException exc) {
       log.error(exc.getMessage(), exc);
       return Collections.emptyList();
     }
   }
 
-  private List<JsonNode> tranformToIngestionMessages(Set<String> paths,
-      String action, String workspace, String schemaType, String ingestionType,
-      String ingestionIndexable) {
+  private List<CloudEvent> transformToCloudEvents(Set<String> paths,
+      String eventType, String workspace) {
     if (Objects.isNull(paths) || paths.isEmpty()) {
       return Collections.emptyList();
     }
     return paths.stream()
-        .map(path -> new FilePayload(action, workspace, path, schemaType))
-        .map(payload -> {
-          if (Objects.nonNull(ingestionType)) {
-            payload.setType(ingestionType);
-          }
-          if (Objects.nonNull(ingestionIndexable)) {
-            payload.setIndexable(ingestionIndexable);
-          }
+        .map(path -> {
           try {
-            return payload.resolve();
+            return new FilePayload(eventType, workspace, path).resolve();
           } catch (GitHubActionException exc) {
             log.error(exc.getMessage(), exc);
             return null;
@@ -100,6 +82,5 @@ public class BatchSourceProvider extends AbstractSourceProvider {
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
-
 
 }

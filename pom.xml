@@ -21,7 +21,8 @@
     <quarkus.github.action.version>2.6.0</quarkus.github.action.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.5.3</surefire-plugin.version>
-    <streamx.ingestion.client.version>1.1.1</streamx.ingestion.client.version>
+    <cloudevents.version>4.0.1</cloudevents.version>
+    <streamx.ingestion.client.version>2.0.31</streamx.ingestion.client.version>
   </properties>
 
   <dependencyManagement>
@@ -43,9 +44,19 @@
       <version>${json-path.version}</version>
     </dependency>
     <dependency>
-      <groupId>dev.streamx</groupId>
+      <groupId>com.streamx</groupId>
       <artifactId>ingestion-client</artifactId>
       <version>${streamx.ingestion.client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.cloudevents</groupId>
+      <artifactId>cloudevents-core</artifactId>
+      <version>${cloudevents.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.cloudevents</groupId>
+      <artifactId>cloudevents-json-jackson</artifactId>
+      <version>${cloudevents.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -272,6 +283,16 @@
       </snapshots>
       <id>streamx-maven-public-releases</id>
       <url>https://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-public-releases</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>streamx-maven-releases</id>
+      <url>artifactregistry://europe-west1-maven.pkg.dev/streamx-releases/streamx-maven-releases</url>
     </repository>
   </repositories>
 
